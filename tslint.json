@@ -1,0 +1,20 @@
+{
+  "extends": ["tslint:recommended", "tslint-react", "tslint-plugin-prettier", "tslint-config-prettier"],
+  "rules": {
+    "interface-name": false,
+    "no-any": false,
+    "max-classes-per-file": false,
+    "no-console": false,
+    "no-default-export": false,
+    "no-floating-promises": false,
+    "no-implicit-dependencies": false,
+    "no-import-side-effect": false,
+    "no-submodule-imports": false,
+    "no-unsafe-any": false,
+    "no-void-expression": [true, "ignore-arrow-function-shorthand"],
+    "object-literal-sort-keys": false,
+    "prettier": true
+  },
+  "jsRules": {},
+  "rulesDirectory": ["tslint-plugin-prettier"]
+}
