@@ -1,0 +1,71 @@
+{
+  "name": "three-vrm",
+  "version": "0.0.0",
+  "description": "TypeScript implementation of VRM for three.js.",
+  "license": "MIT",
+  "author": "remin",
+  "files": [
+    "lib",
+    "LICENSE"
+  ],
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rdrgn/three-vrm.git"
+  },
+  "scripts": {
+    "start": "webpack-dev-server",
+    "build": "rm -rf ./lib && tsc",
+    "gh-pages": "yarn webpack && gh-pages -d ./dist",
+    "webpack": "rm -rf ./dist && webpack",
+    "lint": "tslint --project tsconfig.json",
+    "fix": "tslint --fix --project tsconfig.json",
+    "prepack": "yarn lint && yarn build"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "tslint --fix",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "three-gltf-loader": "^1.95.0"
+  },
+  "devDependencies": {
+    "@types/react": "^16.4.7",
+    "@types/react-dom": "^16.0.6",
+    "@types/react-dropzone": "^4.2.1",
+    "@types/react-resize-detector": "^3.1.0",
+    "@types/three": "^0.92.14",
+    "awesome-typescript-loader": "^5.2.0",
+    "file-loader": "^1.1.11",
+    "gh-pages": "^1.2.0",
+    "html-webpack-plugin": "^3.2.0",
+    "husky": "^0.14.3",
+    "lint-staged": "^7.2.0",
+    "prettier": "^1.14.0",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "react-dropzone": "^4.3.0",
+    "react-resize-detector": "^3.1.0",
+    "three": "^0.95.0",
+    "three-orbitcontrols": "^2.1.2",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.14.0",
+    "tslint-loader": "^3.6.0",
+    "tslint-plugin-prettier": "^1.3.0",
+    "tslint-react": "^3.6.0",
+    "typescript": "^2.9.2",
+    "webpack": "^4.16.3",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.5"
+  },
+  "peerDependencies": {
+    "three": "^0.95.0"
+  }
+}
