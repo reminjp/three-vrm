@@ -62,9 +62,15 @@ export class VRMLoader {
               }
 
               // TODO: Support VRM shaders.
-
-              // if (property.shader === 'VRM/UnlitTexture') {
-              // }
+              if (property.shader === 'VRM/UnlitTexture') {
+                return new THREE.MeshBasicMaterial({
+                  color: 'color' in gltfMaterial && gltfMaterial.color,
+                  map: 'map' in gltfMaterial && gltfMaterial.map,
+                  lights: false,
+                  alphaTest: 0,
+                  skinning: true,
+                });
+              }
 
               // if (property.shader === 'VRM/UnlitCutout') {
               // }
@@ -75,22 +81,46 @@ export class VRMLoader {
               // if (property.shader === 'VRM/UnlitTransparentZWrite') {
               // }
 
-              // if (property.shader === 'VRM/MToon') {
-              // }
+              // TODO: Implement with ShaderMaterial.
+              if (property.shader === 'VRM/MToon') {
+                const center = Math.max(0, Math.min(1, (1 + property.floatProperties._ShadeShift) / 2));
+                const delta = Math.max(0, Math.min(1, 1 - property.floatProperties._ShadeToony));
 
-              const material = new THREE.MeshBasicMaterial();
-              if ('color' in gltfMaterial) {
-                material.color = gltfMaterial.color;
-              }
-              if ('map' in gltfMaterial) {
-                material.map = gltfMaterial.map;
-              }
-              material.lights = false;
-              material.alphaTest = 0.5;
-              material.skinning = true;
-              return material;
+                const lightColor = new THREE.Color(1, 1, 1);
+                const shadeColor = new THREE.Color(
+                  property.vectorProperties._ShadeColor[0],
+                  property.vectorProperties._ShadeColor[1],
+                  property.vectorProperties._ShadeColor[2]
+                );
 
-              // return gltfMaterial;
+                const size = 256;
+                const data = new Uint8Array(3 * size);
+                const color = new THREE.Color();
+
+                for (let i = 0; i < size; i++) {
+                  const stride = 3 * i;
+                  const t = Math.max(0, Math.min(1, (i / size - center + delta / 2) / delta));
+                  color.addColors(shadeColor.clone().multiplyScalar(1 - t), lightColor.clone().multiplyScalar(t));
+                  data[stride + 0] = Math.floor(255 * color.r);
+                  data[stride + 1] = Math.floor(255 * color.g);
+                  data[stride + 2] = Math.floor(255 * color.b);
+                }
+                const texture = new THREE.DataTexture(data, size, 1, THREE.RGBFormat);
+                texture.needsUpdate = true;
+
+                // MeshToonMaterial is not defined in @types/three.
+                return new (THREE as any).MeshToonMaterial({
+                  color: 'color' in gltfMaterial && gltfMaterial.color,
+                  map: 'map' in gltfMaterial && gltfMaterial.map,
+                  lights: true,
+                  shininess: false,
+                  alphaTest: 0.5,
+                  skinning: true,
+                  gradientMap: texture,
+                }) as THREE.MeshPhongMaterial;
+              }
+
+              return gltfMaterial;
             };
 
             if (Array.isArray(object.material)) {
