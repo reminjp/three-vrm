@@ -53,8 +53,6 @@ class App extends React.Component<{}, State> {
   }
 
   public onDrop(acceptedFiles: File[], rejectedFiles: File[]) {
-    console.log(acceptedFiles);
-
     if (acceptedFiles.length) {
       if (this.objectURL) {
         URL.revokeObjectURL(this.objectURL);

@@ -8,10 +8,6 @@ export class Humanoid {
   public upperArmTwist: number;
   public upperLegTwist: number;
   public humanBones: HumanBone[];
-
-  public getHumanBone(name: HumanBoneBoneType) {
-    return this.humanBones.find(humanBone => humanBone.bone === name);
-  }
 }
 
 export class HumanBone {
