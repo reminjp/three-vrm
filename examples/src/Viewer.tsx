@@ -89,6 +89,10 @@ export default class Viewer extends React.Component<Props, {}> {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(this.props.backgroundColor || '#000000');
 
+    const directionalLight = new THREE.DirectionalLight(0xffffff);
+    directionalLight.position.set(0, 1, -2);
+    this.scene.add(directionalLight);
+
     this.camera = new THREE.PerspectiveCamera(50, this.props.width / this.props.height);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement) as THREE.OrbitControls;
