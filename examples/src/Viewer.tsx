@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as THREE from 'three';
-import { VRM, VRMLoader } from '../../src';
+import * as VRM from '../../src';
 
 const OrbitControls = require('three-orbitcontrols'); // tslint:disable-line:no-var-requires
 
@@ -18,7 +18,7 @@ export default class Viewer extends React.Component<Props, {}> {
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
   private controls: THREE.OrbitControls;
-  private vrm: VRM;
+  private vrm: VRM.VRM;
 
   constructor(props: Props) {
     super(props);
@@ -42,7 +42,7 @@ export default class Viewer extends React.Component<Props, {}> {
   public componentDidUpdate(prevProps: Props) {
     // On screen resized.
     if (prevProps.width !== this.props.width || prevProps.height !== this.props.height) {
-      console.log(`${this.constructor.name}:`, 'width', this.props.width, 'height', this.props.height);
+      console.log('Resize', 'width', this.props.width, 'height', this.props.height);
 
       if (this.renderer) {
         this.renderer.setSize(this.props.width, this.props.height);
@@ -112,57 +112,31 @@ export default class Viewer extends React.Component<Props, {}> {
       this.scene.remove(this.vrm.scene);
     }
 
-    const vrmLoader = new VRMLoader();
+    const vrmLoader = new VRM.VRMLoader();
 
     vrmLoader.load(
       this.props.model,
-      (vrm: VRM) => {
+      (vrm: VRM.VRM) => {
         this.vrm = vrm;
         this.modelDidLoad();
       },
       (progress: ProgressEvent) => {
-        console.log(`${this.constructor.name}: Loading model... (${100 * (progress.loaded / progress.total)} %)`);
+        console.log('Loading model...', 100 * (progress.loaded / progress.total), '%');
       },
       (error: ErrorEvent) => {
-        console.error(`${this.constructor.name}: `, error);
+        console.error(error);
       }
     );
   }
 
   private modelDidLoad() {
-    // Convert all materials to MeshBasicMaterial because VRM Unlit extension is not supported yet.
-    this.vrm.scene.traverse((object: THREE.Object3D) => {
-      if (object instanceof THREE.Mesh) {
-        if (Array.isArray(object.material)) {
-          for (let i = 0, il = object.material.length; i < il; i++) {
-            const material = new THREE.MeshBasicMaterial();
-            THREE.Material.prototype.copy.call(material, object.material[i]);
-            material.color.copy((object.material[i] as any).color);
-            material.map = (object.material[i] as any).map;
-            material.lights = false;
-            material.skinning = true; // To enable bones.
-            material.alphaTest = 0.5;
-            object.material[i] = material;
-          }
-        } else {
-          const material = new THREE.MeshBasicMaterial();
-          THREE.Material.prototype.copy.call(material, object.material);
-          material.color.copy((object.material as any).color);
-          material.map = (object.material as any).map;
-          material.lights = false;
-          material.skinning = true; // To enable bones.
-          material.alphaTest = 0.5;
-          object.material = material;
-        }
-      }
-    });
-
-    console.log(`${this.constructor.name}:`, 'vrm', this.vrm);
+    console.log('VRM', this.vrm);
 
     this.scene.add(this.vrm.scene);
 
     this.scene.updateMatrixWorld(true);
-    const headBone = this.vrm.nodes[this.vrm.humanoid.getHumanBone('head').node];
+    const headNodeIndex = this.vrm.humanoid.humanBones.find(humanBone => humanBone.bone === 'head').node;
+    const headBone = this.vrm.nodes[headNodeIndex].object3d;
     const headY = headBone.getWorldPosition(new THREE.Vector3()).y;
     this.camera.position.set(0, headY, -headY);
     this.controls.target.set(0, 0.75 * headY, 0);
