@@ -11,8 +11,12 @@ interface Props {
   backgroundColor?: string;
 }
 
-export default class Viewer extends React.Component<Props, {}> {
-  private isInitialized: boolean;
+interface State {
+  isInitialized: boolean;
+  isBusy: boolean;
+}
+
+export default class Viewer extends React.Component<Props, State> {
   private requestID: number;
   private renderer: THREE.WebGLRenderer;
   private scene: THREE.Scene;
@@ -22,9 +26,7 @@ export default class Viewer extends React.Component<Props, {}> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { isInitialized: false, isLoaded: false };
-
-    this.isInitialized = false;
+    this.state = { isInitialized: false, isBusy: false };
 
     this.update = this.update.bind(this);
   }
@@ -99,11 +101,11 @@ export default class Viewer extends React.Component<Props, {}> {
     this.controls.enablePan = false;
     this.controls.target.set(0, 1, 0);
 
-    this.isInitialized = true;
+    this.setState({ isInitialized: true });
   }
 
   private renderScene() {
-    if (!this.isInitialized) {
+    if (!this.state.isInitialized) {
       return;
     }
 
@@ -112,6 +114,11 @@ export default class Viewer extends React.Component<Props, {}> {
   }
 
   private loadModel() {
+    if (this.state.isBusy) {
+      return;
+    }
+    this.setState({ isBusy: true });
+
     if (this.vrm) {
       this.scene.remove(this.vrm.scene);
     }
@@ -123,6 +130,7 @@ export default class Viewer extends React.Component<Props, {}> {
       (vrm: VRM.VRM) => {
         this.vrm = vrm;
         this.modelDidLoad();
+        this.setState({ isBusy: false });
       },
       (progress: ProgressEvent) => {
         console.log('Loading model...', 100 * (progress.loaded / progress.total), '%');
