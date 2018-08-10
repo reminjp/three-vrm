@@ -1,6 +1,8 @@
 # three-vrm
 
-TypeScript/JavaScript implementation of VRMLoader in three.js.
+**This package is still under development. The usage may be changed.**
+
+TypeScript/JavaScript implementation of VRM for three.js.
 
 ## Dependencies
 
@@ -12,23 +14,30 @@ yarn add three
 
 ## Usage
 
+Install the [package](https://www.npmjs.com/package/three-vrm) and import it.
+
 ```sh
 yarn add three-vrm
 ```
 
+Load a VRM file with `VRMLoader`.
+
 ```ts
+import * as THREE from 'three';
 import { VRM, VRMLoader } from 'three-vrm';
+
+const scene = new THREE.Scene();
 
 const vrmLoader = new VRMLoader();
 
 vrmLoader.load(
-  'MyModel.vrm',
+  'model.vrm',
   (vrm: VRM) => {
     console.log(vrm);
-    myScene.add(vrm.scene);
+    scene.add(vrm.scene);
   },
   (progress: ProgressEvent) => {
-    console.log(`Loading... (${100 * (progress.loaded / progress.total)} %)`);
+    console.log(progress.loaded / progress.total);
   },
   (error: ErrorEvent) => {
     console.error(error);
