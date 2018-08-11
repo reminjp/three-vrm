@@ -37,7 +37,7 @@ class App extends React.Component<{}, State> {
                 model={this.state.model}
                 width={width || window.innerWidth}
                 height={height || window.innerHeight}
-                backgroundColor={'#616161'}
+                backgroundColor={'#212121'}
               />
             )}
           </ReactResizeDetector>
