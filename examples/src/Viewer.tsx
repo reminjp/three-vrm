@@ -95,10 +95,13 @@ export default class Viewer extends React.Component<Props, State> {
     directionalLight.position.set(0, 1, -2);
     this.scene.add(directionalLight);
 
-    this.camera = new THREE.PerspectiveCamera(50, this.props.width / this.props.height);
+    const axesHelper = new THREE.AxesHelper(1000);
+    this.scene.add(axesHelper);
+
+    this.camera = new THREE.PerspectiveCamera(50, this.props.width / this.props.height, 0.01);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement) as THREE.OrbitControls;
-    this.controls.enablePan = false;
+    (this.controls as any).screenSpacePanning = true;
     this.controls.target.set(0, 1, 0);
 
     this.setState({ isInitialized: true });
@@ -146,7 +149,7 @@ export default class Viewer extends React.Component<Props, State> {
 
     this.scene.add(this.vrm.scene);
 
-    const headY = 1.25;
+    const headY = 1.5;
     this.camera.position.set(0, headY, -headY);
     this.controls.target.set(0, 0.75 * headY, 0);
 
