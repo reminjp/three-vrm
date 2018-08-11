@@ -146,10 +146,7 @@ export default class Viewer extends React.Component<Props, State> {
 
     this.scene.add(this.vrm.scene);
 
-    this.scene.updateMatrixWorld(true);
-    const headNodeIndex = this.vrm.humanoid.humanBones.find(humanBone => humanBone.bone === 'head').node;
-    const headBone = this.vrm.nodes[headNodeIndex].object3d;
-    const headY = headBone.getWorldPosition(new THREE.Vector3()).y;
+    const headY = 1.25;
     this.camera.position.set(0, headY, -headY);
     this.controls.target.set(0, 0.75 * headY, 0);
 
