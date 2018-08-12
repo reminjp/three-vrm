@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { UnityShaderMaterial } from '../materials/UnityShaderMaterial';
 import { BlendShapeMaster } from './BlendShapeMaster';
 import { FirstPerson } from './FirstPerson';
 import { Humanoid } from './Humanoid';
@@ -58,11 +59,12 @@ export class VRM {
     this.parser = gltf.parser;
     this.userData = gltf.userData;
 
-    this.materialProperties = gltf.userData.gltfExtensions.VRM.materialProperties.map((object: any) => {
+    this.materialProperties = [];
+    for (const object of gltf.userData.gltfExtensions.VRM.materialProperties) {
       const property = new MaterialProperty();
-      Object.assign(property, object);
-      return property;
-    });
+      await property.fromObject(object, this.parser);
+      this.materialProperties.push(property);
+    }
 
     this.humanoid = new Humanoid();
     Object.assign(this.humanoid, gltf.userData.gltfExtensions.VRM.humanoid);
@@ -79,122 +81,26 @@ export class VRM {
     this.secondaryAnimation = new SecondaryAnimation();
     Object.assign(this.secondaryAnimation, gltf.userData.gltfExtensions.VRM.secondaryAnimation);
 
-    const object3ds: THREE.Object3D[] = [];
     this.scene.traverse((object3d: THREE.Object3D) => {
-      object3ds.push(object3d);
-    });
-
-    for (const object3d of object3ds) {
       if (object3d instanceof THREE.Mesh) {
         if (Array.isArray(object3d.material)) {
           for (let i = 0; i < object3d.material.length; ++i) {
-            const index = this.materialProperties.findIndex(
+            const property = this.materialProperties.find(
               p => p.name === (object3d.material as THREE.MeshMaterialType[])[i].name
             );
-            object3d.material[i] = await this.loadMaterial(index);
+            const material = new UnityShaderMaterial({ skinning: true });
+            material.fromMaterialProperty(property);
+            object3d.material[i] = material;
           }
         } else {
-          const index = this.materialProperties.findIndex(p => p.name === (object3d.material as THREE.Material).name);
-          console.log(object3d.material);
-          object3d.material = await this.loadMaterial(index);
-          console.log(object3d.material);
+          const property = this.materialProperties.find(p => p.name === (object3d.material as THREE.Material).name);
+          const material = new UnityShaderMaterial({ skinning: true });
+          material.fromMaterialProperty(property);
+          object3d.material = material;
         }
       }
-    }
+    });
 
     return this;
-  }
-
-  public async loadMaterial(index: number) {
-    const property = this.materialProperties[index];
-
-    const name = property.name;
-
-    const mapIndex = property.textureProperties._MainTex;
-    const bumpMapIndex = property.textureProperties._BumpMap;
-    const emissiveMapIndex = property.textureProperties._EmissionMap;
-
-    const map = mapIndex !== undefined ? await this.parser.loadTexture(mapIndex) : undefined;
-    const bumpMap = bumpMapIndex !== undefined ? await this.parser.loadTexture(bumpMapIndex) : undefined;
-    const emissiveMap = emissiveMapIndex !== undefined ? await this.parser.loadTexture(emissiveMapIndex) : undefined;
-
-    if (map) {
-      map.encoding = THREE.sRGBEncoding;
-    }
-    if (emissiveMap) {
-      emissiveMap.encoding = THREE.sRGBEncoding;
-    }
-
-    const color = new THREE.Color();
-    if (property.vectorProperties._Color) {
-      color.fromArray(property.vectorProperties._Color);
-    }
-
-    const alphaTest = property.floatProperties._Cutoff;
-
-    if (property.shader === 'VRM/UnlitTexture') {
-      return new THREE.MeshBasicMaterial({
-        name,
-        color,
-        map,
-        skinning: true,
-      });
-    }
-
-    if (property.shader === 'VRM/UnlitCutout') {
-      return new THREE.MeshBasicMaterial({
-        name,
-        color,
-        map,
-        alphaTest,
-        skinning: true,
-      });
-    }
-
-    if (property.shader === 'VRM/UnlitTransparent') {
-      return new THREE.MeshBasicMaterial({
-        name,
-        color,
-        map,
-        // depthTest: false,
-        transparent: true,
-        skinning: true,
-      });
-    }
-
-    if (property.shader === 'VRM/UnlitTransparentZWrite') {
-      return new THREE.MeshBasicMaterial({
-        name,
-        color,
-        map,
-        transparent: true,
-        skinning: true,
-      });
-    }
-
-    if (property.shader === 'VRM/MToon') {
-      // MeshToonMaterial is not defined in @types/three.
-      return new (THREE as any).MeshToonMaterial({
-        name,
-        color,
-        map,
-        bumpMap,
-        emissiveMap,
-        lights: true,
-        shininess: 0,
-        transparent: property.tagMap.RenderType === 'Transparent',
-        alphaTest: property.tagMap.RenderType === 'Cutout' ? alphaTest : 0,
-        skinning: true,
-      }) as THREE.MeshPhongMaterial;
-    }
-
-    console.warn(`Unknown shader: ${property.shader}`);
-
-    return new THREE.MeshBasicMaterial({
-      name,
-      color,
-      map,
-      skinning: true,
-    });
   }
 }
