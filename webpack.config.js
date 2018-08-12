@@ -20,6 +20,10 @@ module.exports = {
         use: 'awesome-typescript-loader',
       },
       {
+        test: /\.glsl$/,
+        use: 'raw-loader',
+      },
+      {
         test: /\.vrm$/,
         use: [
           {
