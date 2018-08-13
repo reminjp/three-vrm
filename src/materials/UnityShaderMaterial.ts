@@ -10,7 +10,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
     'VRM/UnlitTexture',
     {
       defines: {},
-      uniforms: { v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
+      uniforms: { f_Cutoff: 0.0, v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
     },
@@ -19,7 +19,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
     'VRM/UnlitCutout',
     {
       defines: {},
-      uniforms: { v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
+      uniforms: { f_Cutoff: 0.0, v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
     },
@@ -28,7 +28,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
     'VRM/UnlitTransparent',
     {
       defines: {},
-      uniforms: { v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
+      uniforms: { f_Cutoff: 0.0, v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
     },
@@ -37,7 +37,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
     'VRM/UnlitTransparentZWrite',
     {
       defines: {},
-      uniforms: { v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
+      uniforms: { f_Cutoff: 0.0, v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
     },
