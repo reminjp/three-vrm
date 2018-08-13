@@ -1,13 +1,14 @@
-precision highp float;
-precision highp int;
-
-uniform sampler2D _MainTex;
+uniform sampler2D t_MainTex;
+uniform vec4 v_Color;
 varying vec2 vUv;
-varying vec4 vColor;
 
 void main() {
-  vec4 color = vColor;
-  vec4 texelColor = texture2D(_MainTex, vUv);
+  vec4 color = vec4(1.0);
+  color.rgb = v_Color.rgb;
+
+  vec4 texelColor = texture2D(t_MainTex, vUv);
+  texelColor = sRGBToLinear(texelColor);
   color *= texelColor;
+
   gl_FragColor = color;
 }

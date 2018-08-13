@@ -10,7 +10,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
     'VRM/UnlitTexture',
     {
       defines: {},
-      uniforms: {},
+      uniforms: { v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
     },
@@ -19,7 +19,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
     'VRM/UnlitCutout',
     {
       defines: {},
-      uniforms: {},
+      uniforms: { v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
     },
@@ -28,7 +28,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
     'VRM/UnlitTransparent',
     {
       defines: {},
-      uniforms: {},
+      uniforms: { v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
     },
@@ -37,7 +37,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
     'VRM/UnlitTransparentZWrite',
     {
       defines: {},
-      uniforms: {},
+      uniforms: { v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
     },
@@ -46,20 +46,20 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
     'VRM/MToon',
     {
       defines: {},
-      uniforms: {},
+      uniforms: { v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
       vertexShader: MToonVertexShader,
       fragmentShader: MToonFragmentShader,
     },
   ],
 ]);
 
-export class UnityShaderMaterial extends THREE.RawShaderMaterial {
+export class UnityShaderMaterial extends THREE.ShaderMaterial {
   [key: string]: any;
 
   constructor(parameters?: THREE.ShaderMaterialParameters) {
     super(parameters);
 
-    this.uniforms = THREE.UniformsUtils.merge([this.uniforms, { _Color: { value: new THREE.Color(0xff00ff) } }]);
+    Object.assign(this.uniforms, { v_Color: { value: [1.0, 0.0, 1.0, 1.0] } });
     this.vertexShader = UnlitVertexShader;
     this.fragmentShader = UnlitFragmentShader;
   }
@@ -77,7 +77,7 @@ export class UnityShaderMaterial extends THREE.RawShaderMaterial {
     const uniforms: any = {};
 
     for (const key of Object.keys(property.floatProperties)) {
-      uniforms[key] = { value: property.floatProperties[key] };
+      uniforms['f' + key] = { value: property.floatProperties[key] };
     }
 
     for (const key of Object.keys(property.keywordMap)) {
@@ -89,18 +89,22 @@ export class UnityShaderMaterial extends THREE.RawShaderMaterial {
     // }
 
     for (const key of Object.keys(property.textureProperties)) {
-      uniforms[key] = { value: property.textureProperties[key] };
+      uniforms['t' + key] = { value: property.textureProperties[key] };
     }
 
     for (const key of Object.keys(property.vectorProperties)) {
-      uniforms[key] = { value: property.vectorProperties[key] };
+      const array = property.vectorProperties[key];
+      array.length = 4;
+      uniforms['v' + key] = { value: array };
     }
 
-    Object.assign(this.defines, Object.assign(parameters.defines, defines));
-    this.uniforms = THREE.UniformsUtils.merge([this.uniforms, parameters.uniforms, uniforms]);
+    Object.assign(this.defines, parameters.defines);
+    Object.assign(this.defines, defines);
+
+    Object.assign(this.uniforms, parameters.uniforms);
+    Object.assign(this.uniforms, uniforms);
+
     this.vertexShader = parameters.vertexShader;
     this.fragmentShader = parameters.fragmentShader;
-
-    this.needsUpdate = true;
   }
 }
