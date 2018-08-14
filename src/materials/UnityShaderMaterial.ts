@@ -13,6 +13,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
       uniforms: { f_Cutoff: 0.0, v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
+      lights: false,
     },
   ],
   [
@@ -22,6 +23,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
       uniforms: { f_Cutoff: 0.0, v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
+      lights: false,
     },
   ],
   [
@@ -31,6 +33,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
       uniforms: { f_Cutoff: 0.0, v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
+      lights: false,
     },
   ],
   [
@@ -40,13 +43,14 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
       uniforms: { f_Cutoff: 0.0, v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
+      lights: false,
     },
   ],
   [
     'VRM/MToon',
     {
       defines: {},
-      uniforms: { v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
+      uniforms: { ...THREE.UniformsLib.lights, v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
       vertexShader: MToonVertexShader,
       fragmentShader: MToonFragmentShader,
       lights: true,
@@ -107,6 +111,6 @@ export class UnityShaderMaterial extends THREE.ShaderMaterial {
 
     this.vertexShader = parameters.vertexShader;
     this.fragmentShader = parameters.fragmentShader;
-    // this.lights = parameters.lights;
+    this.lights = parameters.lights;
   }
 }
