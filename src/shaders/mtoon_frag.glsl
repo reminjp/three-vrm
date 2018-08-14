@@ -1,7 +1,9 @@
 uniform float f_Cutoff;
+// uniform int f_CullMode;
 uniform sampler2D t_MainTex;
 uniform sampler2D t_SphereAdd;
 uniform vec4 v_Color;
+varying mat3 vNormalMatrix;
 varying vec3 vNormal;
 varying vec2 vUv;
 
@@ -12,12 +14,11 @@ void main() {
   if ( diffuseColor.a < f_Cutoff ) discard;
   vec4 color = diffuseColor;
 
-  vec3 viewUp = vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
-  vec3 viewRight = vec3(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
-  vec2 rimUv = vec2(dot(viewRight, vNormal), dot(viewUp, vNormal)) * 0.5 + 0.5;
+  vec3 viewNormal = vNormalMatrix * vNormal;
+  vec2 rimUv = vec2(dot(vec3(1, 0, 0), viewNormal), -dot(vec3(0, 1, 0), viewNormal)) * 0.5 + 0.5;
   vec4 rimColor = texture2D(t_SphereAdd, rimUv);
   color += rimColor;
 
-  gl_FragColor = color;
+  gl_FragColor = clamp(color, 0.0, 1.0);
   gl_FragColor = sRGBToLinear(gl_FragColor);
 }
