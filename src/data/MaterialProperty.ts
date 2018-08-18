@@ -4,11 +4,11 @@ export class MaterialProperty {
   public name: string;
   public shader: string;
   public renderQueue: number;
-  public floatProperties: any;
-  public keywordMap: any;
-  public tagMap: any;
-  public textureProperties: any;
-  public vectorProperties: any;
+  public floatProperties: { [key: string]: number };
+  public keywordMap: { [key: string]: any };
+  public tagMap: { [key: string]: boolean };
+  public textureProperties: { [key: string]: THREE.Texture };
+  public vectorProperties: { [key: string]: THREE.Vector4 };
 
   constructor() {
     this.name = '';
@@ -35,7 +35,7 @@ export class MaterialProperty {
     }
 
     for (const key of Object.keys(object.tagMap)) {
-      this.tagMap[key] = object.tagMap[key];
+      this.tagMap[key] = Boolean(object.tagMap[key]);
     }
 
     for (const key of Object.keys(object.textureProperties)) {
@@ -48,7 +48,9 @@ export class MaterialProperty {
     }
 
     for (const key of Object.keys(object.vectorProperties)) {
-      this.vectorProperties[key] = object.vectorProperties[key];
+      const array = object.vectorProperties[key];
+      array.length = 4;
+      this.vectorProperties[key] = new THREE.Vector4().fromArray(array);
     }
   }
 }

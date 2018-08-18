@@ -30,33 +30,88 @@ uniform float f_DstBlend; // Blend [SrcFactor] [DstFactor]
 uniform int f_ZWrite; // ZWrite [On | Off]
 uniform int f_IsFirstSetup;
 
-varying mat3 vNormalMatrix;
-varying vec3 vNormal;
-varying vec2 vUv;
+// varying mat3 vNormalMatrix;
+// varying vec3 vNormal;
+// varying vec2 vUv;
+
+//
+#define PHONG
+
+uniform vec3 diffuse;
+uniform vec3 emissive;
+uniform vec3 specular;
+uniform float shininess;
+uniform float opacity;
+
+#include <common>
+#include <packing>
+#include <dithering_pars_fragment>
+#include <color_pars_fragment>
+#include <uv_pars_fragment>
+#include <uv2_pars_fragment>
+#include <map_pars_fragment>
+#include <alphamap_pars_fragment>
+#include <aomap_pars_fragment>
+#include <lightmap_pars_fragment>
+#include <emissivemap_pars_fragment>
+#include <envmap_pars_fragment>
+#include <gradientmap_pars_fragment>
+#include <fog_pars_fragment>
+#include <bsdfs>
+#include <lights_pars_begin>
+#include <lights_phong_pars_fragment>
+#include <shadowmap_pars_fragment>
+#include <bumpmap_pars_fragment>
+#include <normalmap_pars_fragment>
+#include <specularmap_pars_fragment>
+#include <logdepthbuf_pars_fragment>
+#include <clipping_planes_pars_fragment>
 
 void main() {
-  vec4 diffuseColor = vec4(v_Color.rgb, 1.0);
-  vec4 texelColor = texture2D(t_MainTex, vUv);
-  diffuseColor *= texelColor;
-  if ( diffuseColor.a < f_Cutoff ) discard;
-  vec4 color = diffuseColor;
 
-  // Additive matcap
-  vec3 viewNormal = vNormalMatrix * vNormal;
-  vec2 rimUv = vec2(dot(vec3(1, 0, 0), viewNormal), -dot(vec3(0, 1, 0), viewNormal)) * 0.5 + 0.5;
+  #include <clipping_planes_fragment>
+
+  vec4 diffuseColor = vec4( diffuse, opacity );
+  ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
+  vec3 totalEmissiveRadiance = emissive;
+
+  #include <logdepthbuf_fragment>
+  #include <map_fragment>
+  #include <color_fragment>
+  #include <alphamap_fragment>
+  #include <alphatest_fragment>
+  #include <specularmap_fragment>
+  #include <normal_fragment_begin>
+  #include <normal_fragment_maps>
+  #include <emissivemap_fragment>
+
+  // accumulation
+  #include <lights_phong_fragment>
+  #include <lights_fragment_begin>
+  #include <lights_fragment_maps>
+  #include <lights_fragment_end>
+
+  // modulation
+  #include <aomap_fragment>
+
+  vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
+
+  #include <envmap_fragment>
+
+  outgoingLight = clamp(outgoingLight, 0.0, 1.0);
+
+  // MToon additive matcap
+  vec3 viewNormal = normalize(normal);
+  vec2 rimUv = vec2(dot(vec3(1.0, 0.0, 0.0), normal), -dot(vec3(0.0, 1.0, 0.0), normal)) * 0.5 + 0.5;
   vec4 rimColor = texture2D(t_SphereAdd, rimUv);
-  color += rimColor;
+  outgoingLight += rimColor.rgb;
 
-  // Energy conservation
-  // vec4 energy = vec4(0.0); // Light color
-  // float energyMax = max(0.001, max(energy.r, max(energy.g, energy.b)));
-  // float colorMax = max(0.001, max(color.r, max(color.g, color.b)));
-  // color *= min(energyMax, colorMax) / colorMax;
+  gl_FragColor = vec4( outgoingLight, diffuseColor.a );
 
-  // Emission
-  vec4 emissionColor = texture2D(t_EmissionMap, vUv) * v_EmissionColor;
-  color += emissionColor;
+  #include <tonemapping_fragment>
+  #include <encodings_fragment>
+  #include <fog_fragment>
+  #include <premultiplied_alpha_fragment>
+  #include <dithering_fragment>
 
-  gl_FragColor = clamp(color, 0.0, 1.0);
-  gl_FragColor = sRGBToLinear(gl_FragColor);
 }

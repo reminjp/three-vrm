@@ -13,7 +13,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
       uniforms: {
         ...THREE.ShaderLib.basic.uniforms,
         f_Cutoff: { value: 0.0 },
-        v_Color: { value: [1.0, 1.0, 1.0, 1.0] },
+        v_Color: { value: new THREE.Vector4(1.0, 1.0, 1.0, 1.0) },
       },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
@@ -27,7 +27,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
       uniforms: {
         ...THREE.ShaderLib.basic.uniforms,
         f_Cutoff: { value: 0.0 },
-        v_Color: { value: [1.0, 1.0, 1.0, 1.0] },
+        v_Color: { value: new THREE.Vector4(1.0, 1.0, 1.0, 1.0) },
       },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
@@ -41,7 +41,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
       uniforms: {
         ...THREE.ShaderLib.basic.uniforms,
         f_Cutoff: { value: 0.0 },
-        v_Color: { value: [1.0, 1.0, 1.0, 1.0] },
+        v_Color: { value: new THREE.Vector4(1.0, 1.0, 1.0, 1.0) },
       },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
@@ -55,7 +55,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
       uniforms: {
         ...THREE.ShaderLib.basic.uniforms,
         f_Cutoff: { value: 0.0 },
-        v_Color: { value: [1.0, 1.0, 1.0, 1.0] },
+        v_Color: { value: new THREE.Vector4(1.0, 1.0, 1.0, 1.0) },
       },
       vertexShader: UnlitVertexShader,
       fragmentShader: UnlitFragmentShader,
@@ -66,7 +66,11 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
     'VRM/MToon',
     {
       defines: {},
-      uniforms: { ...THREE.UniformsLib.lights, v_Color: { value: [1.0, 1.0, 1.0, 1.0] } },
+      uniforms: {
+        ...THREE.ShaderLib.phong.uniforms,
+        f_Cutoff: { value: 0.0 },
+        v_Color: { value: new THREE.Vector4(1.0, 1.0, 1.0, 1.0) },
+      },
       vertexShader: MToonVertexShader,
       fragmentShader: MToonFragmentShader,
       lights: true,
@@ -78,14 +82,14 @@ const convertParameters = new Map<string, (material: UnityShaderMaterial) => voi
   [
     'common',
     material => {
-      material.defines.USE_COLOR = true;
       if (material.uniforms.f_Cutoff) {
         material.defines.ALPHATEST = (material.uniforms.f_Cutoff.value as number).toFixed(6);
       }
 
       const color = material.uniforms.v_Color.value;
-      material.uniforms.diffuse = { value: [color[0], color[1], color[2]] };
-      material.uniforms.opacity = { value: color[3] };
+      material.uniforms.diffuse = { value: new THREE.Color(color.x, color.y, color.z) };
+      material.uniforms.opacity = { value: color.w };
+
       if (material.uniforms.t_MainTex) {
         material.map = material.uniforms.t_MainTex.value;
         material.uniforms.map = material.uniforms.t_MainTex;
@@ -96,7 +100,16 @@ const convertParameters = new Map<string, (material: UnityShaderMaterial) => voi
   ['VRM/UnlitCutout', material => null],
   ['VRM/UnlitTransparent', material => null],
   ['VRM/UnlitTransparentZWrite', material => null],
-  ['VRM/MToon', material => null],
+  [
+    'VRM/MToon',
+    material => {
+      material.uniforms.shininess = { value: 0.0 };
+
+      if (material.uniforms.t_BumpMap) {
+        material.bumpMap = material.uniforms.t_BumpMap.value;
+      }
+    },
+  ],
 ]);
 
 export class UnityShaderMaterial extends THREE.ShaderMaterial {
@@ -105,9 +118,9 @@ export class UnityShaderMaterial extends THREE.ShaderMaterial {
   constructor(parameters?: THREE.ShaderMaterialParameters) {
     super(parameters);
 
-    Object.assign(this.uniforms, { v_Color: { value: [1.0, 0.0, 1.0, 1.0] } });
-    this.vertexShader = UnlitVertexShader;
-    this.fragmentShader = UnlitFragmentShader;
+    Object.assign(this.uniforms, { v_Color: { value: new THREE.Vector4(1.0, 0.0, 1.0, 1.0) } });
+    this.vertexShader = THREE.ShaderLib.basic.vertexShader;
+    this.fragmentShader = THREE.ShaderLib.basic.fragmentShader;
 
     convertParameters.get('common')(this);
   }
@@ -141,9 +154,7 @@ export class UnityShaderMaterial extends THREE.ShaderMaterial {
     }
 
     for (const key of Object.keys(property.vectorProperties)) {
-      const array = property.vectorProperties[key];
-      array.length = 4;
-      uniforms['v' + key] = { value: array };
+      uniforms['v' + key] = { value: property.vectorProperties[key] };
     }
 
     Object.assign(this.defines, parameters.defines);
