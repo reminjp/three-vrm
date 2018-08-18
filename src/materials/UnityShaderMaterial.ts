@@ -112,6 +112,25 @@ const convertParameters = new Map<string, (material: UnityShaderMaterial) => voi
     material => {
       material.uniforms.shininess = { value: 0.0 };
 
+      switch (material.userData.RenderType) {
+        case 'Opaque': {
+          material.defines.ALPHATEST = 0;
+          break;
+        }
+        case 'Cutout': {
+          break;
+        }
+        case 'Transparent': {
+          material.defines.ALPHATEST = 0;
+          material.transparent = true;
+          break;
+        }
+        case 'TransparentCutout': {
+          material.transparent = true;
+          break;
+        }
+      }
+
       if (material.uniforms.f_BumpScale) {
         material.bumpScale = material.uniforms.f_BumpScale.value;
       }
@@ -124,6 +143,23 @@ const convertParameters = new Map<string, (material: UnityShaderMaterial) => voi
       }
       if (material.uniforms.t_EmissionMap) {
         material.emissiveMap = material.uniforms.t_EmissionMap.value;
+      }
+
+      if (material.uniforms.f_CullMode) {
+        switch (material.uniforms.f_CullMode.value) {
+          case 0: {
+            material.side = THREE.FrontSide;
+            break;
+          }
+          case 1: {
+            material.side = THREE.BackSide;
+            break;
+          }
+          case 2: {
+            material.side = THREE.DoubleSide;
+            break;
+          }
+        }
       }
     },
   ],
@@ -162,9 +198,9 @@ export class UnityShaderMaterial extends THREE.ShaderMaterial {
       defines[key] = property.keywordMap[key];
     }
 
-    // for (const key of Object.keys(property.tagMap)) {
-    //   uniforms[key] = { value: property.tagMap[key] };
-    // }
+    for (const key of Object.keys(property.tagMap)) {
+      this.userData[key] = { value: property.tagMap[key] };
+    }
 
     for (const key of Object.keys(property.textureProperties)) {
       uniforms['t' + key] = { value: property.textureProperties[key] };
