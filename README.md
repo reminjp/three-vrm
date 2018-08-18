@@ -1,8 +1,11 @@
 # three-vrm
 
-**This package is still under development. The usage may be changed.**
+**This package is still under development.**
+**The usage may be destructively changed.**
 
-TypeScript/JavaScript implementation of VRM for three.js.
+TypeScript/JavaScript implementation of [VRM](https://dwango.github.io/en/vrm/) for three.js.
+
+[VRM](https://dwango.github.io/vrm/)形式の3Dモデルをthree.jsで使用するためのパッケージです。
 
 ## Dependencies
 
@@ -14,13 +17,15 @@ yarn add three
 
 ## Usage
 
-Install the [package](https://www.npmjs.com/package/three-vrm) and import it.
+Install the [package](https://www.npmjs.com/package/three-vrm) from `npm` and import it.
 
 ```sh
 yarn add three-vrm
 ```
 
-Load a VRM file with `VRMLoader`.
+This code loads a VRM file with `VRMLoader`.
+You have to create a `Scene`, a `Camera`, and a `WebGLRenderer` to render the VRM.
+See the usage of [three.js](https://github.com/mrdoob/three.js/).
 
 ```ts
 import * as THREE from 'three';
