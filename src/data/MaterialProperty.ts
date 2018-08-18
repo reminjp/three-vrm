@@ -6,7 +6,7 @@ export class MaterialProperty {
   public renderQueue: number;
   public floatProperties: { [key: string]: number };
   public keywordMap: { [key: string]: any };
-  public tagMap: { [key: string]: boolean };
+  public tagMap: { [key: string]: string };
   public textureProperties: { [key: string]: THREE.Texture };
   public vectorProperties: { [key: string]: THREE.Vector4 };
 
@@ -35,7 +35,7 @@ export class MaterialProperty {
     }
 
     for (const key of Object.keys(object.tagMap)) {
-      this.tagMap[key] = Boolean(object.tagMap[key]);
+      this.tagMap[key] = object.tagMap[key];
     }
 
     for (const key of Object.keys(object.textureProperties)) {

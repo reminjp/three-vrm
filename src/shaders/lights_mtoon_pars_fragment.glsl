@@ -17,16 +17,11 @@ struct BlinnPhongMaterial {
 
 void RE_Direct_BlinnPhong(const in IncidentLight directLight, const in GeometricContext geometry, const in BlinnPhongMaterial material, inout ReflectedLight reflectedLight) {
 
-  #ifdef TOON
+  float dotNL = saturate(dot(geometry.normal, directLight.direction));
+  dotNL = saturate(smoothstep(f_ShadeShift, f_ShadeShift + (1.0 + f_ShadeToony), dotNL));
+  vec3 irradiance = mix(v_ShadeColor.rgb, vec3(1.0), dotNL);
 
-    vec3 irradiance = getGradientIrradiance(geometry.normal, directLight.direction) * directLight.color;
-
-  #else
-
-    float dotNL = saturate(dot(geometry.normal, directLight.direction)); // [-1.0, 1.0]
-    vec3 irradiance = dotNL * directLight.color;
-
-  #endif
+  irradiance = irradiance * mix(directLight.color, vec3(average(directLight.color)), f_LightColorAttenuation);
 
   #ifndef PHYSICALLY_CORRECT_LIGHTS
 
