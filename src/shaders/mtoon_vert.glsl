@@ -1,3 +1,4 @@
+// Extend MeshPhongMaterial
 #define PHONG
 
 varying vec3 vViewPosition;

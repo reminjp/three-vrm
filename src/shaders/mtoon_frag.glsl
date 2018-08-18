@@ -1,40 +1,6 @@
-uniform float f_Cutoff;
-uniform vec4 v_Color;
-uniform vec4 v_ShadeColor;
-uniform sampler2D t_MainTex;
-uniform sampler2D t_ShadeTexture;
-uniform float f_BumpScale;
-uniform sampler2D t_BumpMap;
-uniform float f_ReceiveShadowRate;
-uniform sampler2D t_ReceiveShadowTexture;
-uniform float f_ShadeShift;
-uniform float f_ShadeToony;
-uniform float f_LightColorAttenuation;
-uniform sampler2D t_SphereAdd;
-uniform vec4 v_EmissionColor;
-uniform sampler2D t_EmissionMap;
-uniform sampler2D t_OutlineWidthTexture;
-uniform float f_OutlineWidth;
-uniform float f_OutlineScaledMaxDistance;
-uniform vec4 v_OutlineColor;
-uniform float f_OutlineLightingMix;
+#include <mtoon_uniforms> // MToon uniforms
 
-uniform int f_DebugMode;
-uniform int f_BlendMode;
-uniform int f_OutlineWidthMode;
-uniform int f_OutlineColorMode;
-uniform int f_CullMode; // Cull [Back | Front | Off]
-uniform int f_OutlineCullMode;
-uniform float f_SrcBlend; // Blend [SrcFactor] [DstFactor]
-uniform float f_DstBlend; // Blend [SrcFactor] [DstFactor]
-uniform int f_ZWrite; // ZWrite [On | Off]
-uniform int f_IsFirstSetup;
-
-// varying mat3 vNormalMatrix;
-// varying vec3 vNormal;
-// varying vec2 vUv;
-
-//
+// Extend MeshPhongMaterial
 #define PHONG
 
 uniform vec3 diffuse;
@@ -55,11 +21,12 @@ uniform float opacity;
 #include <lightmap_pars_fragment>
 #include <emissivemap_pars_fragment>
 #include <envmap_pars_fragment>
-#include <gradientmap_pars_fragment>
+// #include <gradientmap_pars_fragment>
 #include <fog_pars_fragment>
 #include <bsdfs>
 #include <lights_pars_begin>
-#include <lights_phong_pars_fragment>
+// #include <lights_phong_pars_fragment>
+#include <lights_mtoon_pars_fragment> // MToon lighting
 #include <shadowmap_pars_fragment>
 #include <bumpmap_pars_fragment>
 #include <normalmap_pars_fragment>
