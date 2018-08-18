@@ -1,9 +1,16 @@
 import * as THREE from 'three';
 import { MaterialProperty } from '../data/MaterialProperty';
-import MToonFragmentShader from '../shaders/mtoon_frag.glsl';
-import MToonVertexShader from '../shaders/mtoon_vert.glsl';
-import UnlitFragmentShader from '../shaders/unlit_frag.glsl';
-import UnlitVertexShader from '../shaders/unlit_vert.glsl';
+import lights_mtoon_pars_fragment from '../shaders/lights_mtoon_pars_fragment.glsl';
+import mtoon_frag from '../shaders/mtoon_frag.glsl';
+import mtoon_uniforms from '../shaders/mtoon_uniforms.glsl';
+import mtoon_vert from '../shaders/mtoon_vert.glsl';
+import unlit_frag from '../shaders/unlit_frag.glsl';
+import unlit_vert from '../shaders/unlit_vert.glsl';
+
+Object.assign(THREE.ShaderChunk, {
+  mtoon_uniforms,
+  lights_mtoon_pars_fragment,
+});
 
 const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
   [
@@ -15,8 +22,8 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
         f_Cutoff: { value: 0.0 },
         v_Color: { value: new THREE.Vector4(1.0, 1.0, 1.0, 1.0) },
       },
-      vertexShader: UnlitVertexShader,
-      fragmentShader: UnlitFragmentShader,
+      vertexShader: unlit_vert,
+      fragmentShader: unlit_frag,
       lights: false,
     },
   ],
@@ -29,8 +36,8 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
         f_Cutoff: { value: 0.0 },
         v_Color: { value: new THREE.Vector4(1.0, 1.0, 1.0, 1.0) },
       },
-      vertexShader: UnlitVertexShader,
-      fragmentShader: UnlitFragmentShader,
+      vertexShader: unlit_vert,
+      fragmentShader: unlit_frag,
       lights: false,
     },
   ],
@@ -43,8 +50,8 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
         f_Cutoff: { value: 0.0 },
         v_Color: { value: new THREE.Vector4(1.0, 1.0, 1.0, 1.0) },
       },
-      vertexShader: UnlitVertexShader,
-      fragmentShader: UnlitFragmentShader,
+      vertexShader: unlit_vert,
+      fragmentShader: unlit_frag,
       lights: false,
     },
   ],
@@ -57,8 +64,8 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
         f_Cutoff: { value: 0.0 },
         v_Color: { value: new THREE.Vector4(1.0, 1.0, 1.0, 1.0) },
       },
-      vertexShader: UnlitVertexShader,
-      fragmentShader: UnlitFragmentShader,
+      vertexShader: unlit_vert,
+      fragmentShader: unlit_frag,
       lights: false,
     },
   ],
@@ -71,8 +78,8 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
         f_Cutoff: { value: 0.0 },
         v_Color: { value: new THREE.Vector4(1.0, 1.0, 1.0, 1.0) },
       },
-      vertexShader: MToonVertexShader,
-      fragmentShader: MToonFragmentShader,
+      vertexShader: mtoon_vert,
+      fragmentShader: mtoon_frag,
       lights: true,
     },
   ],
@@ -105,8 +112,18 @@ const convertParameters = new Map<string, (material: UnityShaderMaterial) => voi
     material => {
       material.uniforms.shininess = { value: 0.0 };
 
+      if (material.uniforms.f_BumpScale) {
+        material.bumpScale = material.uniforms.f_BumpScale.value;
+      }
       if (material.uniforms.t_BumpMap) {
         material.bumpMap = material.uniforms.t_BumpMap.value;
+      }
+
+      if (material.uniforms.v_EmissionColor) {
+        material.emissive = material.uniforms.v_EmissionColor.value;
+      }
+      if (material.uniforms.t_EmissionMap) {
+        material.emissiveMap = material.uniforms.t_EmissionMap.value;
       }
     },
   ],

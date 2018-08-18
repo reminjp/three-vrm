@@ -1,3 +1,5 @@
+// Extend MeshBasicMaterial
+
 uniform vec3 diffuse;
 uniform float opacity;
 
