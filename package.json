@@ -1,6 +1,6 @@
 {
   "name": "three-vrm",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "TypeScript implementation of VRM for three.js.",
   "license": "MIT",
   "author": "remin",
@@ -16,6 +16,7 @@
   "scripts": {
     "start": "webpack-dev-server",
     "build": "rm -rf ./lib && tsc",
+    "postbuild": "mkdir -p ./lib/shaders && cp -r ./src/shaders ./lib",
     "gh-pages": "yarn webpack && gh-pages -d ./dist",
     "webpack": "rm -rf ./dist && webpack",
     "lint": "tslint --project tsconfig.json",
