@@ -17,7 +17,9 @@ yarn add three
 
 ## Usage
 
-Install the [package](https://www.npmjs.com/package/three-vrm) from `npm` and import it.
+**npm package is not available yet.**
+
+~~Install the [package](https://www.npmjs.com/package/three-vrm) from `npm` and import it.~~
 
 ```sh
 yarn add three-vrm
