@@ -14,11 +14,10 @@
     "url": "https://github.com/rdrgn/three-vrm.git"
   },
   "scripts": {
-    "start": "webpack-dev-server",
-    "build": "rm -rf ./lib && tsc",
-    "postbuild": "mkdir -p ./lib/shaders && cp -r ./src/shaders ./lib",
-    "gh-pages": "yarn webpack && gh-pages -d ./dist",
-    "webpack": "rm -rf ./dist && webpack",
+    "start": "webpack-dev-server --config webpack.examples.config.js",
+    "build": "rm -rf lib && webpack && tsc --emitDeclarationOnly",
+    "build:examples": "rm -rf dist && webpack --config webpack.examples.config.js",
+    "gh-pages": "yarn build:examples && gh-pages -d dist",
     "lint": "tslint --project tsconfig.json",
     "fix": "tslint --fix --project tsconfig.json",
     "prepack": "yarn lint && yarn build"
