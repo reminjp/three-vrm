@@ -1,11 +1,13 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  mode: 'development',
-  entry: path.resolve(__dirname, 'examples', 'src', 'index.tsx'),
+  mode: 'production',
+  entry: path.resolve(__dirname, 'src', 'index.ts'),
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'lib'),
+    filename: 'index.js',
+    library: 'VRM',
+    libraryTarget: 'umd',
   },
   module: {
     rules: [
@@ -23,30 +25,13 @@ module.exports = {
         test: /\.glsl$/,
         use: 'raw-loader',
       },
-      {
-        test: /\.vrm$/,
-        use: [
-          {
-            loader: 'file-loader?name=[path][name].[ext]',
-            options: {
-              name: '[path][name].[ext]',
-            },
-          },
-        ],
-      },
     ],
   },
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
     modules: ['node_modules'],
   },
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'examples', 'src', 'index.html'),
-      filename: 'index.html',
-    }),
-  ],
-  devServer: {
-    contentBase: [path.resolve(__dirname, 'dist')],
+  externals: {
+    three: 'three',
   },
 };
