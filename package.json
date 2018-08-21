@@ -33,9 +33,7 @@
       "git add"
     ]
   },
-  "dependencies": {
-    "three-gltf-loader": "^1.95.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/react": "^16.4.7",
     "@types/react-dom": "^16.0.6",
@@ -55,6 +53,7 @@
     "react-dropzone": "^4.3.0",
     "react-resize-detector": "^3.1.0",
     "three": "^0.95.0",
+    "three-gltf-loader": "^1.95.0",
     "three-orbitcontrols": "^2.1.2",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.14.0",
