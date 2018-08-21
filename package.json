@@ -8,13 +8,16 @@
     "lib",
     "LICENSE"
   ],
-  "main": "lib/index.js",
+  "main": "lib/index.module.js",
+  "types": "lib/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/rdrgn/three-vrm.git"
   },
   "scripts": {
-    "start": "webpack-dev-server --config webpack.examples.config.js",
+    "start": "yarn start:module",
+    "start:module": "webpack-dev-server --config webpack.examples.config.js",
+    "start:script": "http-server ./",
     "build": "rm -rf lib && webpack && tsc --emitDeclarationOnly",
     "build:examples": "rm -rf dist && webpack --config webpack.examples.config.js",
     "gh-pages": "yarn build:examples && gh-pages -d dist",
@@ -63,7 +66,8 @@
     "typescript": "^2.9.2",
     "webpack": "^4.16.3",
     "webpack-cli": "^3.1.0",
-    "webpack-dev-server": "^3.1.5"
+    "webpack-dev-server": "^3.1.5",
+    "webpack-merge": "^4.1.4"
   },
   "peerDependencies": {
     "three": "^0.95.0"

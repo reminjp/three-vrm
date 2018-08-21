@@ -1,11 +1,12 @@
 const path = require('path');
+const webpackMerge = require('webpack-merge');
 
-module.exports = {
+const base = {
   mode: 'production',
   entry: path.resolve(__dirname, 'src', 'index.ts'),
   output: {
     path: path.resolve(__dirname, 'lib'),
-    filename: 'index.js',
+    filename: 'index.module.js',
     library: 'VRM',
     libraryTarget: 'umd',
   },
@@ -35,3 +36,16 @@ module.exports = {
     three: 'three',
   },
 };
+
+module.exports = [
+  base,
+  webpackMerge(base, {
+    output: {
+      filename: 'index.js',
+      libraryTarget: 'var',
+    },
+    externals: {
+      three: 'THREE',
+    },
+  }),
+];
