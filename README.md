@@ -5,7 +5,7 @@
 
 TypeScript/JavaScript implementation of [VRM](https://dwango.github.io/en/vrm/) for three.js.
 
-[VRM](https://dwango.github.io/vrm/)形式の3Dモデルをthree.jsで使用するためのパッケージです。
+[VRM](https://dwango.github.io/vrm/) 形式の 3D モデルを three.js で使用するためのパッケージです。
 
 ## Dependencies
 
@@ -48,6 +48,18 @@ vrmLoader.load(
     console.error(error);
   }
 );
+```
+
+Alternatively, if you load three.js in your HTML, you may download `node_modules/three-vrm/lib/index.js` and include it.
+
+```html
+<script src="js/three.min.js"></script>
+<script src="js/vrm.js"></script>
+<script>
+  var vrmLoader = new VRM.VRMLoader();
+
+  ...
+</script>
 ```
 
 ## Development
