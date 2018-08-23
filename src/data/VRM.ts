@@ -39,6 +39,9 @@ export class VRM {
   public firstPerson: FirstPerson;
   public secondaryAnimation: SecondaryAnimation;
 
+  private meshes: THREE.Mesh[][];
+  private blendShapeWeights: number[];
+
   constructor() {
     this.asset = new Asset();
     this.scene = new THREE.Scene();
@@ -51,6 +54,9 @@ export class VRM {
     this.blendShapeMaster = new BlendShapeMaster();
     this.firstPerson = new FirstPerson();
     this.secondaryAnimation = new SecondaryAnimation();
+
+    this.meshes = [];
+    this.blendShapeWeights = [];
   }
 
   public async fromGLTF(gltf: GLTF) {
@@ -81,26 +87,79 @@ export class VRM {
     this.secondaryAnimation = new SecondaryAnimation();
     Object.assign(this.secondaryAnimation, gltf.userData.gltfExtensions.VRM.secondaryAnimation);
 
+    // Convert materials.
     this.scene.traverse((object3d: THREE.Object3D) => {
       if (object3d instanceof THREE.Mesh) {
+        const morphTargets =
+          object3d.geometry instanceof THREE.BufferGeometry && !!object3d.geometry.morphAttributes.position;
+
         if (Array.isArray(object3d.material)) {
           for (let i = 0; i < object3d.material.length; ++i) {
             const property = this.materialProperties.find(
               p => p.name === (object3d.material as THREE.MeshMaterialType[])[i].name
             );
-            const material = new UnityShaderMaterial({ skinning: true });
+            const material = new UnityShaderMaterial({ morphTargets, skinning: true });
             material.fromMaterialProperty(property);
             object3d.material[i] = material;
           }
         } else {
           const property = this.materialProperties.find(p => p.name === (object3d.material as THREE.Material).name);
-          const material = new UnityShaderMaterial({ skinning: true });
+          const material = new UnityShaderMaterial({ morphTargets, skinning: true });
           material.fromMaterialProperty(property);
           object3d.material = material;
         }
       }
     });
 
+    // Create a mesh list for morphing.
+    this.meshes = this.parser.json.meshes.map((): THREE.Mesh[] => []);
+
+    this.scene.traverse((object3d: THREE.Object3D) => {
+      if (object3d instanceof THREE.Mesh) {
+        // Flattened mesh node
+        // https://github.com/mrdoob/three.js/issues/11944
+        const node = this.parser.json.nodes.find((n: any) => n.name === object3d.name);
+        if (node && node.mesh !== undefined) {
+          this.meshes[node.mesh] = [object3d];
+          return;
+        }
+
+        // Not flattened mesh node
+        const i = object3d.name.lastIndexOf('_');
+        const geometryIndex = i !== -1 ? Number(object3d.name.substr(i + 1)) : 0;
+        const meshName = i !== -1 && !isNaN(geometryIndex) ? object3d.name.substr(0, i) : object3d.name;
+        const meshIndex = this.parser.json.meshes.findIndex((e: any) => e.name === meshName);
+
+        if (meshIndex !== -1) {
+          this.meshes[meshIndex][geometryIndex] = object3d;
+        }
+      }
+    });
+
+    this.blendShapeWeights = new Array(this.blendShapeMaster.blendShapeGroups.length).fill(0);
+
     return this;
+  }
+
+  public getBlendShapeWeight(index: number) {
+    return this.blendShapeWeights[index];
+  }
+
+  public setBlendShapeWeight(index: number, value: number) {
+    const blendShapeGroup = this.blendShapeMaster.blendShapeGroups[index];
+
+    if (!blendShapeGroup) {
+      return;
+    }
+
+    blendShapeGroup.binds.forEach(bind => {
+      this.meshes[bind.mesh].forEach(mesh => {
+        if (mesh.morphTargetInfluences) {
+          mesh.morphTargetInfluences[bind.index] = value * (bind.weight / 100);
+        }
+      });
+    });
+
+    this.blendShapeWeights[index] = value;
   }
 }
