@@ -2,6 +2,7 @@
 
 [![Latest NPM release][npm-badge]][npm-badge-url]
 [![License][license-badge]][license-badge-url]
+[![Build Status][travis-ci-badge]][travis-ci-badge-url]
 
 **This package is still under development.**
 **The usage may be destructively changed.**
@@ -140,3 +141,5 @@ Open `localhost:8080` with a browser.
 [npm-badge-url]: https://www.npmjs.com/package/three-vrm
 [license-badge]: https://img.shields.io/npm/l/three-vrm.svg
 [license-badge-url]: ./LICENSE
+[travis-ci-badge]: https://travis-ci.org/rdrgn/three-vrm.svg?branch=master
+[travis-ci-badge-url]: https://travis-ci.org/rdrgn/three-vrm
