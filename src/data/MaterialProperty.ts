@@ -41,7 +41,7 @@ export class MaterialProperty {
     for (const key of Object.keys(object.textureProperties)) {
       if (parser) {
         this.textureProperties[key] = await parser.loadTexture(object.textureProperties[key]);
-        this.textureProperties[key].encoding = THREE.sRGBEncoding;
+        // this.textureProperties[key].encoding = THREE.sRGBEncoding;
       } else {
         this.textureProperties[key] = null;
       }
