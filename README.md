@@ -1,5 +1,8 @@
 # three-vrm
 
+[![Latest NPM release][npm-badge]][npm-badge-url]
+[![License][license-badge]][license-badge-url]
+
 **This package is still under development.**
 **The usage may be destructively changed.**
 
@@ -17,7 +20,7 @@ yarn add three
 
 ## Usage
 
-Install the [package](https://www.npmjs.com/package/three-vrm) from `npm` and import it.
+Install the [package][npm-badge-url] from `npm` and import it.
 
 ```sh
 yarn add three-vrm
@@ -64,6 +67,62 @@ Alternatively, if you load three.js in your HTML, you may download `node_modules
 </script>
 ```
 
+### VRMLoader
+
+A loader for VRM resources.
+
+`VRMLoader( manager?: THREE.LoadingManager )`
+
+Creates a new VRMLoader.
+
+`.load ( url: string, onLoad?: Function, onProgress?: Function, onError?: Function ) : void`
+
+Loads a VRM model.
+
+### VRM
+
+VRM model data.
+
+`.asset : object`
+
+A glTF asset property.
+
+`.scene : THREE.Scene`
+
+A `Scene`.
+
+`.parser : object`
+
+A `GLTFParser` created by `GLTFLoader`.
+
+`.userData: object`
+
+A dictionary object with extension data.
+
+`.materialProperties : Array`
+
+VRM material properties.
+
+`.humanoid : object`
+
+VRM bone mapping.
+
+`.meta : object`
+
+VRM model information.
+
+`.blendShapeMaster : object`
+
+VRM blendShapeMaster with an array of BlendShapeGroups to group BlendShape.
+
+`.firstPerson : object`
+
+VRM first-person settings.
+
+`.secondaryAnimation : object`
+
+VRM swaying object settings.
+
 ## Development
 
 ```sh
@@ -76,3 +135,8 @@ Open `localhost:8080` with a browser.
 ## License
 
 [MIT](./LICENSE)
+
+[npm-badge]: https://img.shields.io/npm/v/three-vrm.svg
+[npm-badge-url]: https://www.npmjs.com/package/three-vrm
+[license-badge]: https://img.shields.io/npm/l/three-vrm.svg
+[license-badge-url]: ./LICENSE
