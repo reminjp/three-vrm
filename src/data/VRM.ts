@@ -7,7 +7,7 @@ import { MaterialProperty } from './MaterialProperty';
 import { Meta } from './Meta';
 import { SecondaryAnimation } from './SecondaryAnimation';
 
-export class GLTF {
+class GLTF {
   public scene: THREE.Scene;
   public scenes: THREE.Scene[];
   public cameras: THREE.Camera[];

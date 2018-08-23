@@ -7,7 +7,7 @@ const base = {
   output: {
     path: path.resolve(__dirname, 'lib'),
     filename: 'index.module.js',
-    library: 'VRM',
+    library: 'THREEVRM',
     libraryTarget: 'umd',
   },
   module: {
