@@ -56,7 +56,9 @@ Alternatively, if you load three.js in your HTML, you may download `node_modules
 <script src="js/three.min.js"></script>
 <script src="js/vrm.js"></script>
 <script>
-  var vrmLoader = new VRM.VRMLoader();
+  var scene = new THREE.Scene();
+
+  var vrmLoader = new THREEVRM.VRMLoader();
 
   ...
 </script>
