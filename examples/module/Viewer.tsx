@@ -24,6 +24,12 @@ export default class Viewer extends React.Component<Props, State> {
   private controls: THREE.OrbitControls;
   private vrm: VRM.VRM;
 
+  private lastUpdateTimeStamp: number;
+
+  private blinkBlendShapeIndex: number;
+  private blinkTimer: number;
+  private blinkIntervalTime: number;
+
   constructor(props: Props) {
     super(props);
     this.state = { isInitialized: false, isBusy: false };
@@ -82,8 +88,37 @@ export default class Viewer extends React.Component<Props, State> {
     );
   }
 
-  private update() {
+  private update(timeStamp?: number) {
     this.requestID = window.requestAnimationFrame(this.update);
+
+    if (timeStamp !== undefined) {
+      if (this.lastUpdateTimeStamp !== undefined) {
+        const deltaTime = timeStamp - this.lastUpdateTimeStamp;
+
+        // Blink.
+        if (this.blinkBlendShapeIndex !== undefined && this.state.isInitialized) {
+          this.blinkTimer += deltaTime;
+
+          if (this.blinkTimer < 50) {
+            this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, this.blinkTimer / 50);
+          } else if (this.blinkTimer <= 100) {
+            this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, 1);
+          } else if (this.blinkTimer < 150) {
+            this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, (150 - this.blinkTimer) / 50);
+          } else {
+            this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, 0);
+          }
+
+          if (this.blinkIntervalTime <= this.blinkTimer) {
+            this.blinkTimer -= this.blinkIntervalTime;
+            this.blinkIntervalTime = 1000 + 9000 * Math.random();
+          }
+        }
+      }
+
+      this.lastUpdateTimeStamp = timeStamp;
+    }
+
     this.renderScene();
   }
 
@@ -152,6 +187,10 @@ export default class Viewer extends React.Component<Props, State> {
     const headY = 1.5;
     this.camera.position.set(0, headY, -headY);
     this.controls.target.set(0, 0.75 * headY, 0);
+
+    this.blinkTimer = 0;
+    this.blinkIntervalTime = 1000;
+    this.blinkBlendShapeIndex = this.vrm.blendShapeMaster.blendShapeGroups.findIndex(e => e.name === 'Blink');
 
     this.renderScene();
   }
