@@ -24,6 +24,10 @@ module.exports = {
         use: 'raw-loader',
       },
       {
+        test: /\.css$/,
+        loaders: ['style-loader', 'css-loader'],
+      },
+      {
         test: /\.vrm$/,
         use: [
           {

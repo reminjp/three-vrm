@@ -2,7 +2,12 @@ import * as React from 'react';
 import * as THREE from 'three';
 import * as VRM from '../../src';
 
+import '../../node_modules/react-dat-gui/build/react-dat-gui.css';
+
+const DatGui = require('react-dat-gui'); // tslint:disable-line:no-var-requires
 const OrbitControls = require('three-orbitcontrols'); // tslint:disable-line:no-var-requires
+
+console.log(DatGui);
 
 interface Props {
   model: string;
@@ -14,6 +19,7 @@ interface Props {
 interface State {
   isInitialized: boolean;
   isBusy: boolean;
+  data: any;
 }
 
 export default class Viewer extends React.Component<Props, State> {
@@ -26,14 +32,11 @@ export default class Viewer extends React.Component<Props, State> {
 
   private lastUpdateTimeStamp: number;
 
-  private blinkBlendShapeIndex: number;
-  private blinkTimer: number;
-  private blinkIntervalTime: number;
-
   constructor(props: Props) {
     super(props);
-    this.state = { isInitialized: false, isBusy: false };
+    this.state = { isInitialized: false, isBusy: false, data: {} };
 
+    this.onDataUpdate = this.onDataUpdate.bind(this);
     this.update = this.update.bind(this);
   }
 
@@ -72,20 +75,51 @@ export default class Viewer extends React.Component<Props, State> {
 
   public render() {
     return (
-      <div style={{ width: this.props.width, height: this.props.height, margin: 0, padding: 0 }}>
-        <canvas
-          ref={c => {
-            if (!c) {
-              return;
-            }
-            this.renderer = new THREE.WebGLRenderer({ canvas: c, antialias: true });
-            this.renderer.setPixelRatio(window.devicePixelRatio);
-            this.renderer.setSize(this.props.width, this.props.height);
-          }}
-          style={{ width: '100%', height: '100%', margin: 0, padding: 0 }}
-        />
-      </div>
+      <>
+        <div style={{ width: this.props.width, height: this.props.height, margin: 0, padding: 0 }}>
+          <canvas
+            ref={c => {
+              if (!c) {
+                return;
+              }
+
+              if (this.renderer && c === this.renderer.domElement) {
+                const size = this.renderer.getSize();
+                if (this.props.width !== size.width || this.props.height !== size.height) {
+                  this.renderer.setSize(this.props.width, this.props.height);
+                }
+                return;
+              }
+
+              this.renderer = new THREE.WebGLRenderer({ canvas: c, antialias: true });
+              this.renderer.setPixelRatio(window.devicePixelRatio);
+              this.renderer.setSize(this.props.width, this.props.height);
+            }}
+            style={{ width: '100%', height: '100%', margin: 0, padding: 0 }}
+          />
+        </div>
+        <DatGui.default data={this.state.data} onUpdate={this.onDataUpdate}>
+          <DatGui.DatFolder title="Blend Shape">
+            {this.vrm &&
+              this.vrm.blendShapeMaster.blendShapeGroups.map((e, i) => (
+                <DatGui.DatNumber key={i} path={'blendShape' + e.name} label={e.name} min={0} max={1} step={0.01} />
+              ))}
+          </DatGui.DatFolder>
+        </DatGui.default>
+      </>
     );
+  }
+
+  private onDataUpdate(data: any) {
+    if (this.state.isInitialized) {
+      this.vrm.blendShapeMaster.blendShapeGroups.forEach((e, i) => {
+        if (data['blendShape' + e.name] !== this.state.data['blendShape' + e.name]) {
+          this.vrm.setBlendShapeWeight(i, data['blendShape' + e.name]);
+        }
+      });
+    }
+
+    this.setState({ data });
   }
 
   private update(timeStamp?: number) {
@@ -93,27 +127,7 @@ export default class Viewer extends React.Component<Props, State> {
 
     if (timeStamp !== undefined) {
       if (this.lastUpdateTimeStamp !== undefined) {
-        const deltaTime = timeStamp - this.lastUpdateTimeStamp;
-
-        // Blink.
-        if (this.blinkBlendShapeIndex !== undefined && this.state.isInitialized) {
-          this.blinkTimer += deltaTime;
-
-          if (this.blinkIntervalTime <= this.blinkTimer) {
-            const t = this.blinkTimer - this.blinkIntervalTime;
-            if (t < 50) {
-              this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, t / 50);
-            } else if (t <= 100) {
-              this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, 1);
-            } else if (t < 150) {
-              this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, (150 - t) / 50);
-            } else {
-              this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, 0);
-              this.blinkTimer -= this.blinkIntervalTime + 150;
-              this.blinkIntervalTime = 1000 + 9000 * Math.random();
-            }
-          }
-        }
+        // const deltaTime = timeStamp - this.lastUpdateTimeStamp;
       }
 
       this.lastUpdateTimeStamp = timeStamp;
@@ -188,10 +202,10 @@ export default class Viewer extends React.Component<Props, State> {
     this.camera.position.set(0, headY, -headY);
     this.controls.target.set(0, 0.75 * headY, 0);
 
-    this.blinkTimer = 0;
-    this.blinkIntervalTime = 1000;
-    this.blinkBlendShapeIndex = this.vrm.blendShapeMaster.blendShapeGroups.findIndex(e => e.name === 'Blink');
-
-    this.renderScene();
+    const data = this.state.data;
+    this.vrm.blendShapeMaster.blendShapeGroups.forEach(e => {
+      data['blendShape' + e.name] = 0;
+    });
+    this.setState({ data });
   }
 }
