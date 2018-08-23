@@ -7,8 +7,6 @@ import '../../node_modules/react-dat-gui/build/react-dat-gui.css';
 const DatGui = require('react-dat-gui'); // tslint:disable-line:no-var-requires
 const OrbitControls = require('three-orbitcontrols'); // tslint:disable-line:no-var-requires
 
-console.log(DatGui);
-
 interface Props {
   model: string;
   width: number;
