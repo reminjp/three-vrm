@@ -21,8 +21,9 @@
     "build": "rm -rf lib && webpack && tsc --emitDeclarationOnly",
     "build:examples": "rm -rf dist && webpack --config webpack.examples.config.js",
     "gh-pages": "yarn build:examples && gh-pages -d dist",
-    "lint": "tslint --project tsconfig.json",
-    "fix": "tslint --fix --project tsconfig.json",
+    "test": "yarn lint",
+    "lint": "tslint --project tsconfig.json && tslint 'examples/**/*.ts?(x)'",
+    "fix": "tslint --fix --project tsconfig.json && tslint 'examples/**/*.ts?(x)'",
     "prepack": "yarn lint && yarn build"
   },
   "husky": {
