@@ -99,19 +99,19 @@ export default class Viewer extends React.Component<Props, State> {
         if (this.blinkBlendShapeIndex !== undefined && this.state.isInitialized) {
           this.blinkTimer += deltaTime;
 
-          if (this.blinkTimer < 50) {
-            this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, this.blinkTimer / 50);
-          } else if (this.blinkTimer <= 100) {
-            this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, 1);
-          } else if (this.blinkTimer < 150) {
-            this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, (150 - this.blinkTimer) / 50);
-          } else {
-            this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, 0);
-          }
-
           if (this.blinkIntervalTime <= this.blinkTimer) {
-            this.blinkTimer -= this.blinkIntervalTime;
-            this.blinkIntervalTime = 1000 + 9000 * Math.random();
+            const t = this.blinkTimer - this.blinkIntervalTime;
+            if (t < 50) {
+              this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, t / 50);
+            } else if (t <= 100) {
+              this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, 1);
+            } else if (t < 150) {
+              this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, (150 - t) / 50);
+            } else {
+              this.vrm.setBlendShapeWeight(this.blinkBlendShapeIndex, 0);
+              this.blinkTimer -= this.blinkIntervalTime + 150;
+              this.blinkIntervalTime = 1000 + 9000 * Math.random();
+            }
           }
         }
       }
