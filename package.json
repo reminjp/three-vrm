@@ -1,7 +1,7 @@
 {
   "name": "three-vrm",
   "version": "0.0.9",
-  "description": "TypeScript implementation of VRM for three.js.",
+  "description": "TypeScript/JavaScript VRM library for three.js.",
   "license": "MIT",
   "author": "remin",
   "files": [
