@@ -1,4 +1,4 @@
-export class Humanoid {
+export class VRMHumanoid {
   public armStretch: number;
   public feetSpacing: number;
   public hasTranslationDoF: boolean;
@@ -7,16 +7,16 @@ export class Humanoid {
   public lowerLegTwist: number;
   public upperArmTwist: number;
   public upperLegTwist: number;
-  public humanBones: HumanBone[];
+  public humanBones: VRMHumanBone[];
 }
 
-export class HumanBone {
-  public bone: HumanBoneBoneType;
+export class VRMHumanBone {
+  public bone: VRMHumanBoneBoneType;
   public node: number;
   public useDefaultValues: boolean;
 }
 
-export type HumanBoneBoneType =
+export type VRMHumanBoneBoneType =
   | 'hips'
   | 'spine'
   | 'chest'

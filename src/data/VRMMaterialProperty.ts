@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export class MaterialProperty {
+export class VRMMaterialProperty {
   public name: string;
   public shader: string;
   public renderQueue: number;

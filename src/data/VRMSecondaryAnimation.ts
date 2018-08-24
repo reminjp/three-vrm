@@ -1,9 +1,9 @@
-export class SecondaryAnimation {
-  public boneGroups: BoneGroup[];
-  public colliderGroups: ColliderGroup[];
+export class VRMSecondaryAnimation {
+  public boneGroups: VRMBoneGroup[];
+  public colliderGroups: VRMColliderGroup[];
 }
 
-export class BoneGroup {
+export class VRMBoneGroup {
   public bones: number[];
   public center: number;
   public colliderGroups: number[];
@@ -15,12 +15,12 @@ export class BoneGroup {
   public stiffiness: number;
 }
 
-export class ColliderGroup {
-  public colliders: Collider[];
+export class VRMColliderGroup {
+  public colliders: VRMCollider[];
   public node: number;
 }
 
-export class Collider {
+export class VRMCollider {
   public offset: THREE.Vector3;
   public radius: number;
 }

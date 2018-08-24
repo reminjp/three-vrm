@@ -1,8 +1,8 @@
-export class BlendShapeMaster {
-  public blendShapeGroups: BlendShapeGroup[];
+export class VRMBlendShapeMaster {
+  public blendShapeGroups: VRMBlendShapeGroup[];
 }
 
-export class BlendShapeGroup {
+export class VRMBlendShapeGroup {
   public binds: Array<{
     index: number;
     mesh: number;
