@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 import { VRMMaterialProperty } from '../data/VRMMaterialProperty';
+import common_mtoon from '../shaders/common_mtoon.glsl';
 import lights_mtoon_pars_fragment from '../shaders/lights_mtoon_pars_fragment.glsl';
 import mtoon_frag from '../shaders/mtoon_frag.glsl';
-import mtoon_uniforms from '../shaders/mtoon_uniforms.glsl';
 import mtoon_vert from '../shaders/mtoon_vert.glsl';
 
 Object.assign(THREE.ShaderChunk, {
-  mtoon_uniforms,
+  common_mtoon,
   lights_mtoon_pars_fragment,
 });
 

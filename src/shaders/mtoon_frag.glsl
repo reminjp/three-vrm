@@ -1,4 +1,4 @@
-#include <mtoon_uniforms> // MToon uniforms
+#include <common_mtoon>
 
 // Extend MeshPhongMaterial
 #define PHONG

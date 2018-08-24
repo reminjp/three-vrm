@@ -1,3 +1,5 @@
+#include <common_mtoon>
+
 // Extend MeshPhongMaterial
 #define PHONG
 
