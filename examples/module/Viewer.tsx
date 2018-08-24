@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as THREE from 'three';
-import * as VRM from '../../src';
+import { VRM, VRMLoader } from '../../src';
 
 import '../../node_modules/react-dat-gui/build/react-dat-gui.css';
 
@@ -26,7 +26,7 @@ export default class Viewer extends React.Component<Props, State> {
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
   private controls: THREE.OrbitControls;
-  private vrm: VRM.VRM;
+  private vrm: VRM;
 
   private lastUpdateTimeStamp: number;
 
@@ -173,11 +173,11 @@ export default class Viewer extends React.Component<Props, State> {
       this.scene.remove(this.vrm.scene);
     }
 
-    const vrmLoader = new VRM.VRMLoader();
+    const vrmLoader = new VRMLoader();
 
     vrmLoader.load(
       this.props.model,
-      (vrm: VRM.VRM) => {
+      (vrm: VRM) => {
         this.vrm = vrm;
         this.modelDidLoad();
         this.setState({ isBusy: false });

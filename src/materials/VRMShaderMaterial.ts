@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { MaterialProperty } from '../data/MaterialProperty';
+import { VRMMaterialProperty } from '../data/VRMMaterialProperty';
 import lights_mtoon_pars_fragment from '../shaders/lights_mtoon_pars_fragment.glsl';
 import mtoon_frag from '../shaders/mtoon_frag.glsl';
 import mtoon_uniforms from '../shaders/mtoon_uniforms.glsl';
@@ -83,7 +83,7 @@ const defaultParameters = new Map<string, THREE.ShaderMaterialParameters>([
   ],
 ]);
 
-const convertParameters = new Map<string, (material: UnityShaderMaterial) => void>([
+const convertParameters = new Map<string, (material: VRMShaderMaterial) => void>([
   [
     'common',
     material => {
@@ -177,7 +177,7 @@ const convertParameters = new Map<string, (material: UnityShaderMaterial) => voi
   ],
 ]);
 
-export class UnityShaderMaterial extends THREE.ShaderMaterial {
+export class VRMShaderMaterial extends THREE.ShaderMaterial {
   [key: string]: any;
 
   constructor(parameters?: THREE.ShaderMaterialParameters) {
@@ -190,7 +190,7 @@ export class UnityShaderMaterial extends THREE.ShaderMaterial {
     convertParameters.get('common')(this);
   }
 
-  public fromMaterialProperty(property: MaterialProperty) {
+  public fromMaterialProperty(property: VRMMaterialProperty) {
     this.name = property.name;
 
     if (!defaultParameters.has(property.shader) || !convertParameters.has(property.shader)) {

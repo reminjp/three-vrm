@@ -18,7 +18,7 @@
     "start": "yarn start:module",
     "start:module": "webpack-dev-server --config webpack.examples.config.js",
     "start:script": "http-server ./",
-    "build": "rm -rf lib && webpack && tsc --emitDeclarationOnly",
+    "build": "rm -rf lib && webpack && echo 'Object.assign(THREE,THREEVRM);' >> lib/index.js && tsc --emitDeclarationOnly",
     "build:examples": "rm -rf dist && webpack --config webpack.examples.config.js",
     "gh-pages": "yarn build:examples && gh-pages -d dist",
     "test": "yarn lint",

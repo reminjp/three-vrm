@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import { UnityShaderMaterial } from '../materials/UnityShaderMaterial';
-import { BlendShapeMaster } from './BlendShapeMaster';
-import { FirstPerson } from './FirstPerson';
-import { Humanoid } from './Humanoid';
-import { MaterialProperty } from './MaterialProperty';
-import { Meta } from './Meta';
-import { SecondaryAnimation } from './SecondaryAnimation';
+import { VRMShaderMaterial } from '../materials/VRMShaderMaterial';
+import { VRMBlendShapeMaster } from './VRMBlendShapeMaster';
+import { VRMFirstPerson } from './VRMFirstPerson';
+import { VRMHumanoid } from './VRMHumanoid';
+import { VRMMaterialProperty } from './VRMMaterialProperty';
+import { VRMMeta } from './VRMMeta';
+import { VRMSecondaryAnimation } from './VRMSecondaryAnimation';
 
 class GLTF {
   public scene: THREE.Scene;
@@ -32,12 +32,12 @@ export class VRM {
   public parser: any;
   public userData: any;
 
-  public materialProperties: MaterialProperty[];
-  public humanoid: Humanoid;
-  public meta: Meta;
-  public blendShapeMaster: BlendShapeMaster;
-  public firstPerson: FirstPerson;
-  public secondaryAnimation: SecondaryAnimation;
+  public materialProperties: VRMMaterialProperty[];
+  public humanoid: VRMHumanoid;
+  public meta: VRMMeta;
+  public blendShapeMaster: VRMBlendShapeMaster;
+  public firstPerson: VRMFirstPerson;
+  public secondaryAnimation: VRMSecondaryAnimation;
 
   private meshes: THREE.Mesh[][];
   private blendShapeWeights: number[];
@@ -49,11 +49,11 @@ export class VRM {
     this.userData = {};
 
     this.materialProperties = [];
-    this.humanoid = new Humanoid();
-    this.meta = new Meta();
-    this.blendShapeMaster = new BlendShapeMaster();
-    this.firstPerson = new FirstPerson();
-    this.secondaryAnimation = new SecondaryAnimation();
+    this.humanoid = new VRMHumanoid();
+    this.meta = new VRMMeta();
+    this.blendShapeMaster = new VRMBlendShapeMaster();
+    this.firstPerson = new VRMFirstPerson();
+    this.secondaryAnimation = new VRMSecondaryAnimation();
 
     this.meshes = [];
     this.blendShapeWeights = [];
@@ -67,24 +67,24 @@ export class VRM {
 
     this.materialProperties = [];
     for (const object of gltf.userData.gltfExtensions.VRM.materialProperties) {
-      const property = new MaterialProperty();
+      const property = new VRMMaterialProperty();
       await property.fromObject(object, this.parser);
       this.materialProperties.push(property);
     }
 
-    this.humanoid = new Humanoid();
+    this.humanoid = new VRMHumanoid();
     Object.assign(this.humanoid, gltf.userData.gltfExtensions.VRM.humanoid);
 
-    this.meta = new Meta();
+    this.meta = new VRMMeta();
     Object.assign(this.meta, gltf.userData.gltfExtensions.VRM.meta);
 
-    this.blendShapeMaster = new BlendShapeMaster();
+    this.blendShapeMaster = new VRMBlendShapeMaster();
     Object.assign(this.blendShapeMaster, gltf.userData.gltfExtensions.VRM.blendShapeMaster);
 
-    this.firstPerson = new FirstPerson();
+    this.firstPerson = new VRMFirstPerson();
     Object.assign(this.firstPerson, gltf.userData.gltfExtensions.VRM.firstPerson);
 
-    this.secondaryAnimation = new SecondaryAnimation();
+    this.secondaryAnimation = new VRMSecondaryAnimation();
     Object.assign(this.secondaryAnimation, gltf.userData.gltfExtensions.VRM.secondaryAnimation);
 
     // Convert materials.
@@ -98,13 +98,13 @@ export class VRM {
             const property = this.materialProperties.find(
               p => p.name === (object3d.material as THREE.MeshMaterialType[])[i].name
             );
-            const material = new UnityShaderMaterial({ morphTargets, skinning: true });
+            const material = new VRMShaderMaterial({ morphTargets, skinning: true });
             material.fromMaterialProperty(property);
             object3d.material[i] = material;
           }
         } else {
           const property = this.materialProperties.find(p => p.name === (object3d.material as THREE.Material).name);
-          const material = new UnityShaderMaterial({ morphTargets, skinning: true });
+          const material = new VRMShaderMaterial({ morphTargets, skinning: true });
           material.fromMaterialProperty(property);
           object3d.material = material;
         }

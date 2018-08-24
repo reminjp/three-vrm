@@ -29,7 +29,7 @@ yarn add three-vrm
 
 This code loads a VRM file with `VRMLoader`.
 You have to create a `Scene`, a `Camera`, and a `WebGLRenderer` to render the VRM.
-See the usage of [three.js](https://github.com/mrdoob/three.js/).
+See the usage of three.js.
 
 ```ts
 import * as THREE from 'three';
@@ -58,11 +58,11 @@ Alternatively, if you load three.js in your HTML, you may download `node_modules
 
 ```html
 <script src="js/three.min.js"></script>
-<script src="js/vrm.js"></script>
+<script src="js/three-vrm.js"></script>
 <script>
   var scene = new THREE.Scene();
 
-  var vrmLoader = new THREEVRM.VRMLoader();
+  var vrmLoader = new THREE.VRMLoader();
 
   ...
 </script>
@@ -135,7 +135,7 @@ Open `localhost:8080` with a browser.
 
 ## License
 
-[MIT](./LICENSE)
+[MIT][license-badge-url]
 
 [npm-badge]: https://img.shields.io/npm/v/three-vrm.svg
 [npm-badge-url]: https://www.npmjs.com/package/three-vrm

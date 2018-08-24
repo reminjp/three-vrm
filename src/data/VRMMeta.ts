@@ -1,4 +1,4 @@
-export class Meta {
+export class VRMMeta {
   public title: string;
   public author: string;
   public contactInformation: string;
