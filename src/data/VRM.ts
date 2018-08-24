@@ -63,6 +63,10 @@ export class VRM {
     this.parser = gltf.parser;
     this.userData = gltf.userData;
 
+    if (!gltf.userData.gltfExtensions || !gltf.userData.gltfExtensions.VRM) {
+      throw new Error('Loaded glTF is not a VRM model.');
+    }
+
     this.materialProperties = [];
     for (const object of gltf.userData.gltfExtensions.VRM.materialProperties) {
       const property = new VRMMaterialProperty();
@@ -140,6 +144,13 @@ export class VRM {
   public setBlendShapeWeight(meshIndex: number, blendShapeIndex: number, value: number) {
     const primitives = this.meshes[meshIndex];
     primitives.forEach(primitive => {
+      if (!primitive || !primitive.morphTargetInfluences) {
+        // if (primitive) {
+        //   console.warn(`Mesh '${primitive.name}' does not have morphTargetInfluences.`);
+        // }
+        return;
+      }
+
       primitive.morphTargetInfluences[blendShapeIndex] = value;
     });
   }
