@@ -40,7 +40,6 @@ export class VRM {
   public secondaryAnimation: VRMSecondaryAnimation;
 
   private meshes: THREE.Mesh[][];
-  private blendShapeWeights: number[];
 
   constructor() {
     this.asset = new Asset();
@@ -56,7 +55,6 @@ export class VRM {
     this.secondaryAnimation = new VRMSecondaryAnimation();
 
     this.meshes = [];
-    this.blendShapeWeights = [];
   }
 
   public async fromGLTF(gltf: GLTF) {
@@ -136,16 +134,17 @@ export class VRM {
       }
     });
 
-    this.blendShapeWeights = new Array(this.blendShapeMaster.blendShapeGroups.length).fill(0);
-
     return this;
   }
 
-  public getBlendShapeWeight(index: number) {
-    return this.blendShapeWeights[index];
+  public setBlendShapeWeight(meshIndex: number, blendShapeIndex: number, value: number) {
+    const primitives = this.meshes[meshIndex];
+    primitives.forEach(primitive => {
+      primitive.morphTargetInfluences[blendShapeIndex] = value;
+    });
   }
 
-  public setBlendShapeWeight(index: number, value: number) {
+  public setBlendShapeGroupWeight(index: number, value: number) {
     const blendShapeGroup = this.blendShapeMaster.blendShapeGroups[index];
 
     if (!blendShapeGroup) {
@@ -153,13 +152,7 @@ export class VRM {
     }
 
     blendShapeGroup.binds.forEach(bind => {
-      this.meshes[bind.mesh].forEach(mesh => {
-        if (mesh.morphTargetInfluences) {
-          mesh.morphTargetInfluences[bind.index] = value * (bind.weight / 100);
-        }
-      });
+      this.setBlendShapeWeight(bind.mesh, bind.index, value * (bind.weight / 100));
     });
-
-    this.blendShapeWeights[index] = value;
   }
 }

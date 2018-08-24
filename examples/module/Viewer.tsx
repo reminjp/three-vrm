@@ -97,7 +97,7 @@ export default class Viewer extends React.Component<Props, State> {
           />
         </div>
         <DatGui.default data={this.state.data} onUpdate={this.onDataUpdate}>
-          <DatGui.DatFolder title="Blend Shape">
+          <DatGui.DatFolder title="Blend Shape Group">
             {this.vrm &&
               this.vrm.blendShapeMaster.blendShapeGroups.map((e, i) => (
                 <DatGui.DatNumber key={i} path={'blendShape' + e.name} label={e.name} min={0} max={1} step={0.01} />
@@ -112,7 +112,7 @@ export default class Viewer extends React.Component<Props, State> {
     if (this.state.isInitialized) {
       this.vrm.blendShapeMaster.blendShapeGroups.forEach((e, i) => {
         if (data['blendShape' + e.name] !== this.state.data['blendShape' + e.name]) {
-          this.vrm.setBlendShapeWeight(i, data['blendShape' + e.name]);
+          this.vrm.setBlendShapeGroupWeight(i, data['blendShape' + e.name]);
         }
       });
     }
