@@ -4,14 +4,16 @@ import { VRM, VRMLoader } from '../../src';
 
 import '../../node_modules/react-dat-gui/build/react-dat-gui.css';
 
-const DatGui = require('react-dat-gui'); // tslint:disable-line:no-var-requires
+const ReactDatGui = require('react-dat-gui'); // tslint:disable-line:no-var-requires
+const DatGui = ReactDatGui.default;
+const { DatBoolean, DatColor, DatFolder, DatNumber } = ReactDatGui;
+
 const OrbitControls = require('three-orbitcontrols'); // tslint:disable-line:no-var-requires
 
 interface Props {
   model: string;
   width: number;
   height: number;
-  backgroundColor?: string;
 }
 
 interface State {
@@ -26,13 +28,14 @@ export default class Viewer extends React.Component<Props, State> {
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
   private controls: THREE.OrbitControls;
+  private axesHelper: THREE.AxesHelper;
   private vrm: VRM;
 
   private lastUpdateTimeStamp: number;
 
   constructor(props: Props) {
     super(props);
-    this.state = { isInitialized: false, isBusy: false, data: {} };
+    this.state = { isInitialized: false, isBusy: false, data: { background: '#212121', isAxesVisible: true } };
 
     this.onDataUpdate = this.onDataUpdate.bind(this);
     this.update = this.update.bind(this);
@@ -96,26 +99,40 @@ export default class Viewer extends React.Component<Props, State> {
             style={{ width: '100%', height: '100%', margin: 0, padding: 0 }}
           />
         </div>
-        <DatGui.default data={this.state.data} onUpdate={this.onDataUpdate}>
-          <DatGui.DatFolder title="Blend Shape Group">
+        <DatGui data={this.state.data} onUpdate={this.onDataUpdate}>
+          <DatFolder title="Environment">
+            <DatColor path="background" label="Background" />
+            <DatBoolean path="isAxesVisible" label="Axes" />
+          </DatFolder>
+          <DatFolder title="Blend Shape Group">
             {this.vrm &&
               this.vrm.blendShapeMaster.blendShapeGroups.map((e, i) => (
-                <DatGui.DatNumber key={i} path={'blendShape' + e.name} label={e.name} min={0} max={1} step={0.01} />
+                <DatNumber key={i} path={'blendShape' + e.name} label={e.name} min={0} max={1} step={0.01} />
               ))}
-          </DatGui.DatFolder>
-        </DatGui.default>
+          </DatFolder>
+        </DatGui>
       </>
     );
   }
 
   private onDataUpdate(data: any) {
-    if (this.state.isInitialized) {
-      this.vrm.blendShapeMaster.blendShapeGroups.forEach((e, i) => {
-        if (data['blendShape' + e.name] !== this.state.data['blendShape' + e.name]) {
-          this.vrm.setBlendShapeGroupWeight(i, data['blendShape' + e.name]);
-        }
-      });
+    if (!this.state.isInitialized) {
+      return;
     }
+
+    if (data.background !== this.state.data.background) {
+      this.scene.background = new THREE.Color(data.background);
+    }
+
+    if (data.isAxesVisible !== this.state.data.isAxesVisible) {
+      this.axesHelper.visible = data.isAxesVisible;
+    }
+
+    this.vrm.blendShapeMaster.blendShapeGroups.forEach((e, i) => {
+      if (data['blendShape' + e.name] !== this.state.data['blendShape' + e.name]) {
+        this.vrm.setBlendShapeGroupWeight(i, data['blendShape' + e.name]);
+      }
+    });
 
     this.setState({ data });
   }
@@ -136,14 +153,15 @@ export default class Viewer extends React.Component<Props, State> {
 
   private initScene() {
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(this.props.backgroundColor || '#000000');
+    this.scene.background = new THREE.Color(this.state.data.background);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff);
     directionalLight.position.set(0, 1, -2);
     this.scene.add(directionalLight);
 
-    const axesHelper = new THREE.AxesHelper(1000);
-    this.scene.add(axesHelper);
+    this.axesHelper = new THREE.AxesHelper(1000);
+    this.axesHelper.visible = this.state.data.isAxesVisible;
+    this.scene.add(this.axesHelper);
 
     this.camera = new THREE.PerspectiveCamera(50, this.props.width / this.props.height, 0.01);
 
