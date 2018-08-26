@@ -28,7 +28,7 @@ export default class Viewer extends React.Component<Props, State> {
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
   private controls: THREE.OrbitControls;
-  private axesHelper: THREE.AxesHelper;
+  private helpers: THREE.Group;
   private vrm: VRM;
 
   private lastUpdateTimeStamp: number;
@@ -125,7 +125,7 @@ export default class Viewer extends React.Component<Props, State> {
     }
 
     if (data.isAxesVisible !== this.state.data.isAxesVisible) {
-      this.axesHelper.visible = data.isAxesVisible;
+      this.helpers.visible = data.isAxesVisible;
     }
 
     this.vrm.blendShapeMaster.blendShapeGroups.forEach((e, i) => {
@@ -159,9 +159,14 @@ export default class Viewer extends React.Component<Props, State> {
     directionalLight.position.set(0, 1, -2);
     this.scene.add(directionalLight);
 
-    this.axesHelper = new THREE.AxesHelper(1000);
-    this.axesHelper.visible = this.state.data.isAxesVisible;
-    this.scene.add(this.axesHelper);
+    this.helpers = new THREE.Group();
+    const gridHelper = new THREE.GridHelper(10, 10);
+    const axesHelper = new THREE.AxesHelper(5);
+    gridHelper.visible = this.state.data.isAxesVisible;
+    axesHelper.visible = this.state.data.isAxesVisible;
+    this.helpers.add(gridHelper);
+    this.helpers.add(axesHelper);
+    this.scene.add(this.helpers);
 
     this.camera = new THREE.PerspectiveCamera(50, this.props.width / this.props.height, 0.01);
 
