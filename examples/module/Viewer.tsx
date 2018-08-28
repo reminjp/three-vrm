@@ -24,6 +24,7 @@ interface State {
 
 export default class Viewer extends React.Component<Props, State> {
   private requestID: number;
+  // private clock: THREE.Clock;
   private renderer: THREE.WebGLRenderer;
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
@@ -31,11 +32,11 @@ export default class Viewer extends React.Component<Props, State> {
   private helpers: THREE.Group;
   private vrm: VRM;
 
-  private lastUpdateTimeStamp: number;
-
   constructor(props: Props) {
     super(props);
     this.state = { isInitialized: false, isBusy: false, data: { background: '#212121', isAxesVisible: true } };
+
+    // this.clock = new THREE.Clock();
 
     this.onDataUpdate = this.onDataUpdate.bind(this);
     this.update = this.update.bind(this);
@@ -151,17 +152,9 @@ export default class Viewer extends React.Component<Props, State> {
     this.setState({ data });
   }
 
-  private update(timeStamp?: number) {
+  private update() {
     this.requestID = window.requestAnimationFrame(this.update);
-
-    if (timeStamp !== undefined) {
-      if (this.lastUpdateTimeStamp !== undefined) {
-        // const deltaTime = timeStamp - this.lastUpdateTimeStamp;
-      }
-
-      this.lastUpdateTimeStamp = timeStamp;
-    }
-
+    // const delta = this.clock.getDelta();
     this.renderScene();
   }
 
