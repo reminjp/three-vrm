@@ -39,6 +39,7 @@ export class VRM {
   public firstPerson: VRMFirstPerson;
   public secondaryAnimation: VRMSecondaryAnimation;
 
+  private nodes: THREE.Object3D[];
   private meshes: THREE.Mesh[][];
 
   constructor() {
@@ -54,6 +55,7 @@ export class VRM {
     this.firstPerson = new VRMFirstPerson();
     this.secondaryAnimation = new VRMSecondaryAnimation();
 
+    this.nodes = [];
     this.meshes = [];
   }
 
@@ -112,6 +114,14 @@ export class VRM {
         }
       }
     });
+
+    // Create a node list.
+    this.nodes.length = this.parser.json.nodes.length;
+
+    for (let i = 0; i < this.parser.json.nodes.length; ++i) {
+      const object3d = await this.parser.loadNode(i);
+      this.nodes[i] = this.scene.getObjectByName(object3d.name);
+    }
 
     // Create a mesh list for morphing.
     this.meshes = this.parser.json.meshes.map((): THREE.Mesh[] => []);
