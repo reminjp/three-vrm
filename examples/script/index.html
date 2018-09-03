@@ -41,7 +41,9 @@
       directionalLight.position.set(0, 1, -2);
       scene.add(directionalLight);
 
-      var axesHelper = new THREE.AxesHelper(1000);
+      var gridHelper = new THREE.GridHelper(10, 10);
+      var axesHelper = new THREE.AxesHelper(5);
+      scene.add(gridHelper);
       scene.add(axesHelper);
 
       camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01);

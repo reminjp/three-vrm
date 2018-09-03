@@ -68,5 +68,4 @@ export type VRMHumanBoneBoneType =
   | 'rightRingDistal'
   | 'rightLittleProximal'
   | 'rightLittleIntermediate'
-  | 'rightLittleDistal'
-  | '';
+  | 'rightLittleDistal';

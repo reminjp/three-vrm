@@ -7,7 +7,7 @@ const base = {
   output: {
     path: path.resolve(__dirname, 'lib'),
     filename: 'index.module.js',
-    library: 'THREEVRM',
+    library: 'vrm',
     libraryTarget: 'umd',
   },
   module: {
@@ -42,6 +42,7 @@ module.exports = [
   webpackMerge(base, {
     output: {
       filename: 'index.js',
+      library: '__three_vrm__',
       libraryTarget: 'var',
     },
     externals: {

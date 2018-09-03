@@ -1,7 +1,7 @@
 {
   "name": "three-vrm",
   "version": "0.0.9",
-  "description": "TypeScript/JavaScript VRM library for three.js.",
+  "description": "VRM file loader for three.js.",
   "license": "MIT",
   "author": "remin",
   "files": [
@@ -18,7 +18,7 @@
     "start": "yarn start:module",
     "start:module": "webpack-dev-server --config webpack.examples.config.js",
     "start:script": "http-server ./",
-    "build": "rm -rf lib && webpack && echo 'Object.assign(THREE,THREEVRM);' >> lib/index.js && tsc --emitDeclarationOnly",
+    "build": "rm -rf lib && webpack && echo 'Object.assign(THREE,__three_vrm__);' >> lib/index.js && tsc --emitDeclarationOnly",
     "build:examples": "rm -rf dist && webpack --config webpack.examples.config.js",
     "gh-pages": "yarn build:examples && gh-pages -d dist",
     "test": "yarn lint",

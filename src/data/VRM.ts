@@ -151,6 +151,10 @@ export class VRM {
     return this;
   }
 
+  public getNode(index: number) {
+    return this.nodes[index];
+  }
+
   public setBlendShapeWeight(meshIndex: number, blendShapeIndex: number, value: number) {
     const primitives = this.meshes[meshIndex];
     primitives.forEach(primitive => {
