@@ -7,9 +7,9 @@
 **This package is still under development.**
 **The usage may be destructively changed.**
 
-TypeScript/JavaScript [VRM](https://dwango.github.io/en/vrm/) library for three.js
+[VRM](https://dwango.github.io/en/vrm/) file loader for three.js, written in TypeScript.
 
-[VRM](https://dwango.github.io/vrm/) 形式の 3D モデルを three.js で使用するためのパッケージです。
+[VRM](https://dwango.github.io/vrm/) 形式の 3D モデルを three.js で描画するためのパッケージです。
 
 ## Dependencies
 
@@ -149,11 +149,15 @@ VRM first-person settings.
 
 VRM swaying object settings.
 
-#### `.setBlendShapeWeight ( meshIndex : number, blendShapeIndex : number, value : number )`
+#### `.getNode( index : number ) : THREE.Object3D`
+
+Returns a reference to the `Object3D` in `.scene`, corresponding to the node index.
+
+#### `.setBlendShapeWeight ( meshIndex : number, blendShapeIndex : number, value : number ) : void`
 
 Morphs the mesh.
 
-#### `.setBlendShapeGroupWeight ( index : number, value : number )`
+#### `.setBlendShapeGroupWeight ( index : number, value : number ) : void`
 
 Morphs all meshes in the BlendShapeGroup.
 
