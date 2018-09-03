@@ -94,7 +94,7 @@ This file assigns all exported classes to `THREE`.
 
 A loader for VRM resources.
 
-#### `new VRMLoader( manager? : THREE.LoadingManager )`
+#### `new VRMLoader ( manager? : THREE.LoadingManager )`
 
 Creates a new VRMLoader.
 
@@ -104,7 +104,7 @@ Loads a VRM model.
 
 ### VRM
 
-VRM model data.
+Model data loaded by `VRMLoader`.
 
 #### `.asset : object`
 
@@ -113,6 +113,7 @@ A glTF asset property.
 #### `.scene : THREE.Scene`
 
 A `Scene`.
+Changes are not reflected in other properties.
 
 #### `.parser : object`
 
@@ -147,6 +148,14 @@ VRM first-person settings.
 #### `.secondaryAnimation : object`
 
 VRM swaying object settings.
+
+#### `.setBlendShapeWeight ( meshIndex : number, blendShapeIndex : number, value : number )`
+
+Morphs the mesh.
+
+#### `.setBlendShapeGroupWeight ( index : number, value : number )`
+
+Morphs all meshes in the BlendShapeGroup.
 
 ## Development
 
