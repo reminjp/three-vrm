@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { VRMMaterialProperty } from '../data/VRMMaterialProperty';
+import { VRMMaterial } from '../data/VRMMaterial';
 import common_mtoon from '../shaders/common_mtoon.glsl';
 import lights_mtoon_pars_fragment from '../shaders/lights_mtoon_pars_fragment.glsl';
 import mtoon_frag from '../shaders/mtoon_frag.glsl';
@@ -190,7 +190,7 @@ export class VRMShaderMaterial extends THREE.ShaderMaterial {
     convertParameters.get('common')(this);
   }
 
-  public fromMaterialProperty(property: VRMMaterialProperty) {
+  public fromMaterialProperty(property: VRMMaterial) {
     this.name = property.name;
 
     if (!defaultParameters.has(property.shader) || !convertParameters.has(property.shader)) {
@@ -206,20 +206,20 @@ export class VRMShaderMaterial extends THREE.ShaderMaterial {
       uniforms['f' + key] = { value: property.floatProperties[key] };
     }
 
-    for (const key of Object.keys(property.keywordMap)) {
-      defines[key] = property.keywordMap[key];
-    }
-
-    for (const key of Object.keys(property.tagMap)) {
-      this.userData[key] = { value: property.tagMap[key] };
+    for (const key of Object.keys(property.vectorProperties)) {
+      uniforms['v' + key] = { value: property.vectorProperties[key] };
     }
 
     for (const key of Object.keys(property.textureProperties)) {
       uniforms['t' + key] = { value: property.textureProperties[key] };
     }
 
-    for (const key of Object.keys(property.vectorProperties)) {
-      uniforms['v' + key] = { value: property.vectorProperties[key] };
+    for (const key of Object.keys(property.keywordMap)) {
+      defines[key] = property.keywordMap[key];
+    }
+
+    for (const key of Object.keys(property.tagMap)) {
+      this.userData[key] = { value: property.tagMap[key] };
     }
 
     Object.assign(this.defines, parameters.defines);

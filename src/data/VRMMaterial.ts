@@ -1,14 +1,14 @@
 import * as THREE from 'three';
 
-export class VRMMaterialProperty {
+export class VRMMaterial {
   public name: string;
   public shader: string;
   public renderQueue: number;
   public floatProperties: { [key: string]: number };
+  public vectorProperties: { [key: string]: THREE.Vector4 };
+  public textureProperties: { [key: string]: THREE.Texture };
   public keywordMap: { [key: string]: any };
   public tagMap: { [key: string]: string };
-  public textureProperties: { [key: string]: THREE.Texture };
-  public vectorProperties: { [key: string]: THREE.Vector4 };
 
   constructor() {
     this.name = '';
@@ -30,12 +30,10 @@ export class VRMMaterialProperty {
       this.floatProperties[key] = Number(object.floatProperties[key]);
     }
 
-    for (const key of Object.keys(object.keywordMap)) {
-      this.keywordMap[key] = object.keywordMap[key];
-    }
-
-    for (const key of Object.keys(object.tagMap)) {
-      this.tagMap[key] = object.tagMap[key];
+    for (const key of Object.keys(object.vectorProperties)) {
+      const array = object.vectorProperties[key];
+      array.length = 4;
+      this.vectorProperties[key] = new THREE.Vector4().fromArray(array);
     }
 
     for (const key of Object.keys(object.textureProperties)) {
@@ -47,10 +45,12 @@ export class VRMMaterialProperty {
       }
     }
 
-    for (const key of Object.keys(object.vectorProperties)) {
-      const array = object.vectorProperties[key];
-      array.length = 4;
-      this.vectorProperties[key] = new THREE.Vector4().fromArray(array);
+    for (const key of Object.keys(object.keywordMap)) {
+      this.keywordMap[key] = object.keywordMap[key];
+    }
+
+    for (const key of Object.keys(object.tagMap)) {
+      this.tagMap[key] = object.tagMap[key];
     }
   }
 }
