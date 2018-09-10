@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { VRMShaderMaterial } from '../materials/VRMShaderMaterial';
-import { VRMBlendShapeMaster } from './VRMBlendShapeMaster';
+import { VRMBlendShape } from './VRMBlendShapeMaster';
 import { VRMFirstPerson } from './VRMFirstPerson';
 import { VRMHumanoid } from './VRMHumanoid';
-import { VRMMaterialProperty } from './VRMMaterialProperty';
+import { VRMMaterial } from './VRMMaterial';
 import { VRMMeta } from './VRMMeta';
 import { VRMSecondaryAnimation } from './VRMSecondaryAnimation';
 
@@ -32,12 +32,13 @@ export class VRM {
   public parser: any;
   public userData: any;
 
-  public materialProperties: VRMMaterialProperty[];
-  public humanoid: VRMHumanoid;
+  public exporterVersion: string;
   public meta: VRMMeta;
-  public blendShapeMaster: VRMBlendShapeMaster;
+  public humanoid: VRMHumanoid;
   public firstPerson: VRMFirstPerson;
+  public blendShapeMaster: VRMBlendShape;
   public secondaryAnimation: VRMSecondaryAnimation;
+  public materialProperties: VRMMaterial[];
 
   private nodes: THREE.Object3D[];
   private meshes: THREE.Mesh[][];
@@ -48,12 +49,13 @@ export class VRM {
     this.parser = {};
     this.userData = {};
 
-    this.materialProperties = [];
-    this.humanoid = new VRMHumanoid();
+    this.exporterVersion = '';
     this.meta = new VRMMeta();
-    this.blendShapeMaster = new VRMBlendShapeMaster();
+    this.humanoid = new VRMHumanoid();
+    this.blendShapeMaster = new VRMBlendShape();
     this.firstPerson = new VRMFirstPerson();
     this.secondaryAnimation = new VRMSecondaryAnimation();
+    this.materialProperties = [];
 
     this.nodes = [];
     this.meshes = [];
@@ -69,20 +71,15 @@ export class VRM {
       throw new Error('Loaded glTF is not a VRM model.');
     }
 
-    this.materialProperties = [];
-    for (const object of gltf.userData.gltfExtensions.VRM.materialProperties) {
-      const property = new VRMMaterialProperty();
-      await property.fromObject(object, this.parser);
-      this.materialProperties.push(property);
-    }
-
-    this.humanoid = new VRMHumanoid();
-    Object.assign(this.humanoid, gltf.userData.gltfExtensions.VRM.humanoid);
+    this.exporterVersion = gltf.userData.gltfExtensions.VRM.exporterVersion;
 
     this.meta = new VRMMeta();
     Object.assign(this.meta, gltf.userData.gltfExtensions.VRM.meta);
 
-    this.blendShapeMaster = new VRMBlendShapeMaster();
+    this.humanoid = new VRMHumanoid();
+    Object.assign(this.humanoid, gltf.userData.gltfExtensions.VRM.humanoid);
+
+    this.blendShapeMaster = new VRMBlendShape();
     Object.assign(this.blendShapeMaster, gltf.userData.gltfExtensions.VRM.blendShapeMaster);
 
     this.firstPerson = new VRMFirstPerson();
@@ -90,6 +87,13 @@ export class VRM {
 
     this.secondaryAnimation = new VRMSecondaryAnimation();
     Object.assign(this.secondaryAnimation, gltf.userData.gltfExtensions.VRM.secondaryAnimation);
+
+    this.materialProperties = [];
+    for (const object of gltf.userData.gltfExtensions.VRM.materialProperties) {
+      const property = new VRMMaterial();
+      await property.fromObject(object, this.parser);
+      this.materialProperties.push(property);
+    }
 
     // Convert materials.
     this.scene.traverse((object3d: THREE.Object3D) => {

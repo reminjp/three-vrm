@@ -1,17 +1,17 @@
 export class VRMMeta {
   public title: string;
+  public version: string;
   public author: string;
   public contactInformation: string;
   public reference: string;
   public texture: number;
-  public version: string;
-  public allowedUserName: 'Only Author' | 'Explictly Licensed Person' | 'Everyone';
+  public allowedUserName: 'OnlyAuthor' | 'ExplicitlyLicensedPerson' | 'Everyone';
   public violentUssageName: 'Disallow' | 'Allow';
   public sexualUssageName: 'Disallow' | 'Allow';
   public commercialUssageName: 'Disallow' | 'Allow';
   public otherPermissionUrl: string;
   public licenseName:
-    | 'Redistribution Prohibited'
+    | 'Redistribution_Prohibited'
     | 'CC0'
     | 'CC_BY'
     | 'CC_BY_NC'

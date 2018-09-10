@@ -14,6 +14,10 @@ export class VRMHumanBone {
   public bone: VRMHumanBoneName;
   public node: number;
   public useDefaultValues: boolean;
+  public min: THREE.Vector3;
+  public max: THREE.Vector3;
+  public center: THREE.Vector3;
+  public axisLength: number;
 }
 
 export type VRMHumanBoneName =

@@ -1,5 +1,5 @@
 export * from './VRM';
-export * from './VRMMaterialProperty';
+export * from './VRMMaterial';
 export * from './VRMHumanoid';
 export * from './VRMMeta';
 export * from './VRMBlendShapeMaster';
