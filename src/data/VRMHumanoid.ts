@@ -11,34 +11,36 @@ export class VRMHumanoid {
 }
 
 export class VRMHumanBone {
-  public bone: VRMHumanBoneBoneType;
+  public bone: VRMHumanBoneName;
   public node: number;
   public useDefaultValues: boolean;
 }
 
-export type VRMHumanBoneBoneType =
+export type VRMHumanBoneName =
   | 'hips'
-  | 'spine'
-  | 'chest'
-  | 'upperChest'
-  | 'neck'
-  | 'head'
-  | 'leftEye'
-  | 'rightEye'
-  | 'leftUpperArm'
-  | 'rightUpperArm'
-  | 'leftLowerArm'
-  | 'rightLowerArm'
-  | 'leftHand'
-  | 'rightHand'
   | 'leftUpperLeg'
   | 'rightUpperLeg'
   | 'leftLowerLeg'
   | 'rightLowerLeg'
   | 'leftFoot'
   | 'rightFoot'
-  | 'leftToe'
-  | 'rightToe'
+  | 'spine'
+  | 'chest'
+  | 'neck'
+  | 'head'
+  | 'leftShoulder'
+  | 'rightShoulder'
+  | 'leftUpperArm'
+  | 'rightUpperArm'
+  | 'leftLowerArm'
+  | 'rightLowerArm'
+  | 'leftHand'
+  | 'rightHand'
+  | 'leftToes'
+  | 'rightToes'
+  | 'leftEye'
+  | 'rightEye'
+  | 'jaw'
   | 'leftThumbProximal'
   | 'leftThumbIntermediate'
   | 'leftThumbDistal'
@@ -68,4 +70,5 @@ export type VRMHumanBoneBoneType =
   | 'rightRingDistal'
   | 'rightLittleProximal'
   | 'rightLittleIntermediate'
-  | 'rightLittleDistal';
+  | 'rightLittleDistal'
+  | 'upperChest';
