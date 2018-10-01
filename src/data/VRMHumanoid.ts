@@ -1,23 +1,25 @@
-export class VRMHumanoid {
-  public armStretch: number;
-  public feetSpacing: number;
-  public hasTranslationDoF: boolean;
-  public legStretch: number;
-  public lowerArmTwist: number;
-  public lowerLegTwist: number;
-  public upperArmTwist: number;
-  public upperLegTwist: number;
-  public humanBones: VRMHumanBone[];
+import { VRMVector3 } from './VRMVector3';
+
+export interface VRMHumanoid {
+  armStretch: number;
+  feetSpacing: number;
+  hasTranslationDoF: boolean;
+  legStretch: number;
+  lowerArmTwist: number;
+  lowerLegTwist: number;
+  upperArmTwist: number;
+  upperLegTwist: number;
+  humanBones: VRMHumanBone[];
 }
 
-export class VRMHumanBone {
-  public bone: VRMHumanBoneName;
-  public node: number;
-  public useDefaultValues: boolean;
-  public min: THREE.Vector3;
-  public max: THREE.Vector3;
-  public center: THREE.Vector3;
-  public axisLength: number;
+export interface VRMHumanBone {
+  bone: VRMHumanBoneName;
+  node: number;
+  useDefaultValues: boolean;
+  min: VRMVector3;
+  max: VRMVector3;
+  center: VRMVector3;
+  axisLength: number;
 }
 
 export type VRMHumanBoneName =

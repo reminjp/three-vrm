@@ -1,16 +1,16 @@
-export class VRMMeta {
-  public title: string;
-  public version: string;
-  public author: string;
-  public contactInformation: string;
-  public reference: string;
-  public texture: number;
-  public allowedUserName: 'OnlyAuthor' | 'ExplicitlyLicensedPerson' | 'Everyone';
-  public violentUssageName: 'Disallow' | 'Allow';
-  public sexualUssageName: 'Disallow' | 'Allow';
-  public commercialUssageName: 'Disallow' | 'Allow';
-  public otherPermissionUrl: string;
-  public licenseName:
+export interface VRMMeta {
+  title: string;
+  version: string;
+  author: string;
+  contactInformation: string;
+  reference: string;
+  texture: number;
+  allowedUserName: 'OnlyAuthor' | 'ExplicitlyLicensedPerson' | 'Everyone';
+  violentUssageName: 'Disallow' | 'Allow';
+  sexualUssageName: 'Disallow' | 'Allow';
+  commercialUssageName: 'Disallow' | 'Allow';
+  otherPermissionUrl: string;
+  licenseName:
     | 'Redistribution_Prohibited'
     | 'CC0'
     | 'CC_BY'
@@ -20,5 +20,5 @@ export class VRMMeta {
     | 'CC_BY_ND'
     | 'CC_BY_NC_ND'
     | 'Other';
-  public otherLicenseUrl: string;
+  otherLicenseUrl: string;
 }
