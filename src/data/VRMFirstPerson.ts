@@ -1,15 +1,23 @@
-export class VRMFirstPerson {
-  public firstPersonBone: number;
-  public firstPersonBoneOffset: THREE.Vector3;
-  public meshAnnotations: VRMMeshAnnotation[];
-  public lookAtTypeName: 'Bone' | 'BlendShape';
-  public lookAtHorizontalInner: any;
-  public lookAtHorizontalOuter: any;
-  public lookAtVerticalDown: any;
-  public lookAtVerticalUp: any;
+import { VRMVector3 } from './VRMVector3';
+
+export interface VRMFirstPerson {
+  firstPersonBone: number;
+  firstPersonBoneOffset: VRMVector3;
+  meshAnnotations: VRMFirstPersonMeshAnnotation[];
+  lookAtTypeName: 'Bone' | 'BlendShape';
+  lookAtHorizontalInner: VRMFirstPersonDegreeMap;
+  lookAtHorizontalOuter: VRMFirstPersonDegreeMap;
+  lookAtVerticalDown: VRMFirstPersonDegreeMap;
+  lookAtVerticalUp: VRMFirstPersonDegreeMap;
 }
 
-export class VRMMeshAnnotation {
-  public firstPersonFlag: 'Auto' | 'FirstPersonOnly' | 'ThirdPersonOnly' | 'Both';
-  public mesh: number;
+export interface VRMFirstPersonMeshAnnotation {
+  mesh: number;
+  firstPersonFlag: 'Auto' | 'FirstPersonOnly' | 'ThirdPersonOnly' | 'Both';
+}
+
+export interface VRMFirstPersonDegreeMap {
+  curve: number[];
+  xRange: number;
+  yRange: number;
 }

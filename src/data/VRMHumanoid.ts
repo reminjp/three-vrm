@@ -1,44 +1,52 @@
-export class VRMHumanoid {
-  public armStretch: number;
-  public feetSpacing: number;
-  public hasTranslationDoF: boolean;
-  public legStretch: number;
-  public lowerArmTwist: number;
-  public lowerLegTwist: number;
-  public upperArmTwist: number;
-  public upperLegTwist: number;
-  public humanBones: VRMHumanBone[];
+import { VRMVector3 } from './VRMVector3';
+
+export interface VRMHumanoid {
+  armStretch: number;
+  feetSpacing: number;
+  hasTranslationDoF: boolean;
+  legStretch: number;
+  lowerArmTwist: number;
+  lowerLegTwist: number;
+  upperArmTwist: number;
+  upperLegTwist: number;
+  humanBones: VRMHumanBone[];
 }
 
-export class VRMHumanBone {
-  public bone: VRMHumanBoneBoneType;
-  public node: number;
-  public useDefaultValues: boolean;
+export interface VRMHumanBone {
+  bone: VRMHumanBoneName;
+  node: number;
+  useDefaultValues: boolean;
+  min: VRMVector3;
+  max: VRMVector3;
+  center: VRMVector3;
+  axisLength: number;
 }
 
-export type VRMHumanBoneBoneType =
+export type VRMHumanBoneName =
   | 'hips'
-  | 'spine'
-  | 'chest'
-  | 'upperChest'
-  | 'neck'
-  | 'head'
-  | 'leftEye'
-  | 'rightEye'
-  | 'leftUpperArm'
-  | 'rightUpperArm'
-  | 'leftLowerArm'
-  | 'rightLowerArm'
-  | 'leftHand'
-  | 'rightHand'
   | 'leftUpperLeg'
   | 'rightUpperLeg'
   | 'leftLowerLeg'
   | 'rightLowerLeg'
   | 'leftFoot'
   | 'rightFoot'
-  | 'leftToe'
-  | 'rightToe'
+  | 'spine'
+  | 'chest'
+  | 'neck'
+  | 'head'
+  | 'leftShoulder'
+  | 'rightShoulder'
+  | 'leftUpperArm'
+  | 'rightUpperArm'
+  | 'leftLowerArm'
+  | 'rightLowerArm'
+  | 'leftHand'
+  | 'rightHand'
+  | 'leftToes'
+  | 'rightToes'
+  | 'leftEye'
+  | 'rightEye'
+  | 'jaw'
   | 'leftThumbProximal'
   | 'leftThumbIntermediate'
   | 'leftThumbDistal'
@@ -68,4 +76,5 @@ export type VRMHumanBoneBoneType =
   | 'rightRingDistal'
   | 'rightLittleProximal'
   | 'rightLittleIntermediate'
-  | 'rightLittleDistal';
+  | 'rightLittleDistal'
+  | 'upperChest';
