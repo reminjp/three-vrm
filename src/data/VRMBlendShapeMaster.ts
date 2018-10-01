@@ -1,22 +1,22 @@
-export class VRMBlendShape {
-  public blendShapeGroups: VRMBlendShapeGroup[];
+export interface VRMBlendShape {
+  blendShapeGroups: VRMBlendShapeGroup[];
 }
 
-export class VRMBlendShapeGroup {
-  public name: string;
-  public presetName: string;
-  public binds: VRMBlendShapeBind[];
-  public materialValues: VRMBlendShapeMaterialBind[];
+export interface VRMBlendShapeGroup {
+  name: string;
+  presetName: string;
+  binds: VRMBlendShapeBind[];
+  materialValues: VRMBlendShapeMaterialBind[];
 }
 
-export class VRMBlendShapeBind {
-  public mesh: number;
-  public index: number;
-  public weight: number;
+export interface VRMBlendShapeBind {
+  mesh: number;
+  index: number;
+  weight: number;
 }
 
-export class VRMBlendShapeMaterialBind {
-  public materialName: string;
-  public propertyName: string;
-  public targetValue: number[];
+export interface VRMBlendShapeMaterialBind {
+  materialName: string;
+  propertyName: string;
+  targetValue: number[];
 }

@@ -1,26 +1,28 @@
-export class VRMSecondaryAnimation {
-  public boneGroups: VRMSecondaryAnimationSpring[];
-  public colliderGroups: VRMSecondaryAnimationColliderGroup[];
+import { VRMVector3 } from './VRMVector3';
+
+export interface VRMSecondaryAnimation {
+  boneGroups: VRMSecondaryAnimationSpring[];
+  colliderGroups: VRMSecondaryAnimationColliderGroup[];
 }
 
-export class VRMSecondaryAnimationSpring {
-  public comment: string;
-  public stiffiness: number;
-  public gravityPower: number;
-  public gravityDir: THREE.Vector3;
-  public dragForce: number;
-  public center: number;
-  public hitRadius: number;
-  public bones: number[];
-  public colliderGroups: number[];
+export interface VRMSecondaryAnimationSpring {
+  comment: string;
+  stiffiness: number;
+  gravityPower: number;
+  gravityDir: VRMVector3;
+  dragForce: number;
+  center: number;
+  hitRadius: number;
+  bones: number[];
+  colliderGroups: number[];
 }
 
-export class VRMSecondaryAnimationColliderGroup {
-  public node: number;
-  public colliders: VRMSecondaryAnimationCollider[];
+export interface VRMSecondaryAnimationColliderGroup {
+  node: number;
+  colliders: VRMSecondaryAnimationCollider[];
 }
 
-export class VRMSecondaryAnimationCollider {
-  public offset: THREE.Vector3;
-  public radius: number;
+export interface VRMSecondaryAnimationCollider {
+  offset: VRMVector3;
+  radius: number;
 }

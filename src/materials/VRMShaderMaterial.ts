@@ -190,7 +190,7 @@ export class VRMShaderMaterial extends THREE.ShaderMaterial {
     convertParameters.get('common')(this);
   }
 
-  public fromMaterialProperty(property: VRMMaterial) {
+  public fromMaterialProperty(property: VRMMaterial, textures: THREE.Texture[]) {
     this.name = property.name;
 
     if (!defaultParameters.has(property.shader) || !convertParameters.has(property.shader)) {
@@ -207,11 +207,15 @@ export class VRMShaderMaterial extends THREE.ShaderMaterial {
     }
 
     for (const key of Object.keys(property.vectorProperties)) {
-      uniforms['v' + key] = { value: property.vectorProperties[key] };
+      const vector4 = property.vectorProperties[key].concat();
+      vector4.length = 4;
+      uniforms['v' + key] = { value: vector4 };
     }
 
     for (const key of Object.keys(property.textureProperties)) {
-      uniforms['t' + key] = { value: property.textureProperties[key] };
+      if (textures[property.textureProperties[key]] !== undefined) {
+        uniforms['t' + key] = { value: textures[property.textureProperties[key]] };
+      }
     }
 
     for (const key of Object.keys(property.keywordMap)) {
