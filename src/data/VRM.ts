@@ -1,63 +1,48 @@
 import * as THREE from 'three';
 import { VRMShaderMaterial } from '../materials/VRMShaderMaterial';
-import { VRMBlendShapeMaster } from './VRMBlendShapeMaster';
+import { VRMBlendShape } from './VRMBlendShapeMaster';
 import { VRMFirstPerson } from './VRMFirstPerson';
 import { VRMHumanoid } from './VRMHumanoid';
-import { VRMMaterialProperty } from './VRMMaterialProperty';
+import { VRMMaterial } from './VRMMaterial';
 import { VRMMeta } from './VRMMeta';
 import { VRMSecondaryAnimation } from './VRMSecondaryAnimation';
 
-class GLTF {
-  public scene: THREE.Scene;
-  public scenes: THREE.Scene[];
-  public cameras: THREE.Camera[];
-  public animations: THREE.AnimationClip[];
-  public asset: Asset;
-  public parser: any;
-  public userData: any;
+interface GLTF {
+  scene: THREE.Scene;
+  scenes: THREE.Scene[];
+  cameras: THREE.Camera[];
+  animations: THREE.AnimationClip[];
+  asset: GLTFAsset;
+  parser: any;
+  userData: any;
 }
 
-export class Asset {
-  public copyright?: string;
-  public generator?: string;
-  public version: string;
-  public minVersion?: string;
-  public extensions?: object;
-  public extras?: any;
+export interface GLTFAsset {
+  copyright?: string;
+  generator?: string;
+  version: string;
+  minVersion?: string;
+  extensions?: object;
+  extras?: any;
 }
 
 export class VRM {
-  public asset: Asset;
+  public asset: GLTFAsset;
   public scene: THREE.Scene;
   public parser: any;
   public userData: any;
 
-  public materialProperties: VRMMaterialProperty[];
-  public humanoid: VRMHumanoid;
+  public exporterVersion: string;
   public meta: VRMMeta;
-  public blendShapeMaster: VRMBlendShapeMaster;
+  public humanoid: VRMHumanoid;
   public firstPerson: VRMFirstPerson;
+  public blendShapeMaster: VRMBlendShape;
   public secondaryAnimation: VRMSecondaryAnimation;
+  public materialProperties: VRMMaterial[];
 
   private nodes: THREE.Object3D[];
+  private textures: THREE.Texture[];
   private meshes: THREE.Mesh[][];
-
-  constructor() {
-    this.asset = new Asset();
-    this.scene = new THREE.Scene();
-    this.parser = {};
-    this.userData = {};
-
-    this.materialProperties = [];
-    this.humanoid = new VRMHumanoid();
-    this.meta = new VRMMeta();
-    this.blendShapeMaster = new VRMBlendShapeMaster();
-    this.firstPerson = new VRMFirstPerson();
-    this.secondaryAnimation = new VRMSecondaryAnimation();
-
-    this.nodes = [];
-    this.meshes = [];
-  }
 
   public async fromGLTF(gltf: GLTF) {
     this.asset = gltf.asset;
@@ -69,27 +54,25 @@ export class VRM {
       throw new Error('Loaded glTF is not a VRM model.');
     }
 
-    this.materialProperties = [];
-    for (const object of gltf.userData.gltfExtensions.VRM.materialProperties) {
-      const property = new VRMMaterialProperty();
-      await property.fromObject(object, this.parser);
-      this.materialProperties.push(property);
+    this.exporterVersion = gltf.userData.gltfExtensions.VRM.exporterVersion;
+    this.meta = gltf.userData.gltfExtensions.VRM.meta;
+    this.humanoid = gltf.userData.gltfExtensions.VRM.humanoid;
+    this.blendShapeMaster = gltf.userData.gltfExtensions.VRM.blendShapeMaster;
+    this.firstPerson = gltf.userData.gltfExtensions.VRM.firstPerson;
+    this.secondaryAnimation = gltf.userData.gltfExtensions.VRM.secondaryAnimation;
+    this.materialProperties = gltf.userData.gltfExtensions.VRM.materialProperties;
+
+    // Load all textures used in the model.
+    const textureIndices = new Set<number>();
+    this.materialProperties.forEach(m => {
+      Object.values(m.textureProperties).forEach(i => {
+        textureIndices.add(i);
+      });
+    });
+    this.textures = new Array(this.parser.json.textures.length);
+    for (const i of textureIndices.values()) {
+      this.textures[i] = await this.parser.loadTexture(i);
     }
-
-    this.humanoid = new VRMHumanoid();
-    Object.assign(this.humanoid, gltf.userData.gltfExtensions.VRM.humanoid);
-
-    this.meta = new VRMMeta();
-    Object.assign(this.meta, gltf.userData.gltfExtensions.VRM.meta);
-
-    this.blendShapeMaster = new VRMBlendShapeMaster();
-    Object.assign(this.blendShapeMaster, gltf.userData.gltfExtensions.VRM.blendShapeMaster);
-
-    this.firstPerson = new VRMFirstPerson();
-    Object.assign(this.firstPerson, gltf.userData.gltfExtensions.VRM.firstPerson);
-
-    this.secondaryAnimation = new VRMSecondaryAnimation();
-    Object.assign(this.secondaryAnimation, gltf.userData.gltfExtensions.VRM.secondaryAnimation);
 
     // Convert materials.
     this.scene.traverse((object3d: THREE.Object3D) => {
@@ -103,20 +86,20 @@ export class VRM {
               p => p.name === (object3d.material as THREE.MeshMaterialType[])[i].name
             );
             const material = new VRMShaderMaterial({ morphTargets, skinning: true });
-            material.fromMaterialProperty(property);
+            material.fromMaterialProperty(property, this.textures);
             object3d.material[i] = material;
           }
         } else {
           const property = this.materialProperties.find(p => p.name === (object3d.material as THREE.Material).name);
           const material = new VRMShaderMaterial({ morphTargets, skinning: true });
-          material.fromMaterialProperty(property);
+          material.fromMaterialProperty(property, this.textures);
           object3d.material = material;
         }
       }
     });
 
     // Create a node list.
-    this.nodes.length = this.parser.json.nodes.length;
+    this.nodes = new Array(this.parser.json.nodes.length);
 
     for (let i = 0; i < this.parser.json.nodes.length; ++i) {
       const object3d = await this.parser.loadNode(i);
