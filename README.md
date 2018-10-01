@@ -127,7 +127,6 @@ Raw json of VRM extensions is in `.userData.gltfExtensions.VRM`.
 #### `.materialProperties : Array`
 
 An array of VRM material properties.
-`.textureProperties` and `.vectorProperties` are converted to `THREE.Texture` objects and `THREE.Vector4` objects.
 
 #### `.humanoid : object`
 
