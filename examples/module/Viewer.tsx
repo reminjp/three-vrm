@@ -100,20 +100,19 @@ export default class Viewer extends React.Component<Props, State> {
             style={{ width: '100%', height: '100%', margin: 0, padding: 0 }}
           />
         </div>
-        {this.state.isInitialized &&
-          this.vrm && (
-            <div style={{ position: 'fixed', bottom: 0, left: 0, margin: '1rem', color: '#808080' }}>
-              {this.vrm.meta.contactInformation ? (
-                <a href={this.vrm.meta.contactInformation} target="_blank">
-                  {this.vrm.meta.title}
-                </a>
-              ) : (
-                this.vrm.meta.title
-              )}
-              {' by '}
-              {this.vrm.meta.author}
-            </div>
-          )}
+        {this.state.isInitialized && this.vrm && (
+          <div style={{ position: 'fixed', bottom: 0, left: 0, margin: '1rem', color: '#808080' }}>
+            {this.vrm.meta.contactInformation ? (
+              <a href={this.vrm.meta.contactInformation} target="_blank">
+                {this.vrm.meta.title}
+              </a>
+            ) : (
+              this.vrm.meta.title
+            )}
+            {' by '}
+            {this.vrm.meta.author}
+          </div>
+        )}
         <DatGui data={this.state.data} onUpdate={this.onDataUpdate}>
           <DatFolder title="Environment">
             <DatColor path="background" label="Background" />

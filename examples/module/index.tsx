@@ -23,23 +23,20 @@ class App extends React.Component<{}, State> {
   public render() {
     return (
       <div style={{ width: '100vw', height: '100vh' }}>
-        <Dropzone
-          accept=".vrm"
-          disableClick={true}
-          disablePreview={true}
-          multiple={false}
-          style={{ width: '100%', height: '100%', border: 'none' }}
-          onDrop={this.onDrop}
-        >
-          <ReactResizeDetector handleWidth={true} handleHeight={true}>
-            {(width?: number, height?: number) => (
-              <Viewer
-                model={this.state.model}
-                width={width || window.innerWidth}
-                height={height || window.innerHeight}
-              />
-            )}
-          </ReactResizeDetector>
+        <Dropzone accept=".vrm" disableClick={true} multiple={false} onDrop={this.onDrop}>
+          {({ getRootProps }) => (
+            <div {...getRootProps()} style={{ width: '100%', height: '100%', border: 'none' }}>
+              <ReactResizeDetector handleWidth={true} handleHeight={true}>
+                {(width?: number, height?: number) => (
+                  <Viewer
+                    model={this.state.model}
+                    width={width || window.innerWidth}
+                    height={height || window.innerHeight}
+                  />
+                )}
+              </ReactResizeDetector>
+            </div>
+          )}
         </Dropzone>
         <div style={{ position: 'fixed', top: 0, left: 0, margin: '1rem', color: '#ffffff' }}>
           <h1>
