@@ -7,6 +7,17 @@ import { VRMMaterial } from './VRMMaterial';
 import { VRMMeta } from './VRMMeta';
 import { VRMSecondaryAnimation } from './VRMSecondaryAnimation';
 
+type MeshMaterial =
+  | THREE.MeshBasicMaterial
+  | THREE.MeshLambertMaterial
+  | THREE.MeshPhongMaterial
+  | THREE.MeshDepthMaterial
+  | THREE.MeshStandardMaterial
+  | THREE.MeshPhysicalMaterial
+  | THREE.MeshNormalMaterial
+  | THREE.MeshFaceMaterial
+  | THREE.ShaderMaterial;
+
 interface GLTF {
   scene: THREE.Scene;
   scenes: THREE.Scene[];
@@ -83,7 +94,7 @@ export class VRM {
         if (Array.isArray(object3d.material)) {
           for (let i = 0; i < object3d.material.length; ++i) {
             const property = this.materialProperties.find(
-              p => p.name === (object3d.material as THREE.MeshMaterialType[])[i].name
+              p => p.name === (object3d.material as MeshMaterial[])[i].name
             );
             const material = new VRMShaderMaterial({ morphTargets, skinning: true });
             material.fromMaterialProperty(property, this.textures);
