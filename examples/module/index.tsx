@@ -4,7 +4,8 @@ import Dropzone from 'react-dropzone';
 import ReactResizeDetector from 'react-resize-detector';
 import Viewer from './Viewer';
 
-const sampleModel: string = require('../res/AliciaSolid.vrm'); // tslint:disable-line:no-var-requires
+const aliciaSolidModel: string = require('../res/AliciaSolid.vrm'); // tslint:disable-line:no-var-requires
+const shibuSendagayaModel: string = require('../res/ShibuSendagaya.vrm'); // tslint:disable-line:no-var-requires
 
 interface State {
   model: string;
@@ -15,9 +16,11 @@ class App extends React.Component<{}, State> {
 
   constructor(props: {}) {
     super(props);
-    this.state = { model: sampleModel };
+    this.state = { model: aliciaSolidModel };
 
     this.onDrop = this.onDrop.bind(this);
+    this.showAliciaSolid = this.showAliciaSolid.bind(this);
+    this.showShibuSendagaya = this.showShibuSendagaya.bind(this);
   }
 
   public render() {
@@ -43,6 +46,16 @@ class App extends React.Component<{}, State> {
             <a href="https://github.com/rdrgn/three-vrm">three-vrm</a> example
           </h1>
           <p>Drop .vrm file to preview.</p>
+          <p>
+            Sample:{' '}
+            <a href="#" onClick={this.showAliciaSolid}>
+              Alicia Solid
+            </a>
+            ,{' '}
+            <a href="#" onClick={this.showShibuSendagaya}>
+              Shibu Sendagaya
+            </a>
+          </p>
         </div>
       </div>
     );
@@ -56,6 +69,14 @@ class App extends React.Component<{}, State> {
       this.objectURL = URL.createObjectURL(acceptedFiles[0]);
       this.setState({ model: this.objectURL });
     }
+  }
+
+  private showAliciaSolid() {
+    this.setState({ model: aliciaSolidModel });
+  }
+
+  private showShibuSendagaya() {
+    this.setState({ model: shibuSendagayaModel });
   }
 }
 

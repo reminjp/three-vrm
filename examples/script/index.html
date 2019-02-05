@@ -1,81 +1,81 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>VRM Example</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <style>
+      html,
+      body {
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
 
-<head>
-  <meta charset="utf-8">
-  <title>VRM Example</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <style>
-    html,
-    body {
-      overflow: hidden;
-      width: 100vw;
-      height: 100vh;
-      margin: 0;
-      padding: 0;
-    }
+  <body>
+    <script src="../../node_modules/three/build/three.min.js"></script>
+    <script src="../../node_modules/three/examples/js/controls/OrbitControls.js"></script>
+    <script src="../../lib/index.js"></script>
+    <script>
+      var camera, controls, scene, renderer;
 
-  </style>
-</head>
+      init();
+      animate();
 
-<body>
-  <script src="../../node_modules/three/build/three.min.js"></script>
-  <script src="../../node_modules/three/examples/js/controls/OrbitControls.js"></script>
-  <script src="../../lib/index.js"></script>
-  <script>
-    var camera, controls, scene, renderer;
+      function init() {
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
 
-    init();
-    animate();
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x212121);
 
-    function init() {
-      renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(window.devicePixelRatio);
-      document.body.appendChild(renderer.domElement);
+        var directionalLight = new THREE.DirectionalLight(0xffffff);
+        directionalLight.position.set(0, 1, -2);
+        scene.add(directionalLight);
 
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x212121);
+        var gridHelper = new THREE.GridHelper(10, 10);
+        var axesHelper = new THREE.AxesHelper(5);
+        scene.add(gridHelper);
+        scene.add(axesHelper);
 
-      var directionalLight = new THREE.DirectionalLight(0xffffff);
-      directionalLight.position.set(0, 1, -2);
-      scene.add(directionalLight);
+        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01);
+        camera.position.set(0, 1.5, -1.5);
 
-      var gridHelper = new THREE.GridHelper(10, 10);
-      var axesHelper = new THREE.AxesHelper(5);
-      scene.add(gridHelper);
-      scene.add(axesHelper);
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.screenSpacePanning = true;
+        controls.target.set(0, 0.75 * 1.5, 0);
 
-      camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01);
-      camera.position.set(0, 1.5, -1.5);
+        var vrmLoader = new THREE.VRMLoader();
+        vrmLoader.crossOrigin = 'anonymous';
+        vrmLoader.load(
+          '../res/AliciaSolid.vrm',
+          function(vrm) {
+            scene.add(vrm.scene);
+          },
+          function(progress) {
+            console.log('Loading model...', 100 * (progress.loaded / progress.total), '%');
+          },
+          function(error) {
+            console.error(error);
+          }
+        );
+      }
 
-      controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.screenSpacePanning = true;
-      controls.target.set(0, 0.75 * 1.5, 0);
+      function animate() {
+        requestAnimationFrame(animate);
 
-      var vrmLoader = new THREE.VRMLoader();
-      vrmLoader.crossOrigin = 'anonymous';
-      vrmLoader.load(
-        '../res/AliciaSolid.vrm',
-        function (vrm) {
-          scene.add(vrm.scene);
-        },
-        function (progress) {
-          console.log('Loading model...', 100 * (progress.loaded / progress.total), '%');
-        },
-        function (error) {
-          console.error(error);
-        }
-      );
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-
-      controls.update();
-      renderer.render(scene, camera);
-    }
-  </script>
-</body>
-
+        controls.update();
+        renderer.render(scene, camera);
+      }
+    </script>
+  </body>
 </html>
