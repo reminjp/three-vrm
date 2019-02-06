@@ -74,6 +74,6 @@
     "webpack-merge": "^4.2.1"
   },
   "peerDependencies": {
-    "three": "^0.95.0"
+    "three": "^0.101.1"
   }
 }
