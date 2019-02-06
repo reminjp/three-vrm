@@ -1,12 +1,8 @@
 import * as React from 'react';
+import DatGui, { DatBoolean, DatColor, DatFolder, DatNumber } from 'react-dat-gui';
+import 'react-dat-gui/build/react-dat-gui.css';
 import * as THREE from 'three';
 import { VRM, VRMLoader } from '../../src';
-
-import '../../node_modules/react-dat-gui/build/react-dat-gui.css';
-
-const ReactDatGui = require('react-dat-gui'); // tslint:disable-line:no-var-requires
-const DatGui = ReactDatGui.default;
-const { DatBoolean, DatColor, DatFolder, DatNumber } = ReactDatGui;
 
 const OrbitControls = require('three-orbitcontrols'); // tslint:disable-line:no-var-requires
 
@@ -114,11 +110,11 @@ export default class Viewer extends React.Component<Props, State> {
           </div>
         )}
         <DatGui data={this.state.data} onUpdate={this.onDataUpdate}>
-          <DatFolder title="Environment">
+          <DatFolder title="Environment" closed={true}>
             <DatColor path="background" label="Background" />
             <DatBoolean path="isAxesVisible" label="Axes" />
           </DatFolder>
-          <DatFolder title="Blend Shape Group">
+          <DatFolder title="Blend Shape Group" closed={true}>
             {this.vrm &&
               this.vrm.blendShapeMaster.blendShapeGroups.map((e, i) => (
                 <DatNumber key={i} path={'blendShape' + e.name} label={e.name} min={0} max={1} step={0.01} />
