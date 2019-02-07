@@ -47,14 +47,10 @@ class App extends React.Component<{}, State> {
           </h1>
           <p>Drop .vrm file to preview.</p>
           <p>
-            Sample:{' '}
-            <a href="#" onClick={this.showAliciaSolid}>
-              Alicia Solid
-            </a>
-            ,{' '}
-            <a href="#" onClick={this.showShibuSendagaya}>
-              Shibu Sendagaya
-            </a>
+            <a onClick={this.showAliciaSolid}>Alicia Solid</a>
+          </p>
+          <p>
+            <a onClick={this.showShibuSendagaya}>Shibu Sendagaya</a>
           </p>
         </div>
       </div>

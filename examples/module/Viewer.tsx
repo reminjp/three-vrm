@@ -14,6 +14,7 @@ interface Props {
 interface State {
   isInitialized: boolean;
   isBusy: boolean;
+  progress: number;
   data: any;
 }
 
@@ -29,7 +30,12 @@ export default class Viewer extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { isInitialized: false, isBusy: false, data: { background: '#212121', isAxesVisible: true } };
+    this.state = {
+      isInitialized: false,
+      isBusy: false,
+      progress: 0,
+      data: { background: '#212121', isAxesVisible: true },
+    };
 
     // this.clock = new THREE.Clock();
 
@@ -73,7 +79,7 @@ export default class Viewer extends React.Component<Props, State> {
   public render() {
     return (
       <>
-        <div style={{ width: this.props.width, height: this.props.height, margin: 0, padding: 0 }}>
+        <div style={{ width: this.props.width, height: this.props.height, margin: 0, padding: 0, cursor: 'move' }}>
           <canvas
             ref={c => {
               if (!c) {
@@ -95,12 +101,24 @@ export default class Viewer extends React.Component<Props, State> {
             style={{ width: '100%', height: '100%', margin: 0, padding: 0 }}
           />
         </div>
+        {this.state.isBusy && (
+          <div
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              color: 'rgba(255, 255, 255, 0.5)',
+              fontWeight: 'bold',
+            }}
+          >
+            {`${Math.round(100 * this.state.progress)} %`}
+          </div>
+        )}
         {this.state.isInitialized && this.vrm && (
-          <div style={{ position: 'fixed', bottom: 0, left: 0, margin: '1rem', color: '#808080' }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 0, margin: '1rem', color: 'rgba(255, 255, 255, 0.5)' }}>
             {this.vrm.meta.contactInformation ? (
-              <a href={this.vrm.meta.contactInformation} target="_blank">
-                {this.vrm.meta.title}
-              </a>
+              <a href={this.vrm.meta.contactInformation}>{this.vrm.meta.title}</a>
             ) : (
               this.vrm.meta.title
             )}
@@ -191,7 +209,7 @@ export default class Viewer extends React.Component<Props, State> {
     if (this.state.isBusy) {
       return;
     }
-    this.setState({ isBusy: true });
+    this.setState({ isBusy: true, progress: 0 });
 
     if (this.vrm) {
       this.scene.remove(this.vrm.scene);
@@ -208,6 +226,7 @@ export default class Viewer extends React.Component<Props, State> {
       },
       (progress: ProgressEvent) => {
         console.log('Loading model...', 100 * (progress.loaded / progress.total), '%');
+        this.setState({ progress: progress.loaded / progress.total });
       },
       (error: ErrorEvent) => {
         console.error(error);
