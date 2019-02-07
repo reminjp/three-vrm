@@ -1,6 +1,6 @@
 {
   "name": "three-vrm",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "VRM file loader for three.js.",
   "license": "MIT",
   "author": "remin",
