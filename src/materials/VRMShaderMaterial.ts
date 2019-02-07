@@ -207,9 +207,9 @@ export class VRMShaderMaterial extends THREE.ShaderMaterial {
     }
 
     for (const key of Object.keys(property.vectorProperties)) {
-      const vector4 = property.vectorProperties[key].concat();
-      vector4.length = 4;
-      uniforms['v' + key] = { value: vector4 };
+      const array = property.vectorProperties[key].concat();
+      array.length = 4;
+      uniforms['v' + key] = { value: new THREE.Vector4().fromArray(array) };
     }
 
     for (const key of Object.keys(property.textureProperties)) {
