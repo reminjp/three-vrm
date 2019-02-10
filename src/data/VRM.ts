@@ -74,15 +74,18 @@ export class VRM {
     this.materialProperties = gltf.userData.gltfExtensions.VRM.materialProperties;
 
     // Load all textures used in the model.
-    const textureIndices = new Set<number>();
-    this.materialProperties.forEach(m => {
-      Object.values(m.textureProperties).forEach(i => {
-        textureIndices.add(i);
+    {
+      const textureIndices = new Set<number>();
+      this.materialProperties.forEach(m => {
+        Object.values(m.textureProperties).forEach(i => {
+          textureIndices.add(i);
+        });
       });
-    });
-    this.textures = new Array(this.parser.json.textures.length);
-    for (const i of textureIndices.values()) {
-      this.textures[i] = await this.parser.loadTexture(i);
+      const promises: Array<Promise<THREE.Texture>> = new Array(this.parser.json.textures.length);
+      for (const i of textureIndices.values()) {
+        promises[i] = this.parser.loadTexture(i);
+      }
+      this.textures = await Promise.all(promises);
     }
 
     // Convert materials.
@@ -110,11 +113,12 @@ export class VRM {
     });
 
     // Create a node list.
-    this.nodes = new Array(this.parser.json.nodes.length);
-
-    for (let i = 0; i < this.parser.json.nodes.length; ++i) {
-      const object3d = await this.parser.loadNode(i);
-      this.nodes[i] = this.scene.getObjectByName(object3d.name);
+    {
+      const promises: Array<Promise<THREE.Object3D>> = new Array(this.parser.json.nodes.length);
+      for (let i = 0; i < this.parser.json.nodes.length; ++i) {
+        promises[i] = this.parser.loadNode(i);
+      }
+      this.nodes = (await Promise.all(promises)).map(object3d => this.scene.getObjectByName(object3d.name));
     }
 
     // Create a mesh list for morphing.
