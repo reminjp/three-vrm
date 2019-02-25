@@ -122,6 +122,12 @@ const convertParameters = new Map<string, (material: VRMShaderMaterial) => void>
   [
     'VRM/MToon',
     material => {
+      if (!material.uniforms.t_SphereAdd) {
+        material.uniforms.t_SphereAdd = {
+          value: new THREE.DataTexture(new Uint8Array(3), 1, 1, THREE.RGBFormat),
+        };
+      }
+
       material.uniforms.shininess = { value: 0.0 };
 
       switch (material.userData.RenderType) {
