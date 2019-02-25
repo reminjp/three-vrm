@@ -15,14 +15,6 @@
 
 - [three.js](https://github.com/mrdoob/three.js/)
 
-For TypeScript
-
-```sh
-yarn add three @types/three
-```
-
-For JavaScript
-
 ```sh
 yarn add three
 ```
