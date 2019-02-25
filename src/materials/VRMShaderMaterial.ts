@@ -166,7 +166,7 @@ const convertParameters = new Map<string, (material: VRMShaderMaterial) => void>
       if (material.uniforms.f_CullMode) {
         switch (material.uniforms.f_CullMode.value) {
           case 0: {
-            material.side = THREE.FrontSide;
+            material.side = THREE.DoubleSide;
             break;
           }
           case 1: {
@@ -174,7 +174,7 @@ const convertParameters = new Map<string, (material: VRMShaderMaterial) => void>
             break;
           }
           case 2: {
-            material.side = THREE.DoubleSide;
+            material.side = THREE.FrontSide;
             break;
           }
         }
