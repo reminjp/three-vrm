@@ -23,7 +23,7 @@ uniform int f_DebugMode;
 uniform int f_BlendMode;
 uniform int f_OutlineWidthMode;
 uniform int f_OutlineColorMode;
-uniform int f_CullMode; // Cull [Back | Front | Off]
+uniform int f_CullMode; // Cull [0: Off | 1: Front | 2: Back]
 uniform int f_OutlineCullMode;
 uniform float f_SrcBlend; // Blend [SrcFactor] [DstFactor]
 uniform float f_DstBlend; // Blend [SrcFactor] [DstFactor]
