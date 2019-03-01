@@ -6,9 +6,11 @@ import Viewer from './Viewer';
 
 const aliciaSolidModel: string = require('../res/AliciaSolid.vrm'); // tslint:disable-line:no-var-requires
 const shibuSendagayaModel: string = require('../res/ShibuSendagaya.vrm'); // tslint:disable-line:no-var-requires
+const wavefileMotion: string = require('../res/wavefile_v2.vmd'); // tslint:disable-line:no-var-requires
 
 interface State {
   model: string;
+  motion?: string;
 }
 
 class App extends React.Component<{}, State> {
@@ -19,8 +21,9 @@ class App extends React.Component<{}, State> {
     this.state = { model: aliciaSolidModel };
 
     this.onDrop = this.onDrop.bind(this);
-    this.showAliciaSolid = this.showAliciaSolid.bind(this);
-    this.showShibuSendagaya = this.showShibuSendagaya.bind(this);
+    this.showAliciaSolidModel = this.showAliciaSolidModel.bind(this);
+    this.showShibuSendagayaModel = this.showShibuSendagayaModel.bind(this);
+    this.showWavefileMotion = this.showWavefileMotion.bind(this);
   }
 
   public render() {
@@ -33,6 +36,7 @@ class App extends React.Component<{}, State> {
                 {(width?: number, height?: number) => (
                   <Viewer
                     model={this.state.model}
+                    motion={this.state.motion}
                     width={width || window.innerWidth}
                     height={height || window.innerHeight}
                   />
@@ -47,10 +51,13 @@ class App extends React.Component<{}, State> {
           </h1>
           <p>Drop .vrm file to preview.</p>
           <p>
-            <a onClick={this.showAliciaSolid}>Alicia Solid</a>
+            <a onClick={this.showAliciaSolidModel}>Alicia Solid (.vrm)</a>
           </p>
           <p>
-            <a onClick={this.showShibuSendagaya}>Shibu Sendagaya</a>
+            <a onClick={this.showShibuSendagayaModel}>Shibu Sendagaya (.vrm)</a>
+          </p>
+          <p>
+            <a onClick={this.showWavefileMotion}>[WIP] WAVEFILE (.vmd)</a>
           </p>
         </div>
       </div>
@@ -63,16 +70,29 @@ class App extends React.Component<{}, State> {
         URL.revokeObjectURL(this.objectURL);
       }
       this.objectURL = URL.createObjectURL(acceptedFiles[0]);
-      this.setState({ model: this.objectURL });
+      switch (acceptedFiles[0].name.split('.').pop()) {
+        case 'vrm': {
+          this.setState({ model: this.objectURL });
+          break;
+        }
+        case 'vmd': {
+          this.setState({ motion: this.objectURL });
+          break;
+        }
+      }
     }
   }
 
-  private showAliciaSolid() {
+  private showAliciaSolidModel() {
     this.setState({ model: aliciaSolidModel });
   }
 
-  private showShibuSendagaya() {
+  private showShibuSendagayaModel() {
     this.setState({ model: shibuSendagayaModel });
+  }
+
+  private showWavefileMotion() {
+    this.setState({ motion: wavefileMotion });
   }
 }
 
