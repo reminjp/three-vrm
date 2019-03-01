@@ -1,12 +1,14 @@
+import * as MMDParser from 'mmd-parser';
 import * as React from 'react';
 import DatGui, { DatBoolean, DatColor, DatFolder, DatNumber } from 'react-dat-gui';
 import 'react-dat-gui/build/react-dat-gui.css';
 import * as THREE from 'three';
 import OrbitControls from 'three-orbitcontrols';
-import { VRM, VRMLoader } from '../../src';
+import { VRM, VRMHumanoidUtils, VRMLoader } from '../../src';
 
 interface Props {
   model: string;
+  motion?: string;
   width: number;
   height: number;
 }
@@ -20,13 +22,15 @@ interface State {
 
 export default class Viewer extends React.Component<Props, State> {
   private requestID: number;
-  // private clock: THREE.Clock;
+  private clock: THREE.Clock;
   private renderer: THREE.WebGLRenderer;
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
   private controls: THREE.OrbitControls;
   private helpers: THREE.Group;
   private vrm: VRM;
+  private animationClip: THREE.AnimationClip;
+  private animationMixers: THREE.AnimationMixer[];
 
   constructor(props: Props) {
     super(props);
@@ -37,7 +41,8 @@ export default class Viewer extends React.Component<Props, State> {
       data: { background: '#212121', isAxesVisible: true },
     };
 
-    // this.clock = new THREE.Clock();
+    this.clock = new THREE.Clock();
+    this.animationMixers = [];
 
     this.onDataUpdate = this.onDataUpdate.bind(this);
     this.update = this.update.bind(this);
@@ -71,6 +76,11 @@ export default class Viewer extends React.Component<Props, State> {
     // On model changed.
     if (prevProps.model !== this.props.model) {
       this.loadModel();
+    }
+
+    // On motion changed.
+    if (prevProps.motion !== this.props.motion) {
+      this.loadMotion();
     }
 
     this.renderScene();
@@ -166,7 +176,12 @@ export default class Viewer extends React.Component<Props, State> {
 
   private update() {
     this.requestID = window.requestAnimationFrame(this.update);
-    // const delta = this.clock.getDelta();
+    const delta = this.clock.getDelta();
+
+    this.animationMixers.forEach(e => {
+      e.update(delta);
+    });
+
     this.renderScene();
   }
 
@@ -214,6 +229,7 @@ export default class Viewer extends React.Component<Props, State> {
     if (this.vrm) {
       this.scene.remove(this.vrm.scene);
     }
+    this.animationMixers.length = 0;
 
     const vrmLoader = new VRMLoader();
 
@@ -237,6 +253,8 @@ export default class Viewer extends React.Component<Props, State> {
   private modelDidLoad() {
     console.log('VRM', this.vrm);
 
+    // console.log(this.vrm.humanoid.humanBones.map(e => [e.bone, this.vrm.getNode(e.node).type]));
+
     this.scene.add(this.vrm.scene);
 
     const headY = 1.5;
@@ -248,5 +266,96 @@ export default class Viewer extends React.Component<Props, State> {
       data['blendShape' + e.name] = 0;
     });
     this.setState({ data });
+
+    this.vrm.scene.traverse((object3d: THREE.Object3D) => {
+      if (object3d instanceof THREE.SkinnedMesh) {
+        this.animationMixers.push(new THREE.AnimationMixer(object3d));
+      }
+    });
+  }
+
+  private loadMotion() {
+    const fileLoader = new THREE.FileLoader();
+    fileLoader.setResponseType('arraybuffer');
+    fileLoader.load(this.props.motion, buffer => {
+      const mmdParser = new MMDParser.Parser();
+      const vmd = mmdParser.parseVmd(buffer);
+      console.log('VMD', vmd);
+
+      const motionsMap = new Map<number, any[]>();
+      vmd.motions.forEach((motion: any) => {
+        const humanBoneName = VRMHumanoidUtils.stringToHumanBoneName(motion.boneName);
+        const humanBone = humanBoneName && this.vrm.humanoid.humanBones.find(e => humanBoneName === e.bone);
+        if (humanBone === undefined) {
+          return;
+        }
+        if (!motionsMap.has(humanBone.node)) {
+          motionsMap.set(humanBone.node, []);
+        }
+        motionsMap.get(humanBone.node).push(motion);
+      });
+      motionsMap.forEach(array => {
+        array.sort((a: any, b: any) => {
+          return a.frameNum - b.frameNum;
+        });
+      });
+
+      const tracks: THREE.KeyframeTrack[] = [];
+      motionsMap.forEach((motions, nodeIndex) => {
+        const bone = this.vrm.getNode(nodeIndex);
+
+        const times: number[] = [];
+        const positions: number[] = [];
+        const rotations: number[] = [];
+        // const positionInterpolations: number[] = [];
+        // const rotationInterpolations: number[] = [];
+
+        motions.forEach(motion => {
+          times.push(motion.frameNum / 30);
+          const bonePosition = bone.position.toArray();
+          for (let i = 0; i < 3; i++) {
+            positions.push(bonePosition[i] + motion.position[i] * 0.08);
+          }
+          for (let i = 0; i < 4; i++) {
+            rotations.push(motion.rotation[i]);
+          }
+          // for (let i = 0; i < 3; i++) {
+          //   positionInterpolations.push(
+          //     motion.interpolation[i + 0] / 127,
+          //     motion.interpolation[i + 8] / 127,
+          //     motion.interpolation[i + 4] / 127,
+          //     motion.interpolation[i + 12] / 127
+          //   );
+          // }
+          // rotationInterpolations.push(
+          //   motion.interpolation[3 + 0] / 127,
+          //   motion.interpolation[3 + 8] / 127,
+          //   motion.interpolation[3 + 4] / 127,
+          //   motion.interpolation[3 + 12] / 127
+          // );
+        });
+
+        if (times.length === 0) {
+          return;
+        }
+
+        // TODO: Use interpolations.
+        tracks.push(new THREE.VectorKeyframeTrack(`.bones[${bone.name}].position`, times, positions));
+        tracks.push(new THREE.QuaternionKeyframeTrack(`.bones[${bone.name}].quaternion`, times, rotations));
+      });
+
+      this.animationClip = new THREE.AnimationClip(THREE.Math.generateUUID(), -1, tracks);
+      this.motionDidLoad();
+    });
+  }
+
+  private motionDidLoad() {
+    console.log('AnimationClip', this.animationClip);
+    if (this.animationMixers) {
+      this.animationMixers.forEach(e => {
+        const animationAction = e.clipAction(this.animationClip);
+        animationAction.play();
+      });
+    }
   }
 }

@@ -28,7 +28,7 @@ module.exports = {
         loaders: ['style-loader', 'css-loader'],
       },
       {
-        test: /\.vrm$/,
+        test: /\.(vrm|vmd)$/,
         use: [
           {
             loader: 'file-loader?name=[path][name].[ext]',
