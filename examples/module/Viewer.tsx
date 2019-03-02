@@ -226,7 +226,7 @@ export default class Viewer extends React.Component<Props, State> {
     this.setState({ isBusy: true, progress: 0 });
 
     if (this.vrm) {
-      this.scene.remove(this.vrm.scene);
+      this.scene.remove(this.vrm.model);
     }
     this.animationMixers.length = 0;
 
@@ -254,7 +254,7 @@ export default class Viewer extends React.Component<Props, State> {
 
     // console.log(this.vrm.humanoid.humanBones.map(e => [e.bone, this.vrm.getNode(e.node).type]));
 
-    this.scene.add(this.vrm.scene);
+    this.scene.add(this.vrm.model);
 
     const headY = 1.5;
     this.camera.position.set(0, headY, -headY);
@@ -266,7 +266,7 @@ export default class Viewer extends React.Component<Props, State> {
     });
     this.setState({ data });
 
-    this.vrm.scene.traverse((object3d: THREE.Object3D) => {
+    this.vrm.model.traverse((object3d: THREE.Object3D) => {
       if (object3d instanceof THREE.SkinnedMesh) {
         this.animationMixers.push(new THREE.AnimationMixer(object3d));
       }

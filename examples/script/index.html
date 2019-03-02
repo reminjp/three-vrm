@@ -59,7 +59,7 @@
         vrmLoader.load(
           '../res/ShibuSendagaya.vrm',
           function(vrm) {
-            scene.add(vrm.scene);
+            scene.add(vrm.model);
           },
           function(progress) {
             console.log('Loading model...', 100 * (progress.loaded / progress.total), '%');
