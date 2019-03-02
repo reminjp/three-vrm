@@ -1,21 +1,20 @@
 import { VRMHumanBoneName } from '../data/VRMHumanoid';
 
 // TODO: Implement missing bones.
-// - センター
 // - 両目
 // - 左足ＩＫ
 // - 左つま先ＩＫ
 // - 右足ＩＫ
 // - 右つま先ＩＫ
 const regexToHumanBoneName: Array<[RegExp, VRMHumanBoneName]> = [
-  [new RegExp('^下半身$'), 'hips'],
+  [new RegExp('^センター$'), 'hips'],
   [new RegExp('^左足$'), 'leftUpperLeg'],
   [new RegExp('^右足$'), 'rightUpperLeg'],
   [new RegExp('^左ひざ$'), 'leftLowerLeg'],
   [new RegExp('^右ひざ$'), 'rightLowerLeg'],
   [new RegExp('^左足首$'), 'leftFoot'],
   [new RegExp('^右足首$'), 'rightFoot'],
-  [new RegExp('^$'), 'spine'],
+  [new RegExp('^下半身$'), 'spine'],
   [new RegExp('^上半身$'), 'chest'],
   [new RegExp('^首$'), 'neck'],
   [new RegExp('^頭$'), 'head'],
@@ -31,10 +30,10 @@ const regexToHumanBoneName: Array<[RegExp, VRMHumanBoneName]> = [
   [new RegExp('^右つま先$'), 'rightToes'],
   [new RegExp('^左目$'), 'leftEye'],
   [new RegExp('^右目$'), 'rightEye'],
-  [new RegExp('^$'), 'jaw'],
-  [new RegExp('^左親指１$'), 'leftThumbProximal'],
-  [new RegExp('^左親指２$'), 'leftThumbIntermediate'],
-  [new RegExp('^$'), 'leftThumbDistal'],
+  [new RegExp('^顎$'), 'jaw'],
+  [new RegExp('^左親指０$'), 'leftThumbProximal'],
+  [new RegExp('^左親指１$'), 'leftThumbIntermediate'],
+  [new RegExp('^左親指２$'), 'leftThumbDistal'],
   [new RegExp('^左人指１$'), 'leftIndexProximal'],
   [new RegExp('^左人指２$'), 'leftIndexIntermediate'],
   [new RegExp('^左人指３$'), 'leftIndexDistal'],
@@ -47,9 +46,9 @@ const regexToHumanBoneName: Array<[RegExp, VRMHumanBoneName]> = [
   [new RegExp('^左小指１$'), 'leftLittleProximal'],
   [new RegExp('^左小指２$'), 'leftLittleIntermediate'],
   [new RegExp('^左小指３$'), 'leftLittleDistal'],
-  [new RegExp('^右親指１$'), 'rightThumbProximal'],
-  [new RegExp('^右親指２$'), 'rightThumbIntermediate'],
-  [new RegExp('^$'), 'rightThumbDistal'],
+  [new RegExp('^右親指０$'), 'rightThumbProximal'],
+  [new RegExp('^右親指１$'), 'rightThumbIntermediate'],
+  [new RegExp('^右親指２$'), 'rightThumbDistal'],
   [new RegExp('^右人指１$'), 'rightIndexProximal'],
   [new RegExp('^右人指２$'), 'rightIndexIntermediate'],
   [new RegExp('^右人指３$'), 'rightIndexDistal'],
@@ -62,7 +61,7 @@ const regexToHumanBoneName: Array<[RegExp, VRMHumanBoneName]> = [
   [new RegExp('^右小指１$'), 'rightLittleProximal'],
   [new RegExp('^右小指２$'), 'rightLittleIntermediate'],
   [new RegExp('^右小指３$'), 'rightLittleDistal'],
-  [new RegExp('^$'), 'upperChest'],
+  [new RegExp('^上半身２$'), 'upperChest'],
 ];
 
 export abstract class VRMHumanoidUtils {

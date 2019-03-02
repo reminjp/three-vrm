@@ -1,10 +1,9 @@
-import * as MMDParser from 'mmd-parser';
 import * as React from 'react';
 import DatGui, { DatBoolean, DatColor, DatFolder, DatNumber } from 'react-dat-gui';
 import 'react-dat-gui/build/react-dat-gui.css';
 import * as THREE from 'three';
 import OrbitControls from 'three-orbitcontrols';
-import { VRM, VRMHumanoidUtils, VRMLoader } from '../../src';
+import { VRM, VRMLoader, VRMVMD, VRMVMDLoader } from '../../src';
 
 interface Props {
   model: string;
@@ -275,78 +274,20 @@ export default class Viewer extends React.Component<Props, State> {
   }
 
   private loadMotion() {
-    const fileLoader = new THREE.FileLoader();
-    fileLoader.setResponseType('arraybuffer');
-    fileLoader.load(this.props.motion, buffer => {
-      const mmdParser = new MMDParser.Parser();
-      const vmd = mmdParser.parseVmd(buffer);
-      console.log('VMD', vmd);
-
-      const motionsMap = new Map<number, any[]>();
-      vmd.motions.forEach((motion: any) => {
-        const humanBoneName = VRMHumanoidUtils.stringToHumanBoneName(motion.boneName);
-        const humanBone = humanBoneName && this.vrm.humanoid.humanBones.find(e => humanBoneName === e.bone);
-        if (humanBone === undefined) {
-          return;
-        }
-        if (!motionsMap.has(humanBone.node)) {
-          motionsMap.set(humanBone.node, []);
-        }
-        motionsMap.get(humanBone.node).push(motion);
-      });
-      motionsMap.forEach(array => {
-        array.sort((a: any, b: any) => {
-          return a.frameNum - b.frameNum;
-        });
-      });
-
-      const tracks: THREE.KeyframeTrack[] = [];
-      motionsMap.forEach((motions, nodeIndex) => {
-        const bone = this.vrm.getNode(nodeIndex);
-
-        const times: number[] = [];
-        const positions: number[] = [];
-        const rotations: number[] = [];
-        // const positionInterpolations: number[] = [];
-        // const rotationInterpolations: number[] = [];
-
-        motions.forEach(motion => {
-          times.push(motion.frameNum / 30);
-          const bonePosition = bone.position.toArray();
-          for (let i = 0; i < 3; i++) {
-            positions.push(bonePosition[i] + motion.position[i] * 0.08);
-          }
-          for (let i = 0; i < 4; i++) {
-            rotations.push(motion.rotation[i]);
-          }
-          // for (let i = 0; i < 3; i++) {
-          //   positionInterpolations.push(
-          //     motion.interpolation[i + 0] / 127,
-          //     motion.interpolation[i + 8] / 127,
-          //     motion.interpolation[i + 4] / 127,
-          //     motion.interpolation[i + 12] / 127
-          //   );
-          // }
-          // rotationInterpolations.push(
-          //   motion.interpolation[3 + 0] / 127,
-          //   motion.interpolation[3 + 8] / 127,
-          //   motion.interpolation[3 + 4] / 127,
-          //   motion.interpolation[3 + 12] / 127
-          // );
-        });
-
-        if (times.length === 0) {
-          return;
-        }
-
-        // TODO: Use interpolations.
-        tracks.push(new THREE.VectorKeyframeTrack(`.bones[${bone.name}].position`, times, positions));
-        tracks.push(new THREE.QuaternionKeyframeTrack(`.bones[${bone.name}].quaternion`, times, rotations));
-      });
-
-      this.animationClip = new THREE.AnimationClip(THREE.Math.generateUUID(), -1, tracks);
-      this.motionDidLoad();
-    });
+    const loader = new VRMVMDLoader();
+    loader.load(
+      this.props.motion,
+      (vmd: VRMVMD) => {
+        this.animationClip = vmd.toAnimationClip(this.vrm);
+        this.motionDidLoad();
+      },
+      (progress: ProgressEvent) => {
+        // console.log('Loading motion...', 100 * (progress.loaded / progress.total), '%');
+      },
+      (error: ErrorEvent) => {
+        console.error(error);
+      }
+    );
   }
 
   private motionDidLoad() {

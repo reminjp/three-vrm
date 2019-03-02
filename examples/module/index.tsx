@@ -56,9 +56,9 @@ class App extends React.Component<{}, State> {
           <p>
             <a onClick={this.showShibuSendagayaModel}>Shibu Sendagaya (.vrm)</a>
           </p>
-          <p>
+          {/* <p>
             <a onClick={this.showWavefileMotion}>[WIP] WAVEFILE (.vmd)</a>
-          </p>
+          </p> */}
         </div>
       </div>
     );
