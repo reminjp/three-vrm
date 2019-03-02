@@ -42,7 +42,7 @@ const vrmLoader = new VRMLoader();
 vrmLoader.load(
   'model.vrm',
   (vrm: VRM) => {
-    scene.add(vrm.scene);
+    scene.add(vrm.model);
     // Render the scene.
   },
   (progress: ProgressEvent) => {
@@ -68,14 +68,14 @@ This file assigns all exported classes to `THREE`.
 
   vrmLoader.load(
     'model.vrm',
-    function (vrm) {
-      scene.add(vrm.scene);
+    function(vrm) {
+      scene.add(vrm.model);
       // Render the scene.
     },
-    function (progress) {
+    function(progress) {
       console.log(progress.loaded / progress.total);
     },
-    function (error) {
+    function(error) {
       console.error(error);
     }
   );
@@ -102,10 +102,9 @@ Model data loaded by `VRMLoader`.
 
 A glTF asset property.
 
-#### `.scene : THREE.Scene`
+#### `.model : THREE.Object3D`
 
-A `Scene`.
-Changes are not reflected in other properties.
+A `Object3D`.
 
 #### `.parser : object`
 
@@ -140,9 +139,9 @@ VRM first-person settings.
 
 VRM swaying object settings.
 
-#### `.getNode( index : number ) : THREE.Object3D`
+#### `.getNode ( index : number ) : THREE.Object3D`
 
-Returns a reference to the `Object3D` in `.scene`, corresponding to the node index.
+Returns a reference to the `Object3D` in `.model`, corresponding to the node index.
 
 #### `.setBlendShapeWeight ( meshIndex : number, blendShapeIndex : number, value : number ) : void`
 

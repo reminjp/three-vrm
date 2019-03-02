@@ -39,7 +39,7 @@ export interface GLTFAsset {
 
 export class VRM {
   public asset: GLTFAsset;
-  public scene: THREE.Scene;
+  public model: THREE.Object3D;
   public parser: any;
   public userData: any;
 
@@ -57,7 +57,8 @@ export class VRM {
 
   public async fromGLTF(gltf: GLTF) {
     this.asset = gltf.asset;
-    this.scene = gltf.scene;
+    this.model = gltf.scene;
+    this.model.type = 'Object3D';
     this.parser = gltf.parser;
     this.userData = gltf.userData;
 
@@ -72,6 +73,8 @@ export class VRM {
     this.firstPerson = gltf.userData.gltfExtensions.VRM.firstPerson;
     this.secondaryAnimation = gltf.userData.gltfExtensions.VRM.secondaryAnimation;
     this.materialProperties = gltf.userData.gltfExtensions.VRM.materialProperties;
+
+    this.model.name = this.meta.title;
 
     // Load all textures used in the model.
     {
@@ -103,7 +106,7 @@ export class VRM {
         }) || ps[0]
       );
     };
-    this.scene.traverse((object3d: THREE.Object3D) => {
+    this.model.traverse((object3d: THREE.Object3D) => {
       if (object3d instanceof THREE.Mesh) {
         const morphTargets =
           object3d.geometry instanceof THREE.BufferGeometry && !!object3d.geometry.morphAttributes.position;
@@ -130,13 +133,13 @@ export class VRM {
       for (let i = 0; i < this.parser.json.nodes.length; ++i) {
         promises[i] = this.parser.loadNode(i);
       }
-      this.nodes = (await Promise.all(promises)).map(object3d => this.scene.getObjectByName(object3d.name));
+      this.nodes = (await Promise.all(promises)).map(object3d => this.model.getObjectByName(object3d.name));
     }
 
     // Create a mesh list for morphing.
     this.meshes = this.parser.json.meshes.map((): THREE.Mesh[] => []);
 
-    this.scene.traverse((object3d: THREE.Object3D) => {
+    this.model.traverse((object3d: THREE.Object3D) => {
       if (object3d instanceof THREE.Mesh) {
         // Flattened mesh node
         // https://github.com/mrdoob/three.js/issues/11944
