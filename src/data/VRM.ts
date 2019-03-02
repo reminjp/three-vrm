@@ -89,6 +89,20 @@ export class VRM {
     }
 
     // Convert materials.
+    const findMaterialProperty = (material: THREE.Material): VRMMaterial => {
+      const ps = this.materialProperties.filter(p => p.name === material.name);
+      if (ps.length === 1) {
+        return ps[0];
+      }
+      // TODO: Implement strict comparison if possible.
+      return (
+        ps.find(p => {
+          const a = p.vectorProperties._Color;
+          const c = (material as any).color as THREE.Color;
+          return a && c && a[0] === c.r && a[1] === c.g && a[2] === c.b;
+        }) || ps[0]
+      );
+    };
     this.scene.traverse((object3d: THREE.Object3D) => {
       if (object3d instanceof THREE.Mesh) {
         const morphTargets =
@@ -96,15 +110,13 @@ export class VRM {
 
         if (Array.isArray(object3d.material)) {
           for (let i = 0; i < object3d.material.length; ++i) {
-            const property = this.materialProperties.find(
-              p => p.name === (object3d.material as MeshMaterial[])[i].name
-            );
+            const property = findMaterialProperty((object3d.material as MeshMaterial[])[i]);
             const material = new VRMShaderMaterial({ morphTargets, skinning: true });
             material.fromMaterialProperty(property, this.textures);
             object3d.material[i] = material;
           }
         } else {
-          const property = this.materialProperties.find(p => p.name === (object3d.material as THREE.Material).name);
+          const property = findMaterialProperty(object3d.material);
           const material = new VRMShaderMaterial({ morphTargets, skinning: true });
           material.fromMaterialProperty(property, this.textures);
           object3d.material = material;
