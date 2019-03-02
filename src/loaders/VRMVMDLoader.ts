@@ -22,8 +22,6 @@ export class VRMVMDLoader {
       buffer => {
         const mmdParser = new MMDParser.Parser();
         const object = mmdParser.parseVmd(buffer);
-        // Debug
-        console.log('VMD', object);
         onLoad(new VRMVMD(object));
       },
       onProgress,
@@ -99,12 +97,14 @@ export class VRMVMD {
         const r = motion.rotation;
         rotations.push(r.x, r.y, r.z, r.w);
 
+        // Control points of cubic Bézier curve.
+        // cf. http://atupdate.web.fc2.com/vmd_format.htm
         // for (let i = 0; i < 3; i++) {
         //   positionInterpolations.push(
-        //     motion.interpolation[i + 0] / 127,
-        //     motion.interpolation[i + 8] / 127,
-        //     motion.interpolation[i + 4] / 127,
-        //     motion.interpolation[i + 12] / 127
+        //     motion.interpolation[i + 0] / 127, // time1
+        //     motion.interpolation[i + 8] / 127, // value1
+        //     motion.interpolation[i + 4] / 127, // time2
+        //     motion.interpolation[i + 12] / 127 // value2
         //   );
         // }
         // rotationInterpolations.push(
