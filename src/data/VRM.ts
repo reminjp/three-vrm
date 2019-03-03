@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { VRMShaderMaterial } from '../materials/VRMShaderMaterial';
 import { VRMBlendShape } from './VRMBlendShapeMaster';
 import { VRMFirstPerson } from './VRMFirstPerson';
-import { VRMHumanoid } from './VRMHumanoid';
+import { VRMHumanBoneName, VRMHumanoid } from './VRMHumanoid';
 import { VRMMaterial } from './VRMMaterial';
 import { VRMMeta } from './VRMMeta';
 import { VRMSecondaryAnimation } from './VRMSecondaryAnimation';
@@ -161,11 +161,23 @@ export class VRM {
       }
     });
 
+    // Check the type of objects in humanBones.
+    this.humanoid.humanBones.forEach(humanBone => {
+      const object3d = this.getNode(humanBone.node);
+      if (object3d.type !== 'Bone') {
+        console.warn(`HumanBone '${humanBone.bone}' is not a Bone. (${object3d.type})`);
+      }
+    });
+
     return this;
   }
 
   public getNode(index: number) {
     return this.nodes[index];
+  }
+
+  public getHumanBone(humanBoneName: VRMHumanBoneName) {
+    return this.humanoid.humanBones.find(e => humanBoneName === e.bone);
   }
 
   public setBlendShapeWeight(meshIndex: number, blendShapeIndex: number, value: number) {
