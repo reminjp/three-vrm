@@ -8,8 +8,6 @@ export class VRMVMD {
   private morphs: any[];
 
   constructor(vmd: any) {
-    console.log(vmd);
-
     // Motions
     // Convert rotations for T-pose.
     const front = new THREE.Vector3(0, 0, -1);

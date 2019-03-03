@@ -2,6 +2,7 @@ import * as React from 'react';
 import { render } from 'react-dom';
 import Dropzone from 'react-dropzone';
 import ReactResizeDetector from 'react-resize-detector';
+import { BarLoader } from 'react-spinners';
 import { VRM, VRMLoader, VRMVMD, VRMVMDLoader } from '../../src';
 import Viewer from './Viewer';
 
@@ -34,7 +35,6 @@ class App extends React.Component<{}, State> {
   }
 
   public render() {
-    console.log('this.state.isBusy', this.state.isBusy, 'this.state.progress', this.state.progress);
     return (
       <div style={{ width: '100vw', height: '100vh' }}>
         <Dropzone accept=".vrm" disableClick={true} multiple={false} onDrop={this.onDrop}>
@@ -59,31 +59,29 @@ class App extends React.Component<{}, State> {
             <a href="https://github.com/rdrgn/three-vrm">three-vrm</a> example
           </h1>
           <p>Drop .vrm file to preview.</p>
+          <h2>Sample Models (VRM)</h2>
           <p>
-            <a onClick={this.showAliciaSolidModel}>Alicia Solid (.vrm)</a>
+            <a onClick={this.showAliciaSolidModel}>Alicia Solid</a>
           </p>
           <p>
-            <a onClick={this.showShibuSendagayaModel}>Shibu Sendagaya (.vrm)</a>
+            <a onClick={this.showShibuSendagayaModel}>Shibu Sendagaya</a>
           </p>
+          <h2>Sample Motions (VMD)</h2>
           <p>
-            <a onClick={this.showWavefileMotion}>[WIP] WAVEFILE (.vmd)</a>
+            <a onClick={this.showWavefileMotion}>[WIP] WAVEFILE</a>
           </p>
         </div>
 
-        {this.state.isBusy && (
-          <div
-            style={{
-              position: 'fixed',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              color: 'rgba(127, 127, 127, 0.5)',
-              fontWeight: 'bold',
-            }}
-          >
-            {`${Math.round(100 * this.state.progress)} %`}
-          </div>
-        )}
+        <div
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
+          <BarLoader color={'#9e9e9e'} loading={this.state.isBusy} />
+        </div>
       </div>
     );
   }

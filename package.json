@@ -59,6 +59,7 @@
     "react-dom": "^16.7.0",
     "react-dropzone": "^8.0.4",
     "react-resize-detector": "^3.4.0",
+    "react-spinners": "^0.5.1",
     "style-loader": "^0.23.1",
     "three": "^0.101.1",
     "three-gltf-loader": "^1.101.0",
