@@ -1,13 +1,13 @@
 import * as React from 'react';
-import DatGui, { DatBoolean, DatColor, DatFolder, DatNumber } from 'react-dat-gui';
+import DatGui, { DatBoolean, DatButton, DatColor, DatFolder, DatNumber } from 'react-dat-gui';
 import 'react-dat-gui/build/react-dat-gui.css';
 import * as THREE from 'three';
 import OrbitControls from 'three-orbitcontrols';
-import { VRM, VRMAnimationClip, VRMAnimationMixer, VRMLoader, VRMVMD, VRMVMDLoader } from '../../src';
+import { VRM, VRMAnimationClip, VRMAnimationMixer, VRMVMD } from '../../src';
 
 interface Props {
-  model: string;
-  motion?: string;
+  vrm?: VRM;
+  vmd?: VRMVMD;
   width: number;
   height: number;
 }
@@ -28,9 +28,10 @@ export default class Viewer extends React.Component<Props, State> {
   private controls: THREE.OrbitControls;
   private helpers: THREE.Group;
   private vrm: VRM;
-  // private vmd: VRMVMD;
+  private vmd: VRMVMD;
   private clip: VRMAnimationClip;
   private mixer: VRMAnimationMixer;
+  private actions: THREE.AnimationAction[];
 
   constructor(props: Props) {
     super(props);
@@ -38,18 +39,18 @@ export default class Viewer extends React.Component<Props, State> {
       isInitialized: false,
       isBusy: false,
       progress: 0,
-      data: { background: '#212121', isAxesVisible: true },
+      data: { background: '#212121', isAxesVisible: true, timeScale: 1 },
     };
 
     this.clock = new THREE.Clock();
 
     this.onDataUpdate = this.onDataUpdate.bind(this);
     this.update = this.update.bind(this);
+    this.restartAnimation = this.restartAnimation.bind(this);
   }
 
   public componentDidMount() {
     this.initScene();
-    this.loadModel();
     this.update();
   }
 
@@ -72,14 +73,49 @@ export default class Viewer extends React.Component<Props, State> {
       }
     }
 
+    let shouldUpdateAnimation = false;
+
     // On model changed.
-    if (prevProps.model !== this.props.model) {
-      this.loadModel();
+    if (prevProps.vrm !== this.props.vrm) {
+      if (this.vrm) {
+        this.scene.remove(this.vrm.model);
+      }
+      this.vrm = this.props.vrm;
+      this.scene.add(this.vrm.model);
+
+      // console.log(this.vrm.humanoid.humanBones.map(e => [e.bone, this.vrm.getNode(e.node).type]));
+
+      const headY = 1.5;
+      this.camera.position.set(0, headY, -headY);
+      this.controls.target.set(0, 0.75 * headY, 0);
+
+      const data = this.state.data;
+      this.vrm.blendShapeMaster.blendShapeGroups.forEach(e => {
+        data['blendShape' + e.name] = 0;
+      });
+      this.setState({ data });
+
+      if (this.mixer) {
+        this.mixer.stopAllAction();
+      }
+      this.mixer = new VRMAnimationMixer(this.vrm);
+
+      shouldUpdateAnimation = true;
     }
 
     // On motion changed.
-    if (prevProps.motion !== this.props.motion) {
-      this.loadMotion();
+    if (prevProps.vmd !== this.props.vmd) {
+      this.vmd = this.props.vmd;
+
+      shouldUpdateAnimation = true;
+    }
+
+    if (shouldUpdateAnimation && this.vrm && this.mixer && this.vmd) {
+      this.clip = this.vmd.toAnimationClip(this.vrm);
+      this.actions = this.mixer.clipAction(this.clip);
+      this.actions.forEach(e => {
+        e.play();
+      });
     }
 
     this.renderScene();
@@ -139,12 +175,16 @@ export default class Viewer extends React.Component<Props, State> {
           <DatFolder title="Environment" closed={true}>
             <DatColor path="background" label="Background" />
             <DatBoolean path="isAxesVisible" label="Axes" />
+            <DatNumber path={'timeScale'} label={'Time Scale'} min={0} max={2} step={0.01} />
           </DatFolder>
           <DatFolder title="Blend Shape Group" closed={true}>
             {this.vrm &&
               this.vrm.blendShapeMaster.blendShapeGroups.map((e, i) => (
                 <DatNumber key={i} path={'blendShape' + e.name} label={e.name} min={0} max={1} step={0.01} />
               ))}
+          </DatFolder>
+          <DatFolder title="Animation" closed={true}>
+            <DatButton label={'Restart'} onClick={this.restartAnimation} />
           </DatFolder>
         </DatGui>
       </>
@@ -178,7 +218,7 @@ export default class Viewer extends React.Component<Props, State> {
     const delta = this.clock.getDelta();
 
     if (this.mixer) {
-      this.mixer.update(delta);
+      this.mixer.update(this.state.data.timeScale * delta);
     }
 
     this.renderScene();
@@ -219,83 +259,9 @@ export default class Viewer extends React.Component<Props, State> {
     this.renderer.render(this.scene, this.camera);
   }
 
-  private loadModel() {
-    if (this.state.isBusy) {
-      return;
-    }
-    this.setState({ isBusy: true, progress: 0 });
-
-    if (this.vrm) {
-      this.scene.remove(this.vrm.model);
-    }
-    if (this.mixer) {
-      this.mixer.stopAllAction();
-      this.mixer = null;
-    }
-
-    const vrmLoader = new VRMLoader();
-
-    vrmLoader.load(
-      this.props.model,
-      (vrm: VRM) => {
-        this.vrm = vrm;
-        this.modelDidLoad();
-        this.setState({ isBusy: false });
-      },
-      (progress: ProgressEvent) => {
-        console.log('Loading model...', 100 * (progress.loaded / progress.total), '%');
-        this.setState({ progress: progress.loaded / progress.total });
-      },
-      (error: ErrorEvent) => {
-        console.error(error);
-      }
-    );
-  }
-
-  private modelDidLoad() {
-    console.log('VRM', this.vrm);
-
-    // console.log(this.vrm.humanoid.humanBones.map(e => [e.bone, this.vrm.getNode(e.node).type]));
-
-    this.scene.add(this.vrm.model);
-
-    const headY = 1.5;
-    this.camera.position.set(0, headY, -headY);
-    this.controls.target.set(0, 0.75 * headY, 0);
-
-    const data = this.state.data;
-    this.vrm.blendShapeMaster.blendShapeGroups.forEach(e => {
-      data['blendShape' + e.name] = 0;
+  private restartAnimation() {
+    (this.actions || []).forEach(e => {
+      e.reset();
     });
-    this.setState({ data });
-
-    this.mixer = new VRMAnimationMixer(this.vrm);
-  }
-
-  private loadMotion() {
-    const loader = new VRMVMDLoader();
-    loader.load(
-      this.props.motion,
-      (vmd: VRMVMD) => {
-        this.clip = vmd.toAnimationClip(this.vrm);
-        this.motionDidLoad();
-      },
-      (progress: ProgressEvent) => {
-        // console.log('Loading motion...', 100 * (progress.loaded / progress.total), '%');
-      },
-      (error: ErrorEvent) => {
-        console.error(error);
-      }
-    );
-  }
-
-  private motionDidLoad() {
-    console.log('AnimationClip', this.clip);
-    if (this.mixer) {
-      const actions = this.mixer.clipAction(this.clip);
-      actions.forEach(e => {
-        e.play();
-      });
-    }
   }
 }
