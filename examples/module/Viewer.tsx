@@ -3,7 +3,7 @@ import DatGui, { DatBoolean, DatColor, DatFolder, DatNumber } from 'react-dat-gu
 import 'react-dat-gui/build/react-dat-gui.css';
 import * as THREE from 'three';
 import OrbitControls from 'three-orbitcontrols';
-import { VRM, VRMLoader, VRMVMD, VRMVMDLoader } from '../../src';
+import { VRM, VRMAnimationClip, VRMAnimationMixer, VRMLoader, VRMVMD, VRMVMDLoader } from '../../src';
 
 interface Props {
   model: string;
@@ -28,8 +28,9 @@ export default class Viewer extends React.Component<Props, State> {
   private controls: THREE.OrbitControls;
   private helpers: THREE.Group;
   private vrm: VRM;
-  private animationClip: THREE.AnimationClip;
-  private animationMixers: THREE.AnimationMixer[];
+  // private vmd: VRMVMD;
+  private clip: VRMAnimationClip;
+  private mixer: VRMAnimationMixer;
 
   constructor(props: Props) {
     super(props);
@@ -41,7 +42,6 @@ export default class Viewer extends React.Component<Props, State> {
     };
 
     this.clock = new THREE.Clock();
-    this.animationMixers = [];
 
     this.onDataUpdate = this.onDataUpdate.bind(this);
     this.update = this.update.bind(this);
@@ -177,9 +177,9 @@ export default class Viewer extends React.Component<Props, State> {
     this.requestID = window.requestAnimationFrame(this.update);
     const delta = this.clock.getDelta();
 
-    this.animationMixers.forEach(e => {
-      e.update(delta);
-    });
+    if (this.mixer) {
+      this.mixer.update(delta);
+    }
 
     this.renderScene();
   }
@@ -228,7 +228,10 @@ export default class Viewer extends React.Component<Props, State> {
     if (this.vrm) {
       this.scene.remove(this.vrm.model);
     }
-    this.animationMixers.length = 0;
+    if (this.mixer) {
+      this.mixer.stopAllAction();
+      this.mixer = null;
+    }
 
     const vrmLoader = new VRMLoader();
 
@@ -266,11 +269,7 @@ export default class Viewer extends React.Component<Props, State> {
     });
     this.setState({ data });
 
-    this.vrm.model.traverse((object3d: THREE.Object3D) => {
-      if (object3d instanceof THREE.SkinnedMesh) {
-        this.animationMixers.push(new THREE.AnimationMixer(object3d));
-      }
-    });
+    this.mixer = new VRMAnimationMixer(this.vrm);
   }
 
   private loadMotion() {
@@ -278,7 +277,7 @@ export default class Viewer extends React.Component<Props, State> {
     loader.load(
       this.props.motion,
       (vmd: VRMVMD) => {
-        this.animationClip = vmd.toAnimationClip(this.vrm);
+        this.clip = vmd.toAnimationClip(this.vrm);
         this.motionDidLoad();
       },
       (progress: ProgressEvent) => {
@@ -291,11 +290,11 @@ export default class Viewer extends React.Component<Props, State> {
   }
 
   private motionDidLoad() {
-    console.log('AnimationClip', this.animationClip);
-    if (this.animationMixers) {
-      this.animationMixers.forEach(e => {
-        const animationAction = e.clipAction(this.animationClip);
-        animationAction.play();
+    console.log('AnimationClip', this.clip);
+    if (this.mixer) {
+      const actions = this.mixer.clipAction(this.clip);
+      actions.forEach(e => {
+        e.play();
       });
     }
   }
