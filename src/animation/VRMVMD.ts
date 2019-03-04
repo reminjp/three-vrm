@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import { VRMHumanoidUtils } from '../animation';
-import { VRM, VRMHumanBoneName } from '../data';
+import { VRMBlendShapeUtils, VRMHumanoidUtils } from '../animation';
+import { VRM, VRMBlendShapeBind, VRMHumanBoneName } from '../data';
 import { VRMAnimationClip } from './VRMAnimationClip';
 
 export class VRMVMD {
   private motionsMap: Map<VRMHumanBoneName, VRMVMDMotion[]>;
-  private morphs: any[];
+  private morphsMap: Map<string, VRMVMDMorph[]>;
 
   constructor(vmd: any) {
     // Motions
@@ -45,26 +45,33 @@ export class VRMVMD {
     });
 
     // Morphs
-    this.morphs = vmd.morphs.map((e: any) => {
+    const morphs: VRMVMDMorph[] = vmd.morphs.map((e: any) => {
       const morph = new VRMVMDMorph();
-      // 30 fps
+      morph.blendShapeGroupName = VRMBlendShapeUtils.stringToBlendShapeGroupName(e.morphName);
       morph.time = e.frameNum / 30;
       morph.weight = e.weight;
       return morph;
     });
-    this.morphs.sort((a, b) => {
+    morphs.sort((a, b) => {
       return a.time - b.time;
+    });
+    this.morphsMap = new Map();
+    morphs.forEach(morph => {
+      if (!this.morphsMap.has(morph.blendShapeGroupName)) {
+        this.morphsMap.set(morph.blendShapeGroupName, []);
+      }
+      this.morphsMap.get(morph.blendShapeGroupName).push(morph);
     });
   }
 
   public toAnimationClip(vrm: VRM): VRMAnimationClip {
+    // For motions.
     const skinnedMeshes: THREE.SkinnedMesh[] = [];
     vrm.model.traverse((object3d: THREE.Object3D) => {
       if (object3d instanceof THREE.SkinnedMesh) {
         skinnedMeshes.push(object3d);
       }
     });
-
     const humanBoneNameToBone = new Map<VRMHumanBoneName, THREE.Object3D>();
     const humanBoneNameToRootObject = new Map<VRMHumanBoneName, THREE.SkinnedMesh>();
     vrm.humanoid.humanBones.forEach(humanBone => {
@@ -79,11 +86,20 @@ export class VRMVMD {
       );
     });
 
-    const tracksMap = new Map<THREE.SkinnedMesh, THREE.KeyframeTrack[]>();
+    // For morphs.
+    const blendShapeGroupNameToBinds = new Map<string, VRMBlendShapeBind[]>();
+    vrm.blendShapeMaster.blendShapeGroups.forEach(g => {
+      blendShapeGroupNameToBinds.set(g.name, g.binds);
+    });
+
+    // Tracks binded to each Mesh.
+    const tracksMap = new Map<THREE.Mesh, THREE.KeyframeTrack[]>();
+
+    // Create motion tracks.
     this.motionsMap.forEach((motions, humanBoneName) => {
       const bone = humanBoneNameToBone.get(humanBoneName);
       const root = humanBoneNameToRootObject.get(humanBoneName);
-      if (bone === undefined) {
+      if (!bone) {
         return;
       }
       if (!tracksMap.has(root)) {
@@ -131,6 +147,36 @@ export class VRMVMD {
       tracksMap.get(root).push(new THREE.QuaternionKeyframeTrack(`.bones[${bone.name}].quaternion`, times, rotations));
     });
 
+    // Create morph tracks.
+    this.morphsMap.forEach((morphs, blendShapeGroupName) => {
+      const binds = blendShapeGroupNameToBinds.get(blendShapeGroupName);
+      if (!binds) {
+        return;
+      }
+
+      binds.forEach(bind => {
+        const meshes = vrm.getSubMeshesByIndex(bind.mesh);
+        meshes.forEach(mesh => {
+          if (!tracksMap.has(mesh)) {
+            tracksMap.set(mesh, []);
+          }
+
+          const times: number[] = [];
+          const values: number[] = [];
+
+          morphs.forEach(morph => {
+            times.push(morph.time);
+            values.push((bind.weight / 100) * morph.weight);
+          });
+
+          tracksMap
+            .get(mesh)
+            .push(new THREE.NumberKeyframeTrack(`.morphTargetInfluences[morphTarget${bind.index}]`, times, values));
+        });
+      });
+    });
+
+    // Create AnimationClip from tracks.
     const vrmAnimationClip = new VRMAnimationClip();
     tracksMap.forEach((tracks, root) => {
       vrmAnimationClip.clips.push({ clip: new THREE.AnimationClip(THREE.Math.generateUUID(), -1, tracks), root });
@@ -149,6 +195,7 @@ class VRMVMDMotion {
 }
 
 class VRMVMDMorph {
+  public blendShapeGroupName: string;
   public time: number;
   public weight: number;
 }

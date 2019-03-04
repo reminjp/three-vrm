@@ -165,7 +165,7 @@ export class VRM {
     this.humanoid.humanBones.forEach(humanBone => {
       const object3d = this.getNode(humanBone.node);
       if (object3d.type !== 'Bone') {
-        console.warn(`HumanBone '${humanBone.bone}' is not a Bone. (${object3d.type})`);
+        console.warn(`HumanBone '${humanBone.bone}' is not a Bone.`, object3d);
       }
     });
 
@@ -174,6 +174,10 @@ export class VRM {
 
   public getNode(index: number) {
     return this.nodes[index];
+  }
+
+  public getSubMeshesByIndex(index: number) {
+    return this.meshes[index];
   }
 
   public getHumanBone(humanBoneName: VRMHumanBoneName) {
