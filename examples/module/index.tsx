@@ -6,8 +6,9 @@ import { BarLoader } from 'react-spinners';
 import { VRM, VRMLoader, VRMVMD, VRMVMDLoader } from '../../src';
 import Viewer from './Viewer';
 
-const aliciaSolidModel: string = require('../res/AliciaSolid.vrm'); // tslint:disable-line:no-var-requires
-const shibuSendagayaModel: string = require('../res/ShibuSendagaya.vrm'); // tslint:disable-line:no-var-requires
+const aliciaSolidModel: string = require('../res/alicia_solid.vrm'); // tslint:disable-line:no-var-requires
+const shibuSendagayaModel: string = require('../res/shibu_sendagaya.vrm'); // tslint:disable-line:no-var-requires
+const cubeTestModel: string = require('../res/cube_test.vrm'); // tslint:disable-line:no-var-requires
 const wavefileMotion: string = require('../res/wavefile_v2.vmd'); // tslint:disable-line:no-var-requires
 
 interface State {
@@ -25,6 +26,7 @@ class App extends React.Component<{}, State> {
     this.state = { isBusy: false, progress: 0 };
 
     this.onDrop = this.onDrop.bind(this);
+    this.showCubeTestModel = this.showCubeTestModel.bind(this);
     this.showAliciaSolidModel = this.showAliciaSolidModel.bind(this);
     this.showShibuSendagayaModel = this.showShibuSendagayaModel.bind(this);
     this.showWavefileMotion = this.showWavefileMotion.bind(this);
@@ -65,6 +67,9 @@ class App extends React.Component<{}, State> {
           </p>
           <p>
             <a onClick={this.showShibuSendagayaModel}>Shibu Sendagaya</a>
+          </p>
+          <p>
+            <a onClick={this.showCubeTestModel}>Cube Test</a>
           </p>
           <h2>Sample Motions (VMD)</h2>
           <p>
@@ -147,6 +152,10 @@ class App extends React.Component<{}, State> {
         this.setState({ isBusy: false });
       }
     );
+  }
+
+  private showCubeTestModel() {
+    this.loadVRM(cubeTestModel);
   }
 
   private showAliciaSolidModel() {
