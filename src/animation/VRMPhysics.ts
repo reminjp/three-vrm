@@ -37,7 +37,7 @@ export class VRMPhysics {
           }
         });
       });
-      g.colliderGroups = boneGroup.colliderGroups.map(index => this.sphereColliderGroups[index]);
+      g.sphereColliderGroups = boneGroup.colliderGroups.map(index => this.sphereColliderGroups[index]);
       return g;
     });
   }
@@ -68,7 +68,7 @@ class SpringBoneGroup {
   public center: THREE.Object3D;
   public hitRadius: number;
   public springBones: SpringBone[];
-  public colliderGroups: SphereColliderGroup[];
+  public sphereColliderGroups: SphereColliderGroup[];
 
   constructor() {
     this.stiffnessForce = 1.0;
@@ -77,7 +77,7 @@ class SpringBoneGroup {
     this.dragForce = 0.4;
     this.hitRadius = 0.02;
     this.springBones = [];
-    this.colliderGroups = [];
+    this.sphereColliderGroups = [];
   }
 
   public reset() {
@@ -114,6 +114,7 @@ class SpringBone {
       const position = this.bone
         .getWorldPosition(new THREE.Vector3())
         .sub(this.bone.parent.getWorldPosition(new THREE.Vector3()))
+        .normalize()
         .multiplyScalar(0.07)
         .add(this.bone.getWorldPosition(new THREE.Vector3()));
       childPosition = this.bone.worldToLocal(position);
@@ -172,7 +173,25 @@ class SpringBone {
       .add(worldPosition);
 
     // Move by colliders.
-    //
+    this.group.sphereColliderGroups.forEach(sphereColliderGroup => {
+      sphereColliderGroup.colliders.forEach(collider => {
+        const r = this.group.hitRadius + collider.radius;
+        const v = nextTail.clone().sub(collider.worldPosition);
+        if (v.lengthSq() <= r * r) {
+          v.normalize()
+            .multiplyScalar(r)
+            .add(collider.worldPosition);
+          nextTail.set(v.x, v.y, v.z);
+          // Fix the bone length.
+          const wp = this.bone.getWorldPosition(new THREE.Vector3());
+          nextTail
+            .sub(wp)
+            .normalize()
+            .multiplyScalar(this.length)
+            .add(wp);
+        }
+      });
+    });
 
     this.previousTailWorldPosition = this.group.center ? this.group.center.worldToLocal(currentTail) : currentTail;
     this.currentTailWorldPosition = this.group.center ? this.group.center.worldToLocal(nextTail) : nextTail;
@@ -219,29 +238,20 @@ class SphereColliderGroup {
 }
 
 class SphereCollider {
+  public offset: THREE.Vector3;
+  public radius: number;
+  public worldPosition: THREE.Vector3;
   private group: SphereColliderGroup;
-  private offset: THREE.Vector3;
-  private radius: number;
-  private position: THREE.Vector3;
 
   constructor(group: SphereColliderGroup, offset: THREE.Vector3, radius: number) {
     this.group = group;
     this.offset = offset.clone();
     this.radius = radius;
-    this.position = new THREE.Vector3();
+    this.worldPosition = new THREE.Vector3();
     this.update();
   }
 
   public update() {
-    this.group.object3d.getWorldPosition(this.position);
-    this.position.add(this.offset);
-  }
-
-  public getRadius() {
-    return this.radius;
-  }
-
-  public getWorldPosition(target: THREE.Vector3): THREE.Vector3 {
-    return target.copy(this.position);
+    this.worldPosition = this.group.object3d.localToWorld(this.offset.clone());
   }
 }
