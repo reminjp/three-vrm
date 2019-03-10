@@ -135,6 +135,12 @@ export class VRM {
       }
       this.nodes = (await Promise.all(promises)).map(object3d => this.model.getObjectByName(object3d.name));
     }
+    this.nodes.forEach((object3d, index) => {
+      if (!object3d.userData.vrm) {
+        object3d.userData.vrm = {};
+      }
+      object3d.userData.vrm.node = index;
+    });
 
     // Create a mesh list for morphing.
     this.meshes = this.parser.json.meshes.map((): THREE.Mesh[] => []);
