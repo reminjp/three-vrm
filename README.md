@@ -151,6 +151,31 @@ Morphs the mesh.
 
 Morphs all meshes in the BlendShapeGroup.
 
+### VRMPhysycs
+
+A Physics handler for `VRM`.
+
+```ts
+const clock = new THREE.Clock();
+const physics = new VRMPhysycs(vrm);
+
+function render() {
+  const delta = clock.getDelta();
+  physics.update(delta);
+  renderer.render(scene, camera);
+}
+```
+
+#### `new VRMPhysycs ( vrm : VRM )`
+
+Creates a new VRMPhysycs.
+
+#### `.update ( delta : number ) : VRMPhysycs`
+
+`delta` - Time in second.
+
+Advance Physics calculation and updates bones.
+
 ## Development
 
 ```sh
