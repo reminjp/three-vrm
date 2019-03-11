@@ -13,7 +13,7 @@ export class VRMPhysics {
     this.sphereColliderGroups = this.vrm.secondaryAnimation.colliderGroups.map(colliderGroup => {
       const group = new SphereColliderGroup(this.vrm.getNode(colliderGroup.node));
       colliderGroup.colliders.forEach(c => {
-        group.createSphereCollider(new THREE.Vector3(c.offset.x, c.offset.y, c.offset.z), c.radius);
+        group.createSphereCollider(new THREE.Vector3(c.offset.x, c.offset.y, -c.offset.z), c.radius);
       });
       return group;
     });
@@ -134,6 +134,13 @@ class SpringBone {
 
     this.length = childPosition.length();
     this.boneAxis = childPosition.normalize();
+
+    // Debug
+    // const geometry = new THREE.SphereGeometry(this.group.hitRadius, 16, 16);
+    // const material = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+    // const sphere = new THREE.Mesh(geometry, material);
+    // sphere.position.copy(this.boneAxis.clone().multiplyScalar(this.length));
+    // this.bone.add(sphere);
   }
 
   public reset() {
@@ -228,6 +235,13 @@ class SphereColliderGroup {
 
   public createSphereCollider(offset: THREE.Vector3, radius: number) {
     this.colliders.push(new SphereCollider(this, offset, radius));
+
+    // Debug
+    // const geometry = new THREE.SphereGeometry(radius, 16, 16);
+    // const material = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+    // const sphere = new THREE.Mesh(geometry, material);
+    // sphere.position.copy(offset);
+    // this.object3d.add(sphere);
   }
 
   public update() {
