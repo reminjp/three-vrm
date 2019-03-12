@@ -27,6 +27,7 @@ export default class Viewer extends React.Component<Props, State> {
   private camera: THREE.PerspectiveCamera;
   private controls: THREE.OrbitControls;
   private helpers: THREE.Group;
+  private skeletonHelpers: THREE.Group;
   private vrm: VRM;
   private vmd: VRMVMD;
   private clip: VRMAnimationClip;
@@ -43,6 +44,7 @@ export default class Viewer extends React.Component<Props, State> {
       data: {
         background: '#212121',
         isAxesVisible: true,
+        isSkeletonVisible: false,
         timeScale: 1,
         positionX: 0,
         positionY: 0,
@@ -103,6 +105,14 @@ export default class Viewer extends React.Component<Props, State> {
       const headY = 1.5;
       this.camera.position.set(0, headY, -headY);
       this.controls.target.set(0, 0.75 * headY, 0);
+
+      if (this.skeletonHelpers) {
+        this.scene.remove(this.skeletonHelpers);
+      }
+      this.skeletonHelpers = new THREE.Group();
+      this.skeletonHelpers.visible = this.state.data.isSkeletonVisible;
+      this.scene.add(this.skeletonHelpers);
+      this.skeletonHelpers.add(new THREE.SkeletonHelper(this.vrm.getNode(this.vrm.getHumanBone('hips').node)));
 
       const data = this.state.data;
       data.positionX = data.positionY = data.positionZ = 0;
@@ -225,6 +235,7 @@ export default class Viewer extends React.Component<Props, State> {
           <DatFolder title="Environment" closed={true}>
             <DatColor path="background" label="Background" />
             <DatBoolean path="isAxesVisible" label="Axes" />
+            <DatBoolean path="isSkeletonVisible" label="Skeleton" />
             <DatNumber path={'timeScale'} label={'Time Scale'} min={0} max={2} step={0.01} />
           </DatFolder>
           <DatFolder title="Transform" closed={true}>
@@ -264,6 +275,10 @@ export default class Viewer extends React.Component<Props, State> {
 
     if (data.isAxesVisible !== this.state.data.isAxesVisible) {
       this.helpers.visible = data.isAxesVisible;
+    }
+
+    if (data.isSkeletonVisible !== this.state.data.isSkeletonVisible) {
+      this.skeletonHelpers.visible = data.isSkeletonVisible;
     }
 
     this.vrm.blendShapeMaster.blendShapeGroups.forEach((e, i) => {
