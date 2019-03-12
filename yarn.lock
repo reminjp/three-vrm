@@ -4217,10 +4217,10 @@ react-color@^2.13.8:
     reactcss "^1.2.0"
     tinycolor2 "^1.4.1"
 
-react-dat-gui@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/react-dat-gui/-/react-dat-gui-1.0.2.tgz#33f768af63770be7db2b32087247cd3ff84e62ad"
-  integrity sha512-oJdEivfB9pIBD9QYjwOr9s5i9fMOMcTDzHYeRykweXNFEAkGVav5/xtgrnHqsUkPZt4U5jibGioglZBu20N6dw==
+react-dat-gui@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/react-dat-gui/-/react-dat-gui-2.2.0.tgz#1c735573efe38c16f53e60d10329b5b9c8271f44"
+  integrity sha512-jVS418omPSQGUASlGVBGevvD5+dUPXvR1F+YsvcO0FAlNAu0vrtX+ZOmLVs+7GSKblMFcBo5o2x4DvOwUjFtoA==
   dependencies:
     classnames "2.2.5"
     lodash.clamp "^4.0.2"
