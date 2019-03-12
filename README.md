@@ -170,11 +170,11 @@ function render() {
 
 Creates a new VRMPhysycs.
 
-#### `.update ( delta : number ) : VRMPhysycs`
+#### `.update ( deltaTime : number ) : VRMPhysycs`
 
-`delta` - Time in second.
+`deltaTime` - Time in second.
 
-Advance Physics calculation and updates bones.
+Advances Physics calculation and updates bones.
 
 ## Development
 
