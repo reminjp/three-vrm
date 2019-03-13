@@ -1,17 +1,18 @@
 import * as THREE from 'three';
-import { VRMBlendShapeUtils, VRMHumanoidUtils } from '../animation';
+import { VRMBlendShapeUtils } from '../animation';
+import { VRMMMDIKBoneName, VRMMMDUtils } from '../animation/utils';
 import { VRM, VRMBlendShapeBind, VRMHumanBoneName } from '../data';
 import { VRMAnimationClip } from './VRMAnimationClip';
 
 export class VRMVMD {
-  private motionsMap: Map<VRMHumanBoneName, VRMVMDMotion[]>;
+  private motionsMap: Map<VRMHumanBoneName | VRMMMDIKBoneName, VRMVMDMotion[]>;
   private morphsMap: Map<string, VRMVMDMorph[]>;
 
   constructor(vmd: any) {
     // Motions
     // Convert rotations for T-pose.
     const front = new THREE.Vector3(0, 0, -1);
-    const rotationOffsets = new Map<VRMHumanBoneName, THREE.Quaternion>([
+    const rotationOffsets = new Map<VRMHumanBoneName | VRMMMDIKBoneName, THREE.Quaternion>([
       ['leftShoulder', new THREE.Quaternion().setFromAxisAngle(front, (-5 / 180) * Math.PI)],
       ['rightShoulder', new THREE.Quaternion().setFromAxisAngle(front, (5 / 180) * Math.PI)],
       ['leftUpperArm', new THREE.Quaternion().setFromAxisAngle(front, (-35 / 180) * Math.PI)],
@@ -20,7 +21,8 @@ export class VRMVMD {
 
     const motions: VRMVMDMotion[] = vmd.motions.map((e: any) => {
       const motion = new VRMVMDMotion();
-      motion.humanBoneName = VRMHumanoidUtils.stringToHumanBoneName(e.boneName);
+      motion.boneName = e.boneName;
+      motion.humanBoneName = VRMMMDUtils.stringToHumanBoneName(e.boneName);
       // 30 fps
       motion.time = e.frameNum / 30;
       // 1 unit length in VMD = 0.08 m
@@ -38,6 +40,9 @@ export class VRMVMD {
     });
     this.motionsMap = new Map();
     motions.forEach(motion => {
+      if (!motion.humanBoneName) {
+        return;
+      }
       if (!this.motionsMap.has(motion.humanBoneName)) {
         this.motionsMap.set(motion.humanBoneName, []);
       }
@@ -65,6 +70,31 @@ export class VRMVMD {
   }
 
   public toAnimationClip(vrm: VRM): VRMAnimationClip {
+    // Create a SkinnedMesh to receive IK motions.
+    const ikSkinnedMesh = new THREE.SkinnedMesh();
+    const leftFootIKBone = new THREE.Bone();
+    const rightFootIKBone = new THREE.Bone();
+    const leftToesIKBone = new THREE.Bone();
+    const rightToesIKBone = new THREE.Bone();
+    leftFootIKBone.name = 'leftFootIK';
+    rightFootIKBone.name = 'rightFootIK';
+    leftToesIKBone.name = 'leftToesIK';
+    rightToesIKBone.name = 'rightToesIK';
+    const ikBones = [leftFootIKBone, rightFootIKBone, leftToesIKBone, rightToesIKBone];
+    const ikSkeleton = new THREE.Skeleton(ikBones);
+    ikBones.forEach(bone => {
+      const matrixWorld = vrm.getNode(
+        vrm.getHumanBone(VRMMMDUtils.ikBoneNameToParentHumanBoneName(bone.name as VRMMMDIKBoneName)).node
+      ).matrixWorld;
+
+      const offset = new THREE.Object3D();
+      offset.applyMatrix(matrixWorld);
+      offset.add(bone);
+
+      ikSkinnedMesh.add(offset);
+    });
+    ikSkinnedMesh.bind(ikSkeleton);
+
     // For motions.
     const skinnedMeshes: THREE.SkinnedMesh[] = [];
     vrm.model.traverse((object3d: THREE.Object3D) => {
@@ -72,8 +102,8 @@ export class VRMVMD {
         skinnedMeshes.push(object3d);
       }
     });
-    const humanBoneNameToBone = new Map<VRMHumanBoneName, THREE.Object3D>();
-    const humanBoneNameToRootObject = new Map<VRMHumanBoneName, THREE.SkinnedMesh>();
+    const humanBoneNameToBone = new Map<VRMHumanBoneName | VRMMMDIKBoneName, THREE.Object3D>();
+    const humanBoneNameToRootObject = new Map<VRMHumanBoneName | VRMMMDIKBoneName, THREE.SkinnedMesh>();
     vrm.humanoid.humanBones.forEach(humanBone => {
       const bone = vrm.getNode(humanBone.node);
       if (bone.type !== 'Bone') {
@@ -85,6 +115,14 @@ export class VRMVMD {
         skinnedMeshes.find(m => m.skeleton.bones.findIndex(e => e.name === bone.name) !== -1)
       );
     });
+    humanBoneNameToBone.set('leftFootIK', leftFootIKBone);
+    humanBoneNameToBone.set('rightFootIK', rightFootIKBone);
+    humanBoneNameToBone.set('leftToesIK', leftToesIKBone);
+    humanBoneNameToBone.set('rightToesIK', rightToesIKBone);
+    humanBoneNameToRootObject.set('leftFootIK', ikSkinnedMesh);
+    humanBoneNameToRootObject.set('rightFootIK', ikSkinnedMesh);
+    humanBoneNameToRootObject.set('leftToesIK', ikSkinnedMesh);
+    humanBoneNameToRootObject.set('rightToesIK', ikSkinnedMesh);
 
     // For morphs.
     const blendShapeGroupNameToBinds = new Map<string, VRMBlendShapeBind[]>();
@@ -181,13 +219,14 @@ export class VRMVMD {
     tracksMap.forEach((tracks, root) => {
       vrmAnimationClip.clips.push({ clip: new THREE.AnimationClip(THREE.Math.generateUUID(), -1, tracks), root });
     });
+    vrmAnimationClip.ikSkinnedMesh = ikSkinnedMesh;
     return vrmAnimationClip;
   }
 }
 
 class VRMVMDMotion {
   public boneName: string;
-  public humanBoneName: VRMHumanBoneName;
+  public humanBoneName: VRMHumanBoneName | VRMMMDIKBoneName;
   public time: number;
   public position: THREE.Vector3;
   public rotation: THREE.Quaternion;
