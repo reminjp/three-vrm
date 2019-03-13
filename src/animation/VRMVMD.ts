@@ -26,8 +26,8 @@ export class VRMVMD {
       // 30 fps
       motion.time = e.frameNum / 30;
       // 1 unit length in VMD = 0.08 m
-      motion.position = new THREE.Vector3(-e.position[0], e.position[1], e.position[2]).multiplyScalar(0.08);
-      motion.rotation = new THREE.Quaternion(-e.rotation[0], e.rotation[1], e.rotation[2], -e.rotation[3]);
+      motion.position = new THREE.Vector3(-e.position[0], e.position[1], -e.position[2]).multiplyScalar(0.08);
+      motion.rotation = new THREE.Quaternion(e.rotation[0], -e.rotation[1], e.rotation[2], -e.rotation[3]);
       if (rotationOffsets.has(motion.humanBoneName)) {
         motion.rotation.multiply(rotationOffsets.get(motion.humanBoneName));
       }
