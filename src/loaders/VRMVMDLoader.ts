@@ -20,7 +20,7 @@ export class VRMVMDLoader {
       url,
       buffer => {
         const mmdParser = new MMDParser.Parser();
-        const object = mmdParser.parseVmd(buffer);
+        const object = mmdParser.parseVmd(buffer, true);
         // TODO: Call onProgress.
         onLoad(new VRMVMD(object));
       },
