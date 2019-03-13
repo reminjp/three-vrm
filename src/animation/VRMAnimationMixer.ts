@@ -16,6 +16,16 @@ export class VRMAnimationMixer {
     vrmAnimationClip.clips.forEach(clip => {
       actions.push(this.mixer.clipAction(clip.clip, clip.root));
     });
+
+    // Debug
+    // vrmAnimationClip.ikSkinnedMesh.skeleton.bones.forEach(bone => {
+    //   const geometry = new THREE.SphereGeometry(0.02, 8, 8);
+    //   const material = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+    //   const sphere = new THREE.Mesh(geometry, material);
+    //   bone.add(sphere);
+    // });
+    // this.vrm.model.add(vrmAnimationClip.ikSkinnedMesh);
+
     return actions;
   }
 
