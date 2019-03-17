@@ -33,7 +33,7 @@ class App extends React.Component<{}, State> {
   }
 
   public componentDidMount() {
-    this.loadVRM(aliciaSolidModel);
+    this.loadVRM(shibuSendagayaModel);
   }
 
   public render() {
