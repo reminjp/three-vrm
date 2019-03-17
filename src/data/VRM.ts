@@ -182,6 +182,11 @@ export class VRM {
     return this.nodes[index];
   }
 
+  public getNodeByHumanBoneName(humanBoneName: VRMHumanBoneName) {
+    const humanBone = this.getHumanBone(humanBoneName);
+    return humanBone && this.getNode(humanBone.node);
+  }
+
   public getSubMeshesByIndex(index: number) {
     return this.meshes[index];
   }

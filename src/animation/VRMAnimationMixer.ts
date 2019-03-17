@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { VRM } from '../data';
-import { VRMAnimationClip } from './';
+import { VRMAnimationClip } from './VRMAnimationClip';
+import { USERDATA_KEY_VRM_IK_SOLVER } from './VRMIKSolver';
 
 export class VRMAnimationMixer {
   public vrm: VRM;
@@ -36,6 +37,9 @@ export class VRMAnimationMixer {
 
   public update(deltaTime: number): VRMAnimationMixer {
     this.mixer.update(deltaTime);
+    if (this.vrm.userData[USERDATA_KEY_VRM_IK_SOLVER]) {
+      this.vrm.userData[USERDATA_KEY_VRM_IK_SOLVER].update();
+    }
     return this;
   }
 }

@@ -1,11 +1,8 @@
 import { VRMHumanBoneName } from '../data/VRMHumanoid';
 
-export type VRMMMDIKBoneName = 'leftFootIK' | 'rightFootIK' | 'leftToesIK' | 'rightToesIK';
-
 // TODO: Implement missing bones.
 // - 両目
-const boneNameToHumanBoneName: Array<[string, VRMHumanBoneName | VRMMMDIKBoneName]> = [
-  // VRMHumanBoneName
+const boneNameToHumanBoneName: Array<[string, VRMHumanBoneName]> = [
   ['センター', 'hips'],
   ['左足', 'leftUpperLeg'],
   ['右足', 'rightUpperLeg'],
@@ -61,34 +58,11 @@ const boneNameToHumanBoneName: Array<[string, VRMHumanBoneName | VRMMMDIKBoneNam
   ['右小指２', 'rightLittleIntermediate'],
   ['右小指３', 'rightLittleDistal'],
   ['上半身２', 'upperChest'],
-  // VRMMMDIKBoneName
-  ['左足ＩＫ', 'leftFootIK'],
-  ['右足ＩＫ', 'rightFootIK'],
-  ['左つま先ＩＫ', 'leftToesIK'],
-  ['右つま先ＩＫ', 'rightToesIK'],
-];
-
-const ikBoneNameToParentHumanBoneName: Array<[VRMMMDIKBoneName, VRMHumanBoneName]> = [
-  ['leftFootIK', 'leftFoot'],
-  ['rightFootIK', 'rightFoot'],
-  ['leftToesIK', 'leftToes'],
-  ['rightToesIK', 'rightToes'],
 ];
 
 export abstract class VRMMMDUtils {
-  public static stringToHumanBoneName(s: string): VRMHumanBoneName | VRMMMDIKBoneName {
-    const r = boneNameToHumanBoneName.find(e => s === e[0]);
-    if (!r) {
-      return undefined;
-    }
-    return r[1];
-  }
-
-  public static ikBoneNameToParentHumanBoneName(s: VRMMMDIKBoneName): VRMHumanBoneName {
-    const r = ikBoneNameToParentHumanBoneName.find(e => s === e[0]);
-    if (!r) {
-      return undefined;
-    }
-    return r[1];
+  public static getHumanBoneNameByBoneName(boneName: string): VRMHumanBoneName {
+    const item = boneNameToHumanBoneName.find(e => boneName === e[0]);
+    return item ? item[1] : undefined;
   }
 }
