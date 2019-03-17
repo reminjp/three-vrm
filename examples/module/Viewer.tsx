@@ -294,6 +294,12 @@ export default class Viewer extends React.Component<Props, State> {
     this.requestID = window.requestAnimationFrame(this.update);
     const delta = this.clock.getDelta();
 
+    if (this.actions && this.actions.length) {
+      this.actions.forEach(e => {
+        e.syncWith(this.actions[0]);
+      });
+    }
+
     if (this.mixer) {
       this.mixer.update(this.state.data.timeScale * delta);
     }
