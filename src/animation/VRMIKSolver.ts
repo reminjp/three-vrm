@@ -25,11 +25,9 @@ export class VRMIKSolver {
     {
       const target = new THREE.Object3D();
       target.name = 'LeftBoneIKTarget';
-      const targetOffset = new THREE.Object3D();
       const effector = this.vrm.getNodeByHumanBoneName('leftFoot');
-      targetOffset.applyMatrix(effector.matrixWorld);
-      targetOffset.add(target);
-      this.vrm.model.add(targetOffset);
+      target.applyMatrix(effector.matrixWorld);
+      this.vrm.model.add(target);
 
       this.iks[VRMIKName.LeftFoot] = {
         enabled: true,
@@ -61,11 +59,9 @@ export class VRMIKSolver {
     {
       const target = new THREE.Object3D();
       target.name = 'RightBoneIKTarget';
-      const targetOffset = new THREE.Object3D();
       const effector = this.vrm.getNodeByHumanBoneName('rightFoot');
-      targetOffset.applyMatrix(effector.matrixWorld);
-      targetOffset.add(target);
-      this.vrm.model.add(targetOffset);
+      target.applyMatrix(effector.matrixWorld);
+      this.vrm.model.add(target);
 
       this.iks[VRMIKName.RightFoot] = {
         enabled: true,
@@ -97,20 +93,24 @@ export class VRMIKSolver {
     {
       const target = new THREE.Object3D();
       target.name = 'LeftToesIKTarget';
-      const targetOffset = new THREE.Object3D();
       const effector = this.vrm.getNodeByHumanBoneName('leftToes');
-      targetOffset.applyMatrix(effector.matrixWorld);
-      targetOffset.add(target);
-      this.vrm.model.add(targetOffset);
+      target.applyMatrix(effector.matrix);
+      this.iks[VRMIKName.LeftFoot].target.add(target);
 
       this.iks[VRMIKName.LeftToes] = {
-        enabled: false,
+        enabled: true,
         target,
         solver: new CCDIKSolver([
           {
             target,
             effector,
-            links: [{ bone: this.vrm.getNodeByHumanBoneName('leftFoot') }],
+            links: [
+              {
+                bone: this.vrm.getNodeByHumanBoneName('leftFoot'),
+                rotationMin: new THREE.Vector3((-180 / 180) * Math.PI, (-180 / 180) * Math.PI, (-45 / 180) * Math.PI),
+                rotationMax: new THREE.Vector3((45 / 180) * Math.PI, (180 / 180) * Math.PI, (45 / 180) * Math.PI),
+              },
+            ],
             iteration,
           },
         ]),
@@ -121,20 +121,24 @@ export class VRMIKSolver {
     {
       const target = new THREE.Object3D();
       target.name = 'RightToesIKTarget';
-      const targetOffset = new THREE.Object3D();
       const effector = this.vrm.getNodeByHumanBoneName('rightToes');
-      targetOffset.applyMatrix(effector.matrixWorld);
-      targetOffset.add(target);
-      this.vrm.model.add(targetOffset);
+      target.applyMatrix(effector.matrix);
+      this.iks[VRMIKName.RightFoot].target.add(target);
 
       this.iks[VRMIKName.RightToes] = {
-        enabled: false,
+        enabled: true,
         target,
         solver: new CCDIKSolver([
           {
             target,
             effector,
-            links: [{ bone: this.vrm.getNodeByHumanBoneName('rightFoot') }],
+            links: [
+              {
+                bone: this.vrm.getNodeByHumanBoneName('rightFoot'),
+                rotationMin: new THREE.Vector3((-180 / 180) * Math.PI, (-180 / 180) * Math.PI, (-45 / 180) * Math.PI),
+                rotationMax: new THREE.Vector3((45 / 180) * Math.PI, (180 / 180) * Math.PI, (45 / 180) * Math.PI),
+              },
+            ],
             iteration,
           },
         ]),
@@ -144,7 +148,7 @@ export class VRMIKSolver {
     // Debug
     this.iks.forEach((ik: any) => {
       const sphere = new THREE.Mesh(
-        new THREE.SphereGeometry(0.02, 8, 8),
+        new THREE.SphereGeometry(0.025, 8, 8),
         new THREE.MeshBasicMaterial({ color: 0x00ffff })
       );
       ik.target.add(sphere);
