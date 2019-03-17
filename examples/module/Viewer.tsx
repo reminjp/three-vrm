@@ -142,6 +142,12 @@ export default class Viewer extends React.Component<Props, State> {
 
     if (shouldUpdateAnimation && this.vrm && this.mixer && this.vmd) {
       this.clip = this.vmd.toAnimationClip(this.vrm);
+
+      if (this.actions) {
+        this.actions.forEach(e => {
+          e.stop();
+        });
+      }
       this.actions = this.mixer.clipAction(this.clip);
       this.actions.forEach(e => {
         e.play();
