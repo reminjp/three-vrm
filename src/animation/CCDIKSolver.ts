@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 
 // cf. https://github.com/mrdoob/three.js/blob/master/examples/js/animation/CCDIKSolver.js
-// TODO: Implement IK without CCDIKSolver.
 export class CCDIKSolver {
   private iks: CCDIKConfig[];
 

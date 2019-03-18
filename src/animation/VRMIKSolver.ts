@@ -4,6 +4,7 @@ import { CCDIKSolver } from './CCDIKSolver';
 
 export const USERDATA_KEY_VRM_IK_SOLVER = 'VRMIK';
 
+// TODO: Implement IK using VRM.humanoid (Unity's HumanDescription).
 export class VRMIKSolver {
   public static initialize(vrm: VRM) {
     if (!vrm.userData[USERDATA_KEY_VRM_IK_SOLVER]) {
@@ -18,8 +19,6 @@ export class VRMIKSolver {
   constructor(vrm: VRM) {
     this.vrm = vrm;
     this.iks = [];
-
-    const iteration = 10;
 
     // LeftFoot
     {
@@ -39,17 +38,16 @@ export class VRMIKSolver {
             links: [
               {
                 bone: this.vrm.getNodeByHumanBoneName('leftLowerLeg'),
-                // limitation: new THREE.Vector3(1, 0, 0),
                 rotationMin: new THREE.Vector3((-180 / 180) * Math.PI, 0, 0),
-                rotationMax: new THREE.Vector3((-0.5 / 180) * Math.PI, 0, 0),
+                rotationMax: new THREE.Vector3((-5 / 180) * Math.PI, 0, 0),
               },
               {
                 bone: this.vrm.getNodeByHumanBoneName('leftUpperLeg'),
-                rotationMin: new THREE.Vector3((-45 / 180) * Math.PI, 0, (-180 / 180) * Math.PI),
+                rotationMin: new THREE.Vector3((-90 / 180) * Math.PI, (-90 / 180) * Math.PI, (-180 / 180) * Math.PI),
                 rotationMax: new THREE.Vector3((180 / 180) * Math.PI, (90 / 180) * Math.PI, (45 / 180) * Math.PI),
               },
             ],
-            iteration,
+            iteration: 128,
           },
         ]),
       };
@@ -73,17 +71,16 @@ export class VRMIKSolver {
             links: [
               {
                 bone: this.vrm.getNodeByHumanBoneName('rightLowerLeg'),
-                // limitation: new THREE.Vector3(1, 0, 0),
                 rotationMin: new THREE.Vector3((-180 / 180) * Math.PI, 0, 0),
-                rotationMax: new THREE.Vector3((-0.5 / 180) * Math.PI, 0, 0),
+                rotationMax: new THREE.Vector3((-5 / 180) * Math.PI, 0, 0),
               },
               {
                 bone: this.vrm.getNodeByHumanBoneName('rightUpperLeg'),
-                rotationMin: new THREE.Vector3((-45 / 180) * Math.PI, (-90 / 180) * Math.PI, (-45 / 180) * Math.PI),
-                rotationMax: new THREE.Vector3((180 / 180) * Math.PI, 0, (180 / 180) * Math.PI),
+                rotationMin: new THREE.Vector3((-90 / 180) * Math.PI, (-90 / 180) * Math.PI, (-45 / 180) * Math.PI),
+                rotationMax: new THREE.Vector3((180 / 180) * Math.PI, (90 / 180) * Math.PI, (180 / 180) * Math.PI),
               },
             ],
-            iteration,
+            iteration: 128,
           },
         ]),
       };
@@ -107,11 +104,11 @@ export class VRMIKSolver {
             links: [
               {
                 bone: this.vrm.getNodeByHumanBoneName('leftFoot'),
-                rotationMin: new THREE.Vector3((-180 / 180) * Math.PI, (-180 / 180) * Math.PI, (-45 / 180) * Math.PI),
-                rotationMax: new THREE.Vector3((45 / 180) * Math.PI, (180 / 180) * Math.PI, (45 / 180) * Math.PI),
+                rotationMin: new THREE.Vector3((-180 / 180) * Math.PI, (-180 / 180) * Math.PI, (-5 / 180) * Math.PI),
+                rotationMax: new THREE.Vector3((45 / 180) * Math.PI, (180 / 180) * Math.PI, (5 / 180) * Math.PI),
               },
             ],
-            iteration,
+            iteration: 2,
           },
         ]),
       };
@@ -135,24 +132,24 @@ export class VRMIKSolver {
             links: [
               {
                 bone: this.vrm.getNodeByHumanBoneName('rightFoot'),
-                rotationMin: new THREE.Vector3((-180 / 180) * Math.PI, (-180 / 180) * Math.PI, (-45 / 180) * Math.PI),
-                rotationMax: new THREE.Vector3((45 / 180) * Math.PI, (180 / 180) * Math.PI, (45 / 180) * Math.PI),
+                rotationMin: new THREE.Vector3((-180 / 180) * Math.PI, (-180 / 180) * Math.PI, (-5 / 180) * Math.PI),
+                rotationMax: new THREE.Vector3((45 / 180) * Math.PI, (180 / 180) * Math.PI, (5 / 180) * Math.PI),
               },
             ],
-            iteration,
+            iteration: 2,
           },
         ]),
       };
     }
 
     // Debug
-    this.iks.forEach((ik: any) => {
-      const sphere = new THREE.Mesh(
-        new THREE.SphereGeometry(0.025, 8, 8),
-        new THREE.MeshBasicMaterial({ color: 0x00ffff })
-      );
-      ik.target.add(sphere);
-    });
+    // this.iks.forEach((ik: any) => {
+    //   const sphere = new THREE.Mesh(
+    //     new THREE.SphereGeometry(0.025, 8, 8),
+    //     new THREE.MeshBasicMaterial({ color: 0x00ffff })
+    //   );
+    //   ik.target.add(sphere);
+    // });
   }
 
   public update() {
