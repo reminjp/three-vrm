@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
-// https://github.com/mrdoob/three.js/blob/master/examples/js/animation/CCDIKSolver.js
+// cf. https://github.com/mrdoob/three.js/blob/master/examples/js/animation/CCDIKSolver.js
+// TODO: Implement IK without CCDIKSolver.
 export class CCDIKSolver {
   private iks: CCDIKConfig[];
 
@@ -10,66 +11,46 @@ export class CCDIKSolver {
   }
 
   public update() {
-    const q = new THREE.Quaternion();
-    const targetPos = new THREE.Vector3();
-    const targetVec = new THREE.Vector3();
-    const effectorPos = new THREE.Vector3();
-    const effectorVec = new THREE.Vector3();
-    const linkPos = new THREE.Vector3();
-    const invLinkQ = new THREE.Quaternion();
+    // Prepare objects for the performance.
+    const quaternion = new THREE.Quaternion();
+    const targetPosition = new THREE.Vector3();
+    const targetVector = new THREE.Vector3();
+    const effectorPosition = new THREE.Vector3();
+    const effectorVector = new THREE.Vector3();
+    const linkPosition = new THREE.Vector3();
+    const linkQuaternionInverse = new THREE.Quaternion();
     const linkScale = new THREE.Vector3();
     const axis = new THREE.Vector3();
     const vector = new THREE.Vector3();
 
-    const iks = this.iks;
+    this.iks.forEach(ik => {
+      // Use matrixWorld instead of getWorldPosition for the performance.
+      targetPosition.setFromMatrixPosition(ik.target.matrixWorld);
 
-    // for reference overhead reduction in loop
-    const math = Math;
+      for (let iteration = ik.iteration !== undefined ? ik.iteration : 1; iteration > 0; iteration--) {
+        let didConverge = true;
 
-    for (let i = 0, il = iks.length; i < il; i++) {
-      const ik = iks[i];
-      const effector = ik.effector;
-      const target = ik.target;
-
-      // don't use getWorldPosition() here for the performance
-      // because it calls updateMatrixWorld( true ) inside.
-      targetPos.setFromMatrixPosition(target.matrixWorld);
-
-      const links = ik.links;
-      const iteration = ik.iteration !== undefined ? ik.iteration : 1;
-
-      for (let j = 0; j < iteration; j++) {
-        let rotated = false;
-
-        for (let k = 0, kl = links.length; k < kl; k++) {
-          const link = links[k].bone;
-
-          // skip this link and following links.
-          // this skip is used for MMD performance optimization.
-          if (links[k].enabled === false) {
-            break;
+        let shouldSkip = false;
+        ik.links.forEach(link => {
+          if (shouldSkip || link.enabled === false) {
+            shouldSkip = true;
+            return;
           }
 
-          const limitation = links[k].limitation;
-          const rotationMin = links[k].rotationMin;
-          const rotationMax = links[k].rotationMax;
+          // Use matrixWorld instead of getWorldPosition for the performance.
+          link.bone.matrixWorld.decompose(linkPosition, linkQuaternionInverse, linkScale);
+          linkQuaternionInverse.inverse();
+          effectorPosition.setFromMatrixPosition(ik.effector.matrixWorld);
 
-          // don't use getWorldPosition/Quaternion() here for the performance
-          // because they call updateMatrixWorld( true ) inside.
-          link.matrixWorld.decompose(linkPos, invLinkQ, linkScale);
-          invLinkQ.inverse();
-          effectorPos.setFromMatrixPosition(effector.matrixWorld);
+          effectorVector.subVectors(effectorPosition, linkPosition);
+          effectorVector.applyQuaternion(linkQuaternionInverse);
+          effectorVector.normalize();
 
-          // work in link world
-          effectorVec.subVectors(effectorPos, linkPos);
-          effectorVec.applyQuaternion(invLinkQ);
-          effectorVec.normalize();
+          targetVector.subVectors(targetPosition, linkPosition);
+          targetVector.applyQuaternion(linkQuaternionInverse);
+          targetVector.normalize();
 
-          targetVec.subVectors(targetPos, linkPos);
-          targetVec.applyQuaternion(invLinkQ);
-          targetVec.normalize();
-
-          let angle = targetVec.dot(effectorVec);
+          let angle = targetVector.dot(effectorVector);
 
           if (angle > 1.0) {
             angle = 1.0;
@@ -77,12 +58,10 @@ export class CCDIKSolver {
             angle = -1.0;
           }
 
-          angle = math.acos(angle);
+          angle = Math.acos(angle);
 
-          // skip if changing angle is too small to prevent vibration of bone
-          // Refer to http://www20.atpages.jp/katwat/three.js_r58/examples/mytest37/mmd.three.js
           if (angle < 1e-5) {
-            continue;
+            return;
           }
 
           if (ik.minAngle !== undefined && angle < ik.minAngle) {
@@ -93,68 +72,55 @@ export class CCDIKSolver {
             angle = ik.maxAngle;
           }
 
-          axis.crossVectors(effectorVec, targetVec);
+          axis.crossVectors(effectorVector, targetVector);
           axis.normalize();
 
-          q.setFromAxisAngle(axis, angle);
-          link.quaternion.multiply(q);
+          quaternion.setFromAxisAngle(axis, angle);
+          link.bone.quaternion.multiply(quaternion);
 
-          // TODO: re-consider the limitation specification
-          if (limitation !== undefined) {
-            let c = link.quaternion.w;
-
+          if (link.limitation) {
+            let c = link.bone.quaternion.w;
             if (c > 1.0) {
               c = 1.0;
             }
-
-            const c2 = math.sqrt(1 - c * c);
-            link.quaternion.set(limitation.x * c2, limitation.y * c2, limitation.z * c2, c);
+            const c2 = Math.sqrt(1 - c * c);
+            link.bone.quaternion.set(link.limitation.x * c2, link.limitation.y * c2, link.limitation.z * c2, c);
           }
 
-          if (rotationMin !== undefined) {
-            link.rotation.setFromVector3(link.rotation.toVector3(vector).max(rotationMin));
+          if (link.rotationMin) {
+            link.bone.rotation.setFromVector3(link.bone.rotation.toVector3(vector).max(link.rotationMin));
           }
 
-          if (rotationMax !== undefined) {
-            link.rotation.setFromVector3(link.rotation.toVector3(vector).min(rotationMax));
+          if (link.rotationMax) {
+            link.bone.rotation.setFromVector3(link.bone.rotation.toVector3(vector).min(link.rotationMax));
           }
 
-          link.updateMatrixWorld(true);
+          link.bone.updateMatrixWorld(true);
 
-          rotated = true;
-        }
+          didConverge = false;
+        });
 
-        if (!rotated) {
+        if (didConverge) {
           break;
         }
       }
-    }
+    });
 
     return this;
   }
 
   private validate() {
-    const iks = this.iks;
-
-    for (let i = 0, il = iks.length; i < il; i++) {
-      const ik = iks[i];
-      const effector = ik.effector;
-      const links = ik.links;
-      let link0;
+    this.iks.forEach(ik => {
+      let link0 = ik.effector;
       let link1;
-
-      link0 = effector;
-
-      for (let j = 0, jl = links.length; j < jl; j++) {
-        link1 = links[j].bone;
-
+      ik.links.forEach(link => {
+        link1 = link.bone;
         if (link0.parent !== link1) {
-          console.warn('THREE.CCDIKSolver: bone ' + link0.name + ' is not the child of bone ' + link1.name);
+          console.warn('CCDIKSolver: bone ' + link0.name + ' is not the child of bone ' + link1.name);
         }
-
         link0 = link1;
-      }
-    }
+      });
+    });
   }
 }
 
