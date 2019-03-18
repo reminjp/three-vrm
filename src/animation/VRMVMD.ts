@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { VRMBlendShapeUtils } from '../animation';
 import { VRMMMDUtils } from '../animation/utils';
-import { VRM, VRMBlendShapeBind, VRMHumanBoneName } from '../data';
+import { USERDATA_KEY_VRM, VRM, VRMBlendShapeBind, VRMHumanBoneName } from '../data';
 import { VRMAnimationClip } from './VRMAnimationClip';
 import { VRMIKName, VRMIKSolver } from './VRMIKSolver';
 
@@ -148,7 +148,7 @@ export class VRMVMD {
 
       motions.forEach(motion => {
         times.push(motion.time);
-        const p = motion.position.clone().add(bone.position);
+        const p = motion.position.clone().add(bone.userData[USERDATA_KEY_VRM].default.position);
         positions.push(p.x, p.y, p.z);
         const r = motion.rotation;
         rotations.push(r.x, r.y, r.z, r.w);
