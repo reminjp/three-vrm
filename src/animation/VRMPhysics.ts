@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { VRM } from '../data';
+import { USERDATA_KEY_VRM, VRM } from '../data';
 
 // cf. https://github.com/dwango/UniVRM/blob/master/Assets/VRM/UniVRM/Scripts/SpringBone/VRMSpringBone.cs
 export class VRMPhysics {
@@ -109,31 +109,14 @@ class SpringBone {
 
     this.initialQuaternion = bone.quaternion.clone();
 
-    let childPosition;
-    if (bone.children.length === 0) {
-      const position = this.bone
-        .getWorldPosition(new THREE.Vector3())
-        .sub(this.bone.parent.getWorldPosition(new THREE.Vector3()))
-        .normalize()
-        .multiplyScalar(0.07)
-        .add(this.bone.getWorldPosition(new THREE.Vector3()));
-      childPosition = this.bone.worldToLocal(position);
-    } else {
-      childPosition = this.bone.children[0].position.clone();
-      const scale = this.bone.children[0].getWorldScale(new THREE.Vector3());
-      childPosition.x *= scale.x;
-      childPosition.y *= scale.y;
-      childPosition.z *= scale.z;
-    }
+    this.length = this.bone.userData[USERDATA_KEY_VRM].bone.length;
+    this.boneAxis = this.bone.userData[USERDATA_KEY_VRM].bone.axis;
 
-    const childWorldPosition = this.bone.localToWorld(childPosition.clone());
+    const childWorldPosition = this.bone.localToWorld(this.boneAxis.clone().multiplyScalar(this.length));
     this.currentTailWorldPosition = this.group.center
       ? this.group.center.worldToLocal(childWorldPosition)
       : childWorldPosition;
     this.previousTailWorldPosition = this.currentTailWorldPosition.clone();
-
-    this.length = childPosition.length();
-    this.boneAxis = childPosition.normalize();
 
     // Debug
     // const geometry = new THREE.SphereGeometry(this.group.hitRadius, 16, 16);
