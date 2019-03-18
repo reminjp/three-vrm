@@ -7,6 +7,8 @@ import { VRMMaterial } from './VRMMaterial';
 import { VRMMeta } from './VRMMeta';
 import { VRMSecondaryAnimation } from './VRMSecondaryAnimation';
 
+export const USERDATA_KEY_VRM = 'VRM';
+
 type MeshMaterial =
   | THREE.MeshBasicMaterial
   | THREE.MeshLambertMaterial
@@ -127,6 +129,39 @@ export class VRM {
       }
     });
 
+    // Store initial state of objects.
+    this.model.traverse((object3d: THREE.Object3D) => {
+      object3d.userData[USERDATA_KEY_VRM] = {};
+
+      object3d.userData[USERDATA_KEY_VRM].default = {
+        position: object3d.position.clone(),
+        quaternion: object3d.quaternion.clone(),
+      };
+
+      let childPosition;
+      if (object3d.children.length) {
+        childPosition = object3d.children[0].position.clone();
+        const scale = object3d.children[0].getWorldScale(new THREE.Vector3());
+        childPosition.x *= scale.x;
+        childPosition.y *= scale.y;
+        childPosition.z *= scale.z;
+      } else if (object3d.parent) {
+        const position = object3d
+          .getWorldPosition(new THREE.Vector3())
+          .sub(object3d.parent.getWorldPosition(new THREE.Vector3()))
+          .normalize()
+          .multiplyScalar(0.07)
+          .add(object3d.getWorldPosition(new THREE.Vector3()));
+        childPosition = object3d.worldToLocal(position);
+      } else {
+        childPosition = new THREE.Vector3(0, 1, 0);
+      }
+      object3d.userData[USERDATA_KEY_VRM].bone = {
+        length: childPosition.length(),
+        axis: childPosition.normalize(),
+      };
+    });
+
     // Create a node list.
     {
       const promises: Array<Promise<THREE.Object3D>> = new Array(this.parser.json.nodes.length);
@@ -135,12 +170,6 @@ export class VRM {
       }
       this.nodes = (await Promise.all(promises)).map(object3d => this.model.getObjectByName(object3d.name));
     }
-    this.nodes.forEach((object3d, index) => {
-      if (!object3d.userData.vrm) {
-        object3d.userData.vrm = {};
-      }
-      object3d.userData.vrm.node = index;
-    });
 
     // Create a mesh list for morphing.
     this.meshes = this.parser.json.meshes.map((): THREE.Mesh[] => []);
