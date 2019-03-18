@@ -12,6 +12,7 @@ mmdIKBoneNames[VRMIKName.LeftToes] = '左つま先ＩＫ';
 mmdIKBoneNames[VRMIKName.RightToes] = '右つま先ＩＫ';
 
 export class VRMVMD {
+  private duration: number;
   private motionsMap: Map<VRMHumanBoneName, VRMVMDMotion[]>;
   private ikMotionsMap: Map<VRMIKName, VRMVMDMotion[]>;
   private morphsMap: Map<string, VRMVMDMorph[]>;
@@ -83,6 +84,15 @@ export class VRMVMD {
       }
       this.morphsMap.get(morph.blendShapeGroupName).push(morph);
     });
+
+    // To true up the duration of tracks.
+    this.duration = 0;
+    if (motions.length && this.duration < motions[motions.length - 1].time) {
+      this.duration = motions[motions.length - 1].time;
+    }
+    if (morphs.length && this.duration < morphs[morphs.length - 1].time) {
+      this.duration = morphs[morphs.length - 1].time;
+    }
   }
 
   public toAnimationClip(vrm: VRM): VRMAnimationClip {
@@ -165,17 +175,26 @@ export class VRMVMD {
         return;
       }
 
+      // True up the duration of tracks.
+      if (times[times.length - 1] < this.duration) {
+        times.push(this.duration);
+        const pl = positions.length;
+        positions.push(positions[pl - 3], positions[pl - 2], positions[pl - 1]);
+        const rl = rotations.length;
+        rotations.push(rotations[rl - 4], rotations[rl - 3], rotations[rl - 2], rotations[rl - 1]);
+      }
+
       // TODO: Use interpolations.
       tracksMap.get(root).push(new THREE.VectorKeyframeTrack(`.bones[${bone.name}].position`, times, positions));
       tracksMap.get(root).push(new THREE.QuaternionKeyframeTrack(`.bones[${bone.name}].quaternion`, times, rotations));
     });
 
     // Create IK motion tracks.
+    if (this.ikMotionsMap.size) {
+      tracksMap.set(vrm.model, []);
+    }
     this.ikMotionsMap.forEach((motions, ikName) => {
       const target = ik.getTarget(ikName);
-      if (!tracksMap.has(target)) {
-        tracksMap.set(target, []);
-      }
 
       const times: number[] = [];
       const positions: number[] = [];
@@ -193,8 +212,17 @@ export class VRMVMD {
         return;
       }
 
-      tracksMap.get(target).push(new THREE.VectorKeyframeTrack(`.position`, times, positions));
-      tracksMap.get(target).push(new THREE.QuaternionKeyframeTrack(`.quaternion`, times, rotations));
+      // True up the duration of tracks.
+      if (times[times.length - 1] < this.duration) {
+        times.push(this.duration);
+        const pl = positions.length;
+        positions.push(positions[pl - 3], positions[pl - 2], positions[pl - 1]);
+        const rl = rotations.length;
+        rotations.push(rotations[rl - 4], rotations[rl - 3], rotations[rl - 2], rotations[rl - 1]);
+      }
+
+      tracksMap.get(vrm.model).push(new THREE.VectorKeyframeTrack(`${target.uuid}.position`, times, positions));
+      tracksMap.get(vrm.model).push(new THREE.QuaternionKeyframeTrack(`${target.uuid}.quaternion`, times, rotations));
     });
 
     // Create morph tracks.
@@ -218,6 +246,12 @@ export class VRMVMD {
             times.push(morph.time);
             values.push((bind.weight / 100) * morph.weight);
           });
+
+          // True up the duration of tracks.
+          if (times.length && times[times.length - 1] < this.duration) {
+            times.push(this.duration);
+            values.push(values[values.length - 1]);
+          }
 
           tracksMap
             .get(mesh)
