@@ -143,8 +143,8 @@ export class VRMVMD {
       const times: number[] = [];
       const positions: number[] = [];
       const rotations: number[] = [];
-      // const positionInterpolations: number[] = [];
-      // const rotationInterpolations: number[] = [];
+      const positionInterpolations: number[] = [];
+      const rotationInterpolations: number[] = [];
 
       motions.forEach(motion => {
         times.push(motion.time);
@@ -155,20 +155,20 @@ export class VRMVMD {
 
         // Control points of cubic Bézier curve.
         // cf. http://atupdate.web.fc2.com/vmd_format.htm
-        // for (let i = 0; i < 3; i++) {
-        //   positionInterpolations.push(
-        //     motion.interpolation[i + 0] / 127, // time1
-        //     motion.interpolation[i + 8] / 127, // value1
-        //     motion.interpolation[i + 4] / 127, // time2
-        //     motion.interpolation[i + 12] / 127 // value2
-        //   );
-        // }
-        // rotationInterpolations.push(
-        //   motion.interpolation[3 + 0] / 127,
-        //   motion.interpolation[3 + 8] / 127,
-        //   motion.interpolation[3 + 4] / 127,
-        //   motion.interpolation[3 + 12] / 127
-        // );
+        for (let i = 0; i < 3; i++) {
+          positionInterpolations.push(
+            motion.interpolation[i + 0] / 127, // time1
+            motion.interpolation[i + 8] / 127, // value1
+            motion.interpolation[i + 4] / 127, // time2
+            motion.interpolation[i + 12] / 127 // value2
+          );
+        }
+        rotationInterpolations.push(
+          motion.interpolation[3 + 0] / 127,
+          motion.interpolation[3 + 8] / 127,
+          motion.interpolation[3 + 4] / 127,
+          motion.interpolation[3 + 12] / 127
+        );
       });
 
       if (times.length === 0) {
@@ -182,11 +182,20 @@ export class VRMVMD {
         positions.push(positions[pl - 3], positions[pl - 2], positions[pl - 1]);
         const rl = rotations.length;
         rotations.push(rotations[rl - 4], rotations[rl - 3], rotations[rl - 2], rotations[rl - 1]);
+        positionInterpolations.push(0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1);
+        rotationInterpolations.push(0, 0, 1, 1);
       }
 
-      // TODO: Use interpolations.
-      tracksMap.get(root).push(new THREE.VectorKeyframeTrack(`.bones[${bone.name}].position`, times, positions));
-      tracksMap.get(root).push(new THREE.QuaternionKeyframeTrack(`.bones[${bone.name}].quaternion`, times, rotations));
+      const positionTrack = new THREE.VectorKeyframeTrack(`.bones[${bone.name}].position`, times, positions);
+      const quaternionTrack = new THREE.QuaternionKeyframeTrack(`.bones[${bone.name}].quaternion`, times, rotations);
+      (positionTrack as any).createInterpolant = (result: number[]) => {
+        return new CubicBezierInterpolation(times, positions, 3, result, new Float32Array(positionInterpolations));
+      };
+      (quaternionTrack as any).createInterpolant = (result: number[]) => {
+        return new CubicBezierInterpolation(times, rotations, 4, result, new Float32Array(rotationInterpolations));
+      };
+      tracksMap.get(root).push(positionTrack);
+      tracksMap.get(root).push(quaternionTrack);
     });
 
     // Create IK motion tracks.
@@ -199,6 +208,8 @@ export class VRMVMD {
       const times: number[] = [];
       const positions: number[] = [];
       const rotations: number[] = [];
+      const positionInterpolations: number[] = [];
+      const rotationInterpolations: number[] = [];
 
       motions.forEach(motion => {
         times.push(motion.time);
@@ -206,6 +217,21 @@ export class VRMVMD {
         positions.push(p.x, p.y, p.z);
         const r = motion.rotation;
         rotations.push(r.x, r.y, r.z, r.w);
+
+        for (let i = 0; i < 3; i++) {
+          positionInterpolations.push(
+            motion.interpolation[i + 0] / 127, // time1
+            motion.interpolation[i + 8] / 127, // value1
+            motion.interpolation[i + 4] / 127, // time2
+            motion.interpolation[i + 12] / 127 // value2
+          );
+        }
+        rotationInterpolations.push(
+          motion.interpolation[3 + 0] / 127,
+          motion.interpolation[3 + 8] / 127,
+          motion.interpolation[3 + 4] / 127,
+          motion.interpolation[3 + 12] / 127
+        );
       });
 
       if (times.length === 0) {
@@ -219,10 +245,20 @@ export class VRMVMD {
         positions.push(positions[pl - 3], positions[pl - 2], positions[pl - 1]);
         const rl = rotations.length;
         rotations.push(rotations[rl - 4], rotations[rl - 3], rotations[rl - 2], rotations[rl - 1]);
+        positionInterpolations.push(0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1);
+        rotationInterpolations.push(0, 0, 1, 1);
       }
 
-      tracksMap.get(vrm.model).push(new THREE.VectorKeyframeTrack(`${target.uuid}.position`, times, positions));
-      tracksMap.get(vrm.model).push(new THREE.QuaternionKeyframeTrack(`${target.uuid}.quaternion`, times, rotations));
+      const positionTrack = new THREE.VectorKeyframeTrack(`${target.uuid}.position`, times, positions);
+      const quaternionTrack = new THREE.QuaternionKeyframeTrack(`${target.uuid}.quaternion`, times, rotations);
+      (positionTrack as any).createInterpolant = (result: number[]) => {
+        return new CubicBezierInterpolation(times, positions, 3, result, new Float32Array(positionInterpolations));
+      };
+      (quaternionTrack as any).createInterpolant = (result: number[]) => {
+        return new CubicBezierInterpolation(times, rotations, 4, result, new Float32Array(rotationInterpolations));
+      };
+      tracksMap.get(vrm.model).push(positionTrack);
+      tracksMap.get(vrm.model).push(quaternionTrack);
     });
 
     // Create morph tracks.
@@ -282,4 +318,104 @@ class VRMVMDMorph {
   public blendShapeGroupName: string;
   public time: number;
   public weight: number;
+}
+
+// CubicBezierInterpolation from MMDLoader.js in three.js examples.
+// https://github.com/mrdoob/three.js/blob/master/examples/js/loaders/MMDLoader.js
+class CubicBezierInterpolation extends THREE.Interpolant {
+  private interpolationParams: Float32Array;
+
+  constructor(
+    parameterPositions: number[],
+    sampleValues: number[],
+    sampleSize: number,
+    resultBuffer: number[],
+    params: Float32Array
+  ) {
+    super(parameterPositions, sampleValues, sampleSize, resultBuffer);
+    this.interpolationParams = params;
+  }
+
+  public interpolate_(i1: number, t0: number, t: number, t1: number) {
+    const result = this.resultBuffer;
+    const values = (this as any).sampleValues; // TODO: Upgrade three.js
+    const stride = this.valueSize;
+    const params = this.interpolationParams;
+
+    const offset1 = i1 * stride;
+    const offset0 = offset1 - stride;
+
+    // No interpolation if next key frame is in one frame in 30fps.
+    // This is from MMD animation spec.
+    // '1.5' is for precision loss. times are Float32 in Three.js Animation system.
+    const weight1 = t1 - t0 < (1 / 30) * 1.5 ? 0.0 : (t - t0) / (t1 - t0);
+
+    if (stride === 4) {
+      // Quaternion
+      const x1 = params[i1 * 4 + 0];
+      const x2 = params[i1 * 4 + 1];
+      const y1 = params[i1 * 4 + 2];
+      const y2 = params[i1 * 4 + 3];
+
+      const ratio = this._calculate(x1, x2, y1, y2, weight1);
+
+      THREE.Quaternion.slerpFlat(result, 0, values, offset0, values, offset1, ratio);
+    } else if (stride === 3) {
+      // Vector3
+      for (let i = 0; i !== stride; ++i) {
+        const x1 = params[i1 * 12 + i * 4 + 0];
+        const x2 = params[i1 * 12 + i * 4 + 1];
+        const y1 = params[i1 * 12 + i * 4 + 2];
+        const y2 = params[i1 * 12 + i * 4 + 3];
+
+        const ratio = this._calculate(x1, x2, y1, y2, weight1);
+
+        result[i] = values[offset0 + i] * (1 - ratio) + values[offset1 + i] * ratio;
+      }
+    } else {
+      // Number
+      const x1 = params[i1 * 4 + 0];
+      const x2 = params[i1 * 4 + 1];
+      const y1 = params[i1 * 4 + 2];
+      const y2 = params[i1 * 4 + 3];
+
+      const ratio = this._calculate(x1, x2, y1, y2, weight1);
+
+      result[0] = values[offset0] * (1 - ratio) + values[offset1] * ratio;
+    }
+
+    return result;
+  }
+
+  private _calculate(x1: number, x2: number, y1: number, y2: number, x: number) {
+    let c = 0.5;
+    let t = c;
+    let s = 1.0 - t;
+    const loop = 15;
+    const eps = 1e-5;
+    const math = Math;
+
+    let sst3;
+    let stt3;
+    let ttt;
+
+    for (let i = 0; i < loop; i++) {
+      sst3 = 3.0 * s * s * t;
+      stt3 = 3.0 * s * t * t;
+      ttt = t * t * t;
+
+      const ft = sst3 * x1 + stt3 * x2 + ttt - x;
+
+      if (math.abs(ft) < eps) {
+        break;
+      }
+
+      c /= 2.0;
+
+      t += ft < 0 ? c : -c;
+      s = 1.0 - t;
+    }
+
+    return sst3 * y1 + stt3 * y2 + ttt;
+  }
 }
