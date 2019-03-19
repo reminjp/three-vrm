@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { VRMBlendShapeUtils } from '../animation';
 import { VRMMMDUtils } from '../animation/utils';
 import { USERDATA_KEY_VRM, VRM, VRMBlendShapeBind, VRMHumanBoneName } from '../data';
-import { CubicBezierInterpolation } from '../vendor/three/examples/CubicBezierInterpolation';
+import { createCreateInterpolant } from '../vendor/three/examples/CubicBezierInterpolation';
 import { VRMAnimationClip } from './VRMAnimationClip';
 import { VRMIKName, VRMIKSolver } from './VRMIKSolver';
 
@@ -189,12 +189,9 @@ export class VRMVMD {
 
       const positionTrack = new THREE.VectorKeyframeTrack(`.bones[${bone.name}].position`, times, positions);
       const quaternionTrack = new THREE.QuaternionKeyframeTrack(`.bones[${bone.name}].quaternion`, times, rotations);
-      (positionTrack as any).createInterpolant = (result: number[]) => {
-        return new CubicBezierInterpolation(times, positions, 3, result, new Float32Array(positionInterpolations));
-      };
-      (quaternionTrack as any).createInterpolant = (result: number[]) => {
-        return new CubicBezierInterpolation(times, rotations, 4, result, new Float32Array(rotationInterpolations));
-      };
+      (positionTrack as any).createInterpolant = createCreateInterpolant(times, positions, 3, positionInterpolations);
+      (quaternionTrack as any).createInterpolant = createCreateInterpolant(times, rotations, 4, rotationInterpolations);
+
       tracksMap.get(root).push(positionTrack);
       tracksMap.get(root).push(quaternionTrack);
     });
@@ -252,12 +249,9 @@ export class VRMVMD {
 
       const positionTrack = new THREE.VectorKeyframeTrack(`${target.uuid}.position`, times, positions);
       const quaternionTrack = new THREE.QuaternionKeyframeTrack(`${target.uuid}.quaternion`, times, rotations);
-      (positionTrack as any).createInterpolant = (result: number[]) => {
-        return new CubicBezierInterpolation(times, positions, 3, result, new Float32Array(positionInterpolations));
-      };
-      (quaternionTrack as any).createInterpolant = (result: number[]) => {
-        return new CubicBezierInterpolation(times, rotations, 4, result, new Float32Array(rotationInterpolations));
-      };
+      (positionTrack as any).createInterpolant = createCreateInterpolant(times, positions, 3, positionInterpolations);
+      (quaternionTrack as any).createInterpolant = createCreateInterpolant(times, rotations, 4, rotationInterpolations);
+
       tracksMap.get(vrm.model).push(positionTrack);
       tracksMap.get(vrm.model).push(quaternionTrack);
     });
