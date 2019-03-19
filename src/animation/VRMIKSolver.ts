@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { VRM } from '../data';
+import { USERDATA_KEY_VRM, VRM } from '../data';
 import { CCDIKSolver } from '../vendor/three/examples/CCDIKSolver';
 
 export const USERDATA_KEY_VRM_IK_SOLVER = 'VRMIK';
@@ -136,6 +136,16 @@ export class VRMIKSolver {
         ]),
       };
     }
+
+    // Store initial state.
+    this.iks.forEach((ik: any) => {
+      ik.target.userData[USERDATA_KEY_VRM] = {};
+
+      ik.target.userData[USERDATA_KEY_VRM].default = {
+        position: ik.target.position.clone(),
+        quaternion: ik.target.quaternion.clone(),
+      };
+    });
 
     // Debug
     // this.iks.forEach((ik: any) => {
