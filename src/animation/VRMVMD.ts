@@ -167,7 +167,7 @@ export class VRMVMD {
 
         motions.forEach(motion => {
           times.push(motion.time);
-          const p = motion.position.clone().add(target.position);
+          const p = motion.position.clone().add(target.userData[USERDATA_KEY_VRM].default.position);
           positions.push(p.x, p.y, p.z);
           const r = motion.rotation;
           rotations.push(r.x, r.y, r.z, r.w);
