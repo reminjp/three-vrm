@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-// cf. https://github.com/mrdoob/three.js/blob/master/examples/js/animation/CCDIKSolver.js
+// https://github.com/mrdoob/three.js/blob/master/examples/js/animation/CCDIKSolver.js
 export class CCDIKSolver {
   private iks: CCDIKConfig[];
 
