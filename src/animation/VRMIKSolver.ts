@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { VRM } from '../data';
-import { CCDIKSolver } from './CCDIKSolver';
+import { CCDIKSolver } from '../vendor/three/examples/CCDIKSolver';
 
 export const USERDATA_KEY_VRM_IK_SOLVER = 'VRMIK';
 
