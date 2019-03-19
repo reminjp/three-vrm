@@ -10,6 +10,11 @@ export class VRMIKSolver {
   private iks: Array<{ enabled: boolean; target: THREE.Object3D; solver: CCDIKSolver }>;
 
   constructor(vrm: VRM) {
+    if (vrm.userData[USERDATA_KEY_VRM_IK_SOLVER]) {
+      this.copy(vrm.userData[USERDATA_KEY_VRM_IK_SOLVER]);
+      return;
+    }
+
     vrm.userData[USERDATA_KEY_VRM_IK_SOLVER] = this;
 
     this.vrm = vrm;
