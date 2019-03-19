@@ -3,7 +3,7 @@ import DatGui, { DatBoolean, DatButton, DatColor, DatFolder, DatNumber } from 'r
 import 'react-dat-gui/build/react-dat-gui.css';
 import * as THREE from 'three';
 import OrbitControls from 'three-orbitcontrols';
-import { VRM, VRMAnimationClip, VRMAnimationMixer, VRMPhysics, VRMVMD } from '../../src';
+import { VRM, VRMIKSolver, VRMPhysics, VRMVMD } from '../../src';
 
 interface Props {
   vrm?: VRM;
@@ -30,9 +30,10 @@ export default class Viewer extends React.Component<Props, State> {
   private skeletonHelpers: THREE.Group;
   private vrm: VRM;
   private vmd: VRMVMD;
-  private clip: VRMAnimationClip;
-  private mixer: VRMAnimationMixer;
-  private actions: THREE.AnimationAction[];
+  private clip: THREE.AnimationClip;
+  private mixer: THREE.AnimationMixer;
+  private action: THREE.AnimationAction;
+  private ikSolver: VRMIKSolver;
   private physics: VRMPhysics;
 
   constructor(props: Props) {
@@ -126,7 +127,9 @@ export default class Viewer extends React.Component<Props, State> {
       if (this.mixer) {
         this.mixer.stopAllAction();
       }
-      this.mixer = new VRMAnimationMixer(this.vrm);
+      this.mixer = new THREE.AnimationMixer(this.vrm.model);
+
+      this.ikSolver = new VRMIKSolver(this.vrm);
 
       this.physics = new VRMPhysics(this.vrm);
 
@@ -143,15 +146,11 @@ export default class Viewer extends React.Component<Props, State> {
     if (shouldUpdateAnimation && this.vrm && this.mixer && this.vmd) {
       this.clip = this.vmd.toAnimationClip(this.vrm);
 
-      if (this.actions) {
-        this.actions.forEach(e => {
-          e.stop();
-        });
+      if (this.action) {
+        this.action.stop();
       }
-      this.actions = this.mixer.clipAction(this.clip);
-      this.actions.forEach(e => {
-        e.play();
-      });
+      this.action = this.mixer.clipAction(this.clip);
+      this.action.play();
     }
 
     if (prevState.data.positionX !== this.state.data.positionX) {
@@ -304,6 +303,10 @@ export default class Viewer extends React.Component<Props, State> {
       this.mixer.update(this.state.data.timeScale * delta);
     }
 
+    if (this.ikSolver) {
+      this.ikSolver.update();
+    }
+
     if (this.physics) {
       this.physics.update(this.state.data.timeScale * delta);
     }
@@ -364,8 +367,8 @@ export default class Viewer extends React.Component<Props, State> {
   }
 
   private restartAnimation() {
-    (this.actions || []).forEach(e => {
-      e.reset();
-    });
+    if (this.action) {
+      this.action.reset();
+    }
   }
 }

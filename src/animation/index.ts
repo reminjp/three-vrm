@@ -1,5 +1,4 @@
-export * from './VRMAnimationClip';
-export * from './VRMAnimationMixer';
 export * from './VRMBlendShapeUtils';
+export * from './VRMIKSolver';
 export * from './VRMPhysics';
 export * from './VRMVMD';

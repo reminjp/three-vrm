@@ -3,8 +3,7 @@ import { VRMBlendShapeUtils } from '../animation';
 import { VRMMMDUtils } from '../animation/utils';
 import { USERDATA_KEY_VRM, VRM, VRMBlendShapeBind, VRMHumanBoneName } from '../data';
 import { createCreateInterpolant } from '../vendor/three/examples/CubicBezierInterpolation';
-import { VRMAnimationClip } from './VRMAnimationClip';
-import { VRMIKName, VRMIKSolver } from './VRMIKSolver';
+import { USERDATA_KEY_VRM_IK_SOLVER, VRMIKName } from './VRMIKSolver';
 
 const mmdIKBoneNames: string[] = [];
 mmdIKBoneNames[VRMIKName.LeftFoot] = '左足ＩＫ';
@@ -13,7 +12,6 @@ mmdIKBoneNames[VRMIKName.LeftToes] = '左つま先ＩＫ';
 mmdIKBoneNames[VRMIKName.RightToes] = '右つま先ＩＫ';
 
 export class VRMVMD {
-  private duration: number;
   private motionsMap: Map<VRMHumanBoneName, VRMVMDMotion[]>;
   private ikMotionsMap: Map<VRMIKName, VRMVMDMotion[]>;
   private morphsMap: Map<string, VRMVMDMorph[]>;
@@ -85,19 +83,10 @@ export class VRMVMD {
       }
       this.morphsMap.get(morph.blendShapeGroupName).push(morph);
     });
-
-    // To true up the duration of tracks.
-    this.duration = 0;
-    if (motions.length && this.duration < motions[motions.length - 1].time) {
-      this.duration = motions[motions.length - 1].time;
-    }
-    if (morphs.length && this.duration < morphs[morphs.length - 1].time) {
-      this.duration = morphs[morphs.length - 1].time;
-    }
   }
 
-  public toAnimationClip(vrm: VRM): VRMAnimationClip {
-    const ik = VRMIKSolver.initialize(vrm);
+  public toAnimationClip(vrm: VRM): THREE.AnimationClip {
+    const ik = vrm.userData[USERDATA_KEY_VRM_IK_SOLVER];
 
     // For motions.
     const skinnedMeshes: THREE.SkinnedMesh[] = [];
@@ -107,17 +96,9 @@ export class VRMVMD {
       }
     });
     const humanBoneNameToBone = new Map<VRMHumanBoneName, THREE.Object3D>();
-    const humanBoneNameToRootObject = new Map<VRMHumanBoneName, THREE.SkinnedMesh>();
     vrm.humanoid.humanBones.forEach(humanBone => {
       const bone = vrm.getNode(humanBone.node);
-      if (bone.type !== 'Bone') {
-        return;
-      }
       humanBoneNameToBone.set(humanBone.bone, bone);
-      humanBoneNameToRootObject.set(
-        humanBone.bone,
-        skinnedMeshes.find(m => m.skeleton.bones.findIndex(e => e.name === bone.name) !== -1)
-      );
     });
 
     // For morphs.
@@ -127,17 +108,13 @@ export class VRMVMD {
     });
 
     // Tracks binded to each Object3D.
-    const tracksMap = new Map<THREE.Object3D, THREE.KeyframeTrack[]>();
+    const tracks: THREE.KeyframeTrack[] = [];
 
     // Create motion tracks.
     this.motionsMap.forEach((motions, humanBoneName) => {
       const bone = humanBoneNameToBone.get(humanBoneName);
-      const root = humanBoneNameToRootObject.get(humanBoneName);
       if (!bone) {
         return;
-      }
-      if (!tracksMap.has(root)) {
-        tracksMap.set(root, []);
       }
 
       // Inspired by https://github.com/mrdoob/three.js/blob/dev/examples/js/loaders/MMDLoader.js
@@ -176,85 +153,67 @@ export class VRMVMD {
         return;
       }
 
-      // True up the duration of tracks.
-      if (times[times.length - 1] < this.duration) {
-        times.push(this.duration);
-        const pl = positions.length;
-        positions.push(positions[pl - 3], positions[pl - 2], positions[pl - 1]);
-        const rl = rotations.length;
-        rotations.push(rotations[rl - 4], rotations[rl - 3], rotations[rl - 2], rotations[rl - 1]);
-        positionInterpolations.push(0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1);
-        rotationInterpolations.push(0, 0, 1, 1);
-      }
-
-      const positionTrack = new THREE.VectorKeyframeTrack(`.bones[${bone.name}].position`, times, positions);
-      const quaternionTrack = new THREE.QuaternionKeyframeTrack(`.bones[${bone.name}].quaternion`, times, rotations);
+      const positionTrack = new THREE.VectorKeyframeTrack(`${bone.uuid}.position`, times, positions);
+      const quaternionTrack = new THREE.QuaternionKeyframeTrack(`${bone.uuid}.quaternion`, times, rotations);
       (positionTrack as any).createInterpolant = createCreateInterpolant(times, positions, 3, positionInterpolations);
       (quaternionTrack as any).createInterpolant = createCreateInterpolant(times, rotations, 4, rotationInterpolations);
 
-      tracksMap.get(root).push(positionTrack);
-      tracksMap.get(root).push(quaternionTrack);
+      tracks.push(positionTrack);
+      tracks.push(quaternionTrack);
     });
 
     // Create IK motion tracks.
-    if (this.ikMotionsMap.size) {
-      tracksMap.set(vrm.model, []);
-    }
-    this.ikMotionsMap.forEach((motions, ikName) => {
-      const target = ik.getTarget(ikName);
+    if (ik) {
+      this.ikMotionsMap.forEach((motions, ikName) => {
+        const target = ik.getTarget(ikName);
 
-      const times: number[] = [];
-      const positions: number[] = [];
-      const rotations: number[] = [];
-      const positionInterpolations: number[] = [];
-      const rotationInterpolations: number[] = [];
+        const times: number[] = [];
+        const positions: number[] = [];
+        const rotations: number[] = [];
+        const positionInterpolations: number[] = [];
+        const rotationInterpolations: number[] = [];
 
-      motions.forEach(motion => {
-        times.push(motion.time);
-        const p = motion.position.clone().add(target.position);
-        positions.push(p.x, p.y, p.z);
-        const r = motion.rotation;
-        rotations.push(r.x, r.y, r.z, r.w);
+        motions.forEach(motion => {
+          times.push(motion.time);
+          const p = motion.position.clone().add(target.position);
+          positions.push(p.x, p.y, p.z);
+          const r = motion.rotation;
+          rotations.push(r.x, r.y, r.z, r.w);
 
-        for (let i = 0; i < 3; i++) {
-          positionInterpolations.push(
-            motion.interpolation[i + 0] / 127, // time1
-            motion.interpolation[i + 8] / 127, // value1
-            motion.interpolation[i + 4] / 127, // time2
-            motion.interpolation[i + 12] / 127 // value2
+          for (let i = 0; i < 3; i++) {
+            positionInterpolations.push(
+              motion.interpolation[i + 0] / 127, // time1
+              motion.interpolation[i + 8] / 127, // value1
+              motion.interpolation[i + 4] / 127, // time2
+              motion.interpolation[i + 12] / 127 // value2
+            );
+          }
+          rotationInterpolations.push(
+            motion.interpolation[3 + 0] / 127,
+            motion.interpolation[3 + 8] / 127,
+            motion.interpolation[3 + 4] / 127,
+            motion.interpolation[3 + 12] / 127
           );
+        });
+
+        if (times.length === 0) {
+          return;
         }
-        rotationInterpolations.push(
-          motion.interpolation[3 + 0] / 127,
-          motion.interpolation[3 + 8] / 127,
-          motion.interpolation[3 + 4] / 127,
-          motion.interpolation[3 + 12] / 127
+
+        const positionTrack = new THREE.VectorKeyframeTrack(`${target.uuid}.position`, times, positions);
+        const quaternionTrack = new THREE.QuaternionKeyframeTrack(`${target.uuid}.quaternion`, times, rotations);
+        (positionTrack as any).createInterpolant = createCreateInterpolant(times, positions, 3, positionInterpolations);
+        (quaternionTrack as any).createInterpolant = createCreateInterpolant(
+          times,
+          rotations,
+          4,
+          rotationInterpolations
         );
+
+        tracks.push(positionTrack);
+        tracks.push(quaternionTrack);
       });
-
-      if (times.length === 0) {
-        return;
-      }
-
-      // True up the duration of tracks.
-      if (times[times.length - 1] < this.duration) {
-        times.push(this.duration);
-        const pl = positions.length;
-        positions.push(positions[pl - 3], positions[pl - 2], positions[pl - 1]);
-        const rl = rotations.length;
-        rotations.push(rotations[rl - 4], rotations[rl - 3], rotations[rl - 2], rotations[rl - 1]);
-        positionInterpolations.push(0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1);
-        rotationInterpolations.push(0, 0, 1, 1);
-      }
-
-      const positionTrack = new THREE.VectorKeyframeTrack(`${target.uuid}.position`, times, positions);
-      const quaternionTrack = new THREE.QuaternionKeyframeTrack(`${target.uuid}.quaternion`, times, rotations);
-      (positionTrack as any).createInterpolant = createCreateInterpolant(times, positions, 3, positionInterpolations);
-      (quaternionTrack as any).createInterpolant = createCreateInterpolant(times, rotations, 4, rotationInterpolations);
-
-      tracksMap.get(vrm.model).push(positionTrack);
-      tracksMap.get(vrm.model).push(quaternionTrack);
-    });
+    }
 
     // Create morph tracks.
     this.morphsMap.forEach((morphs, blendShapeGroupName) => {
@@ -266,10 +225,6 @@ export class VRMVMD {
       binds.forEach(bind => {
         const meshes = vrm.getSubMeshesByIndex(bind.mesh);
         meshes.forEach(mesh => {
-          if (!tracksMap.has(mesh)) {
-            tracksMap.set(mesh, []);
-          }
-
           const times: number[] = [];
           const values: number[] = [];
 
@@ -278,25 +233,15 @@ export class VRMVMD {
             values.push((bind.weight / 100) * morph.weight);
           });
 
-          // True up the duration of tracks.
-          if (times.length && times[times.length - 1] < this.duration) {
-            times.push(this.duration);
-            values.push(values[values.length - 1]);
-          }
-
-          tracksMap
-            .get(mesh)
-            .push(new THREE.NumberKeyframeTrack(`.morphTargetInfluences[morphTarget${bind.index}]`, times, values));
+          tracks.push(
+            new THREE.NumberKeyframeTrack(`${mesh.uuid}.morphTargetInfluences[morphTarget${bind.index}]`, times, values)
+          );
         });
       });
     });
 
     // Create AnimationClip from tracks.
-    const vrmAnimationClip = new VRMAnimationClip();
-    tracksMap.forEach((tracks, root) => {
-      vrmAnimationClip.clips.push({ clip: new THREE.AnimationClip(THREE.Math.generateUUID(), -1, tracks), root });
-    });
-    return vrmAnimationClip;
+    return new THREE.AnimationClip(THREE.Math.generateUUID(), -1, tracks);
   }
 }
 

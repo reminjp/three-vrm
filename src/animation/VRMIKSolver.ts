@@ -6,17 +6,12 @@ export const USERDATA_KEY_VRM_IK_SOLVER = 'VRMIK';
 
 // TODO: Implement IK using VRM.humanoid (Unity's HumanDescription).
 export class VRMIKSolver {
-  public static initialize(vrm: VRM) {
-    if (!vrm.userData[USERDATA_KEY_VRM_IK_SOLVER]) {
-      vrm.userData[USERDATA_KEY_VRM_IK_SOLVER] = new VRMIKSolver(vrm);
-    }
-    return vrm.userData[USERDATA_KEY_VRM_IK_SOLVER] as VRMIKSolver;
-  }
-
   private vrm: VRM;
   private iks: Array<{ enabled: boolean; target: THREE.Object3D; solver: CCDIKSolver }>;
 
   constructor(vrm: VRM) {
+    vrm.userData[USERDATA_KEY_VRM_IK_SOLVER] = this;
+
     this.vrm = vrm;
     this.iks = [];
 
