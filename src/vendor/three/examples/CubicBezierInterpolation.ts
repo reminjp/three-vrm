@@ -1,5 +1,16 @@
 import * as THREE from 'three';
 
+export function createCreateInterpolant(
+  parameterPositions: number[],
+  sampleValues: number[],
+  sampleSize: number,
+  params: number[]
+) {
+  return (result: number[]) => {
+    return new CubicBezierInterpolation(parameterPositions, sampleValues, sampleSize, result, new Float32Array(params));
+  };
+}
+
 // https://github.com/mrdoob/three.js/blob/master/examples/js/loaders/MMDLoader.js
 export class CubicBezierInterpolation extends THREE.Interpolant {
   private interpolationParams: Float32Array;
