@@ -13,10 +13,10 @@ export class VRMVMD {
     // Convert rotations for T-pose.
     const front = new THREE.Vector3(0, 0, -1);
     const rotationOffsets = new Map<VRMHumanBoneName, THREE.Quaternion>([
-      ['leftShoulder', new THREE.Quaternion().setFromAxisAngle(front, (-5 / 180) * Math.PI)],
-      ['rightShoulder', new THREE.Quaternion().setFromAxisAngle(front, (5 / 180) * Math.PI)],
-      ['leftUpperArm', new THREE.Quaternion().setFromAxisAngle(front, (-35 / 180) * Math.PI)],
-      ['rightUpperArm', new THREE.Quaternion().setFromAxisAngle(front, (35 / 180) * Math.PI)],
+      [VRMHumanBoneName.LeftShoulder, new THREE.Quaternion().setFromAxisAngle(front, (-5 / 180) * Math.PI)],
+      [VRMHumanBoneName.RightShoulder, new THREE.Quaternion().setFromAxisAngle(front, (5 / 180) * Math.PI)],
+      [VRMHumanBoneName.LeftUpperArm, new THREE.Quaternion().setFromAxisAngle(front, (-35 / 180) * Math.PI)],
+      [VRMHumanBoneName.RightUpperArm, new THREE.Quaternion().setFromAxisAngle(front, (35 / 180) * Math.PI)],
     ]);
 
     const motions: VRMVMDMotion[] = vmd.motions.map((e: any) => {
@@ -254,7 +254,8 @@ class VRMVMDMorph {
 
 // TODO: Implement missing bones.
 // - 両目
-const boneNameToHumanBoneName: Array<[string, VRMHumanBoneName]> = [
+// const boneNameToHumanBoneName: Array<[string, VRMHumanBoneName]> = [
+const boneNameToHumanBoneName: Array<[string, string]> = [
   ['センター', 'hips'],
   ['左足', 'leftUpperLeg'],
   ['右足', 'rightUpperLeg'],
@@ -314,7 +315,8 @@ const boneNameToHumanBoneName: Array<[string, VRMHumanBoneName]> = [
 
 function getHumanBoneNameByBoneName(boneName: string): VRMHumanBoneName {
   const item = boneNameToHumanBoneName.find(e => boneName === e[0]);
-  return item ? item[1] : undefined;
+  // return item ? item[1] : undefined;
+  return item ? (item[1] as VRMHumanBoneName) : undefined;
 }
 
 const mmdIKBoneNames: string[] = [];

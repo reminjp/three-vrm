@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { USERDATA_KEY_VRM, VRM } from '../data';
+import { USERDATA_KEY_VRM, VRM, VRMHumanBoneName } from '../data';
 import { CCDIKSolver } from '../vendor/three/examples/CCDIKSolver';
 
 export const USERDATA_KEY_VRM_IK_SOLVER = 'VRMIK';
@@ -24,7 +24,7 @@ export class VRMIKSolver {
     {
       const target = new THREE.Object3D();
       target.name = 'LeftBoneIKTarget';
-      const effector = this.vrm.getNodeByHumanBoneName('leftFoot');
+      const effector = this.vrm.getNodeByHumanBoneName(VRMHumanBoneName.LeftFoot);
       target.applyMatrix(effector.matrixWorld);
       this.vrm.model.add(target);
 
@@ -37,12 +37,12 @@ export class VRMIKSolver {
             effector,
             links: [
               {
-                bone: this.vrm.getNodeByHumanBoneName('leftLowerLeg'),
+                bone: this.vrm.getNodeByHumanBoneName(VRMHumanBoneName.LeftLowerLeg),
                 rotationMin: new THREE.Vector3((-180 / 180) * Math.PI, 0, 0),
                 rotationMax: new THREE.Vector3((-5 / 180) * Math.PI, 0, 0),
               },
               {
-                bone: this.vrm.getNodeByHumanBoneName('leftUpperLeg'),
+                bone: this.vrm.getNodeByHumanBoneName(VRMHumanBoneName.LeftUpperLeg),
                 rotationMin: new THREE.Vector3((-90 / 180) * Math.PI, (-90 / 180) * Math.PI, (-180 / 180) * Math.PI),
                 rotationMax: new THREE.Vector3((180 / 180) * Math.PI, (90 / 180) * Math.PI, (45 / 180) * Math.PI),
               },
@@ -57,7 +57,7 @@ export class VRMIKSolver {
     {
       const target = new THREE.Object3D();
       target.name = 'RightBoneIKTarget';
-      const effector = this.vrm.getNodeByHumanBoneName('rightFoot');
+      const effector = this.vrm.getNodeByHumanBoneName(VRMHumanBoneName.RightFoot);
       target.applyMatrix(effector.matrixWorld);
       this.vrm.model.add(target);
 
@@ -70,12 +70,12 @@ export class VRMIKSolver {
             effector,
             links: [
               {
-                bone: this.vrm.getNodeByHumanBoneName('rightLowerLeg'),
+                bone: this.vrm.getNodeByHumanBoneName(VRMHumanBoneName.RightLowerLeg),
                 rotationMin: new THREE.Vector3((-180 / 180) * Math.PI, 0, 0),
                 rotationMax: new THREE.Vector3((-5 / 180) * Math.PI, 0, 0),
               },
               {
-                bone: this.vrm.getNodeByHumanBoneName('rightUpperLeg'),
+                bone: this.vrm.getNodeByHumanBoneName(VRMHumanBoneName.RightUpperLeg),
                 rotationMin: new THREE.Vector3((-90 / 180) * Math.PI, (-90 / 180) * Math.PI, (-45 / 180) * Math.PI),
                 rotationMax: new THREE.Vector3((180 / 180) * Math.PI, (90 / 180) * Math.PI, (180 / 180) * Math.PI),
               },
@@ -90,7 +90,7 @@ export class VRMIKSolver {
     {
       const target = new THREE.Object3D();
       target.name = 'LeftToesIKTarget';
-      const effector = this.vrm.getNodeByHumanBoneName('leftToes');
+      const effector = this.vrm.getNodeByHumanBoneName(VRMHumanBoneName.LeftToes);
       target.applyMatrix(effector.matrix);
       this.iks[VRMIKName.LeftFoot].target.add(target);
 
@@ -103,7 +103,7 @@ export class VRMIKSolver {
             effector,
             links: [
               {
-                bone: this.vrm.getNodeByHumanBoneName('leftFoot'),
+                bone: this.vrm.getNodeByHumanBoneName(VRMHumanBoneName.LeftFoot),
                 rotationMin: new THREE.Vector3((-180 / 180) * Math.PI, (-180 / 180) * Math.PI, (-5 / 180) * Math.PI),
                 rotationMax: new THREE.Vector3((45 / 180) * Math.PI, (180 / 180) * Math.PI, (5 / 180) * Math.PI),
               },
@@ -118,7 +118,7 @@ export class VRMIKSolver {
     {
       const target = new THREE.Object3D();
       target.name = 'RightToesIKTarget';
-      const effector = this.vrm.getNodeByHumanBoneName('rightToes');
+      const effector = this.vrm.getNodeByHumanBoneName(VRMHumanBoneName.RightToes);
       target.applyMatrix(effector.matrix);
       this.iks[VRMIKName.RightFoot].target.add(target);
 
@@ -131,7 +131,7 @@ export class VRMIKSolver {
             effector,
             links: [
               {
-                bone: this.vrm.getNodeByHumanBoneName('rightFoot'),
+                bone: this.vrm.getNodeByHumanBoneName(VRMHumanBoneName.RightFoot),
                 rotationMin: new THREE.Vector3((-180 / 180) * Math.PI, (-180 / 180) * Math.PI, (-5 / 180) * Math.PI),
                 rotationMax: new THREE.Vector3((45 / 180) * Math.PI, (180 / 180) * Math.PI, (5 / 180) * Math.PI),
               },

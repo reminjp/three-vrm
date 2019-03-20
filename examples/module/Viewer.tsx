@@ -3,7 +3,7 @@ import DatGui, { DatBoolean, DatButton, DatColor, DatFolder, DatNumber } from 'r
 import 'react-dat-gui/build/react-dat-gui.css';
 import * as THREE from 'three';
 import OrbitControls from 'three-orbitcontrols';
-import { VRM, VRMIKSolver, VRMPhysics, VRMVMD } from '../../src';
+import { VRM, VRMHumanBoneName, VRMIKSolver, VRMPhysics, VRMVMD } from '../../src';
 
 interface Props {
   vrm?: VRM;
@@ -113,7 +113,9 @@ export default class Viewer extends React.Component<Props, State> {
       this.skeletonHelpers = new THREE.Group();
       this.skeletonHelpers.visible = this.state.data.isSkeletonVisible;
       this.scene.add(this.skeletonHelpers);
-      this.skeletonHelpers.add(new THREE.SkeletonHelper(this.vrm.getNode(this.vrm.getHumanBone('hips').node)));
+      this.skeletonHelpers.add(
+        new THREE.SkeletonHelper(this.vrm.getNode(this.vrm.getHumanBone(VRMHumanBoneName.Hips).node))
+      );
 
       const data = this.state.data;
       data.positionX = data.positionY = data.positionZ = 0;
