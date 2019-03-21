@@ -1,5 +1,13 @@
 import * as THREE from 'three';
-import { USERDATA_KEY_VRM, VRM, VRMBlendShapeBind, VRMHumanBoneName } from '../data';
+import {
+  PMDBoneName,
+  PMDSemiStandardBoneName,
+  PMDStandardBoneName,
+  USERDATA_KEY_VRM,
+  VRM,
+  VRMBlendShapeBind,
+  VRMHumanBoneName,
+} from '../data';
 import { createCreateInterpolant } from '../vendor/three/examples/CubicBezierInterpolation';
 import { USERDATA_KEY_VRM_IK_SOLVER, VRMIKName } from './VRMIKSolver';
 
@@ -22,7 +30,7 @@ export class VRMVMD {
     const motions: VRMVMDMotion[] = vmd.motions.map((e: any) => {
       const motion = new VRMVMDMotion();
       motion.boneName = e.boneName;
-      motion.humanBoneName = getHumanBoneNameByBoneName(e.boneName);
+      motion.humanBoneName = pmdToHuman.get(e.boneName);
       // 30 fps
       motion.time = e.frameNum / 30;
       // 1 unit length in VMD = 0.08 m
@@ -42,7 +50,7 @@ export class VRMVMD {
     this.ikMotionsMap = new Map();
     motions.forEach(motion => {
       if (!motion.humanBoneName) {
-        const ikName: VRMIKName = mmdIKBoneNames.findIndex(boneName => boneName === motion.boneName);
+        const ikName: VRMIKName = pmdIKBoneNames.findIndex(boneName => boneName === motion.boneName);
         if (ikName !== -1) {
           if (!this.ikMotionsMap.has(ikName)) {
             this.ikMotionsMap.set(ikName, []);
@@ -253,77 +261,69 @@ class VRMVMDMorph {
 }
 
 // TODO: Implement missing bones.
-// - 両目
-// const boneNameToHumanBoneName: Array<[string, VRMHumanBoneName]> = [
-const boneNameToHumanBoneName: Array<[string, string]> = [
-  ['センター', 'hips'],
-  ['左足', 'leftUpperLeg'],
-  ['右足', 'rightUpperLeg'],
-  ['左ひざ', 'leftLowerLeg'],
-  ['右ひざ', 'rightLowerLeg'],
-  ['左足首', 'leftFoot'],
-  ['右足首', 'rightFoot'],
-  ['下半身', 'spine'],
-  ['上半身', 'chest'],
-  ['首', 'neck'],
-  ['頭', 'head'],
-  ['左肩', 'leftShoulder'],
-  ['右肩', 'rightShoulder'],
-  ['左腕', 'leftUpperArm'],
-  ['右腕', 'rightUpperArm'],
-  ['左ひじ', 'leftLowerArm'],
-  ['右ひじ', 'rightLowerArm'],
-  ['左手首', 'leftHand'],
-  ['右手首', 'rightHand'],
-  ['左つま先', 'leftToes'],
-  ['右つま先', 'rightToes'],
-  ['左目', 'leftEye'],
-  ['右目', 'rightEye'],
-  ['顎', 'jaw'],
-  ['左親指０', 'leftThumbProximal'],
-  ['左親指１', 'leftThumbIntermediate'],
-  ['左親指２', 'leftThumbDistal'],
-  ['左人指１', 'leftIndexProximal'],
-  ['左人指２', 'leftIndexIntermediate'],
-  ['左人指３', 'leftIndexDistal'],
-  ['左中指１', 'leftMiddleProximal'],
-  ['左中指２', 'leftMiddleIntermediate'],
-  ['左中指３', 'leftMiddleDistal'],
-  ['左薬指１', 'leftRingProximal'],
-  ['左薬指２', 'leftRingIntermediate'],
-  ['左薬指３', 'leftRingDistal'],
-  ['左小指１', 'leftLittleProximal'],
-  ['左小指２', 'leftLittleIntermediate'],
-  ['左小指３', 'leftLittleDistal'],
-  ['右親指０', 'rightThumbProximal'],
-  ['右親指１', 'rightThumbIntermediate'],
-  ['右親指２', 'rightThumbDistal'],
-  ['右人指１', 'rightIndexProximal'],
-  ['右人指２', 'rightIndexIntermediate'],
-  ['右人指３', 'rightIndexDistal'],
-  ['右中指１', 'rightMiddleProximal'],
-  ['右中指２', 'rightMiddleIntermediate'],
-  ['右中指３', 'rightMiddleDistal'],
-  ['右薬指１', 'rightRingProximal'],
-  ['右薬指２', 'rightRingIntermediate'],
-  ['右薬指３', 'rightRingDistal'],
-  ['右小指１', 'rightLittleProximal'],
-  ['右小指２', 'rightLittleIntermediate'],
-  ['右小指３', 'rightLittleDistal'],
-  ['上半身２', 'upperChest'],
-];
+// - PMDStandardBoneName.Eyes = '両目'
+const pmdToHuman = new Map<PMDBoneName, VRMHumanBoneName>([
+  [PMDStandardBoneName.Center, VRMHumanBoneName.Hips],
+  [PMDStandardBoneName.LeftLeg, VRMHumanBoneName.LeftUpperLeg],
+  [PMDStandardBoneName.LeftKnee, VRMHumanBoneName.LeftLowerLeg],
+  [PMDStandardBoneName.LeftAnkle, VRMHumanBoneName.LeftFoot],
+  [PMDStandardBoneName.LeftToes, VRMHumanBoneName.LeftToes],
+  [PMDStandardBoneName.RightLeg, VRMHumanBoneName.RightUpperLeg],
+  [PMDStandardBoneName.RightKnee, VRMHumanBoneName.RightLowerLeg],
+  [PMDStandardBoneName.RightAnkle, VRMHumanBoneName.RightFoot],
+  [PMDStandardBoneName.RightToes, VRMHumanBoneName.RightToes],
+  [PMDStandardBoneName.LowerBody, VRMHumanBoneName.Spine],
+  [PMDStandardBoneName.UpperBody, VRMHumanBoneName.Chest],
+  [PMDSemiStandardBoneName.UpperBody2, VRMHumanBoneName.UpperChest],
+  [PMDStandardBoneName.Neck, VRMHumanBoneName.Neck],
+  [PMDStandardBoneName.Head, VRMHumanBoneName.Head],
+  [PMDStandardBoneName.LeftEye, VRMHumanBoneName.LeftEye],
+  [PMDStandardBoneName.RightEye, VRMHumanBoneName.RightEye],
+  [PMDStandardBoneName.LeftShoulder, VRMHumanBoneName.LeftShoulder],
+  [PMDStandardBoneName.LeftArm, VRMHumanBoneName.LeftUpperArm],
+  [PMDStandardBoneName.LeftElbow, VRMHumanBoneName.LeftLowerArm],
+  [PMDStandardBoneName.LeftWrist, VRMHumanBoneName.LeftHand],
+  [PMDStandardBoneName.RightShoulder, VRMHumanBoneName.RightShoulder],
+  [PMDStandardBoneName.RightArm, VRMHumanBoneName.RightUpperArm],
+  [PMDStandardBoneName.RightElbow, VRMHumanBoneName.RightLowerArm],
+  [PMDStandardBoneName.RightWrist, VRMHumanBoneName.RightHand],
+  [PMDSemiStandardBoneName.LeftThumb0, VRMHumanBoneName.LeftThumbProximal],
+  [PMDStandardBoneName.LeftThumb1, VRMHumanBoneName.LeftThumbIntermediate],
+  [PMDStandardBoneName.LeftThumb2, VRMHumanBoneName.LeftThumbDistal],
+  [PMDStandardBoneName.LeftIndex1, VRMHumanBoneName.LeftIndexProximal],
+  [PMDStandardBoneName.LeftIndex2, VRMHumanBoneName.LeftIndexIntermediate],
+  [PMDStandardBoneName.LeftIndex3, VRMHumanBoneName.LeftIndexDistal],
+  [PMDStandardBoneName.LeftMiddle1, VRMHumanBoneName.LeftMiddleProximal],
+  [PMDStandardBoneName.LeftMiddle2, VRMHumanBoneName.LeftMiddleIntermediate],
+  [PMDStandardBoneName.LeftMiddle3, VRMHumanBoneName.LeftMiddleDistal],
+  [PMDStandardBoneName.LeftRing1, VRMHumanBoneName.LeftRingProximal],
+  [PMDStandardBoneName.LeftRing2, VRMHumanBoneName.LeftRingIntermediate],
+  [PMDStandardBoneName.LeftRing3, VRMHumanBoneName.LeftRingDistal],
+  [PMDStandardBoneName.LeftLittle1, VRMHumanBoneName.LeftLittleProximal],
+  [PMDStandardBoneName.LeftLittle2, VRMHumanBoneName.LeftLittleIntermediate],
+  [PMDStandardBoneName.LeftLittle3, VRMHumanBoneName.LeftLittleDistal],
+  [PMDSemiStandardBoneName.RightThumb0, VRMHumanBoneName.RightThumbProximal],
+  [PMDStandardBoneName.RightThumb1, VRMHumanBoneName.RightThumbIntermediate],
+  [PMDStandardBoneName.RightThumb2, VRMHumanBoneName.RightThumbDistal],
+  [PMDStandardBoneName.RightIndex1, VRMHumanBoneName.RightIndexProximal],
+  [PMDStandardBoneName.RightIndex2, VRMHumanBoneName.RightIndexIntermediate],
+  [PMDStandardBoneName.RightIndex3, VRMHumanBoneName.RightIndexDistal],
+  [PMDStandardBoneName.RightMiddle1, VRMHumanBoneName.RightMiddleProximal],
+  [PMDStandardBoneName.RightMiddle2, VRMHumanBoneName.RightMiddleIntermediate],
+  [PMDStandardBoneName.RightMiddle3, VRMHumanBoneName.RightMiddleDistal],
+  [PMDStandardBoneName.RightRing1, VRMHumanBoneName.RightRingProximal],
+  [PMDStandardBoneName.RightRing2, VRMHumanBoneName.RightRingIntermediate],
+  [PMDStandardBoneName.RightRing3, VRMHumanBoneName.RightRingDistal],
+  [PMDStandardBoneName.RightLittle1, VRMHumanBoneName.RightLittleProximal],
+  [PMDStandardBoneName.RightLittle2, VRMHumanBoneName.RightLittleIntermediate],
+  [PMDStandardBoneName.RightLittle3, VRMHumanBoneName.RightLittleDistal],
+]);
 
-function getHumanBoneNameByBoneName(boneName: string): VRMHumanBoneName {
-  const item = boneNameToHumanBoneName.find(e => boneName === e[0]);
-  // return item ? item[1] : undefined;
-  return item ? (item[1] as VRMHumanBoneName) : undefined;
-}
-
-const mmdIKBoneNames: string[] = [];
-mmdIKBoneNames[VRMIKName.LeftFoot] = '左足ＩＫ';
-mmdIKBoneNames[VRMIKName.RightFoot] = '右足ＩＫ';
-mmdIKBoneNames[VRMIKName.LeftToes] = '左つま先ＩＫ';
-mmdIKBoneNames[VRMIKName.RightToes] = '右つま先ＩＫ';
+const pmdIKBoneNames: PMDBoneName[] = [];
+pmdIKBoneNames[VRMIKName.LeftFoot] = PMDStandardBoneName.LeftLegIK;
+pmdIKBoneNames[VRMIKName.RightFoot] = PMDStandardBoneName.RightLegIK;
+pmdIKBoneNames[VRMIKName.LeftToes] = PMDStandardBoneName.LeftToesIK;
+pmdIKBoneNames[VRMIKName.RightToes] = PMDStandardBoneName.RightToesIK;
 
 const regexToBlendShapeGroupName: Array<[RegExp, string]> = [
   [new RegExp('^(Neutral|base)$'), 'Neutral'],
