@@ -3,11 +3,11 @@ import DatGui, { DatBoolean, DatButton, DatColor, DatFolder, DatNumber } from 'r
 import 'react-dat-gui/build/react-dat-gui.css';
 import * as THREE from 'three';
 import OrbitControls from 'three-orbitcontrols';
-import { VRM, VRMHumanBoneName, VRMIKSolver, VRMPhysics, VRMVMD } from '../../src';
+import { VMD, VRM, VRMHumanBoneName, VRMIKSolver, VRMPhysics } from '../../src';
 
 interface Props {
   vrm?: VRM;
-  vmd?: VRMVMD;
+  vmd?: VMD;
   width: number;
   height: number;
 }
@@ -29,7 +29,7 @@ export default class Viewer extends React.Component<Props, State> {
   private helpers: THREE.Group;
   private skeletonHelpers: THREE.Group;
   private vrm: VRM;
-  private vmd: VRMVMD;
+  private vmd: VMD;
   private clip: THREE.AnimationClip;
   private mixer: THREE.AnimationMixer;
   private action: THREE.AnimationAction;
@@ -146,7 +146,7 @@ export default class Viewer extends React.Component<Props, State> {
     }
 
     if (shouldUpdateAnimation && this.vrm && this.mixer && this.vmd) {
-      this.clip = this.vmd.toAnimationClip(this.vrm);
+      this.clip = this.vmd.toAnimationClipForVRM(this.vrm, this.ikSolver);
 
       if (this.action) {
         this.action.stop();

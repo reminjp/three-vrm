@@ -1,8 +1,8 @@
 import * as MMDParser from 'mmd-parser';
 import * as THREE from 'three';
-import { VRMVMD } from '../animation';
+import { VMD } from '../data';
 
-export class VRMVMDLoader {
+export class VMDLoader {
   private fileLoader: THREE.FileLoader;
 
   constructor(manager?: THREE.LoadingManager) {
@@ -11,7 +11,7 @@ export class VRMVMDLoader {
 
   public load(
     url: string,
-    onLoad?: (vmd: VRMVMD) => void,
+    onLoad?: (vmd: VMD) => void,
     onProgress?: (request: ProgressEvent) => void,
     onError?: (event: ErrorEvent) => void
   ): void {
@@ -21,8 +21,7 @@ export class VRMVMDLoader {
       buffer => {
         const mmdParser = new MMDParser.Parser();
         const object = mmdParser.parseVmd(buffer, true);
-        // TODO: Call onProgress.
-        onLoad(new VRMVMD(object));
+        onLoad(new VMD().fromObject(object));
       },
       onProgress,
       onError

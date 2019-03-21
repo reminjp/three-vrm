@@ -1,4 +1,5 @@
 export * from './PMDBone';
+export * from './VMD';
 export * from './VRM';
 export * from './VRMBlendShapeMaster';
 export * from './VRMFirstPerson';
