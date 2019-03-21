@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import Dropzone from 'react-dropzone';
 import ReactResizeDetector from 'react-resize-detector';
 import { BarLoader } from 'react-spinners';
-import { VRM, VRMLoader, VRMVMD, VRMVMDLoader } from '../../src';
+import { VMD, VMDLoader, VRM, VRMLoader } from '../../src';
 import Viewer from './Viewer';
 
 const aliciaSolidModel: string = require('../res/alicia_solid.vrm'); // tslint:disable-line:no-var-requires
@@ -15,7 +15,7 @@ interface State {
   isBusy: boolean;
   progress: number;
   vrm?: VRM;
-  vmd?: VRMVMD;
+  vmd?: VMD;
 }
 
 class App extends React.Component<{}, State> {
@@ -137,9 +137,9 @@ class App extends React.Component<{}, State> {
 
   private loadVMD(url: string) {
     this.setState({ isBusy: true, progress: 0 });
-    new VRMVMDLoader().load(
+    new VMDLoader().load(
       url,
-      (vmd: VRMVMD) => {
+      (vmd: VMD) => {
         console.log('VMD', vmd);
         this.setState({ isBusy: false, vmd });
       },
