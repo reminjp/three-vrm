@@ -150,17 +150,22 @@ const convertParameters = new Map<string, (material: VRMShaderMaterial) => void>
       }
 
       if (material.uniforms.f_BumpScale) {
-        material.bumpScale = material.uniforms.f_BumpScale.value;
+        const normalScale = new THREE.Vector2(1, 1).multiplyScalar(material.uniforms.f_BumpScale.value);
+        material.normalScale = normalScale;
+        material.uniforms.normalScale = { value: normalScale };
       }
       if (material.uniforms.t_BumpMap) {
-        material.bumpMap = material.uniforms.t_BumpMap.value;
+        material.normalMap = material.uniforms.t_BumpMap.value;
+        material.uniforms.normalMap = material.uniforms.t_BumpMap;
       }
 
       if (material.uniforms.v_EmissionColor) {
         material.emissive = material.uniforms.v_EmissionColor.value;
+        material.uniforms.emissive = material.uniforms.v_EmissionColor;
       }
       if (material.uniforms.t_EmissionMap) {
         material.emissiveMap = material.uniforms.t_EmissionMap.value;
+        material.uniforms.emissiveMap = material.uniforms.t_EmissionMap;
       }
 
       if (material.uniforms.f_CullMode) {
