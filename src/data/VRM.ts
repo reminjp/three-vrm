@@ -94,37 +94,72 @@ export class VRM {
     }
 
     // Convert materials.
-    const findMaterialProperty = (material: THREE.Material): VRMMaterial => {
-      const ps = this.materialProperties.filter(p => p.name === material.name);
-      if (ps.length === 1) {
-        return ps[0];
-      }
-      // TODO: Implement strict comparison if possible.
-      return (
-        ps.find(p => {
-          const a = p.vectorProperties._Color;
-          const c = (material as any).color as THREE.Color;
-          return a && c && a[0] === c.r && a[1] === c.g && a[2] === c.b;
-        }) || ps[0]
-      );
-    };
-    this.model.traverse((object3d: THREE.Object3D) => {
-      if (object3d instanceof THREE.Mesh) {
-        const morphTargets =
-          object3d.geometry instanceof THREE.BufferGeometry && !!object3d.geometry.morphAttributes.position;
+    {
+      const findMaterialProperty = (material: THREE.Material): VRMMaterial => {
+        const ps = this.materialProperties.filter(p => p.name === material.name);
+        if (ps.length === 1) {
+          return ps[0];
+        }
+        // TODO: Implement strict comparison if possible.
+        return (
+          ps.find(p => {
+            const a = p.vectorProperties._Color;
+            const c = (material as any).color as THREE.Color;
+            return a && c && a[0] === c.r && a[1] === c.g && a[2] === c.b;
+          }) || ps[0]
+        );
+      };
+      this.model.traverse((object3d: THREE.Object3D) => {
+        if (object3d instanceof THREE.Mesh) {
+          const morphTargets =
+            object3d.geometry instanceof THREE.BufferGeometry && !!object3d.geometry.morphAttributes.position;
 
-        if (Array.isArray(object3d.material)) {
-          for (let i = 0; i < object3d.material.length; ++i) {
-            const property = findMaterialProperty((object3d.material as MeshMaterial[])[i]);
+          if (Array.isArray(object3d.material)) {
+            for (let i = 0; i < object3d.material.length; ++i) {
+              const property = findMaterialProperty((object3d.material as MeshMaterial[])[i]);
+              const material = new VRMShaderMaterial({ morphTargets, skinning: true });
+              material.fromMaterialProperty(property, this.textures);
+              object3d.material[i] = material;
+            }
+          } else {
+            const property = findMaterialProperty(object3d.material);
             const material = new VRMShaderMaterial({ morphTargets, skinning: true });
             material.fromMaterialProperty(property, this.textures);
-            object3d.material[i] = material;
+            object3d.material = material;
           }
-        } else {
-          const property = findMaterialProperty(object3d.material);
-          const material = new VRMShaderMaterial({ morphTargets, skinning: true });
-          material.fromMaterialProperty(property, this.textures);
-          object3d.material = material;
+        }
+      });
+    }
+
+    // Create a node list.
+    {
+      const promises: Array<Promise<THREE.Object3D>> = new Array(this.parser.json.nodes.length);
+      for (let i = 0; i < this.parser.json.nodes.length; ++i) {
+        promises[i] = this.parser.loadNode(i);
+      }
+      this.nodes = (await Promise.all(promises)).map(object3d => this.model.getObjectByName(object3d.name));
+    }
+
+    // Create a mesh list for morphing.
+    this.meshes = this.parser.json.meshes.map((): THREE.Mesh[] => []);
+    this.model.traverse((object3d: THREE.Object3D) => {
+      if (object3d instanceof THREE.Mesh) {
+        // Flattened mesh node
+        // https://github.com/mrdoob/three.js/issues/11944
+        const node = this.parser.json.nodes.find((n: any) => n.name === object3d.name);
+        if (node && node.mesh !== undefined) {
+          this.meshes[node.mesh] = [object3d];
+          return;
+        }
+
+        // Not flattened mesh node
+        const i = object3d.name.lastIndexOf('_');
+        const geometryIndex = i !== -1 ? Number(object3d.name.substr(i + 1)) : 0;
+        const meshName = i !== -1 && !isNaN(geometryIndex) ? object3d.name.substr(0, i) : object3d.name;
+        const meshIndex = this.parser.json.meshes.findIndex((e: any) => e.name === meshName);
+
+        if (meshIndex !== -1) {
+          this.meshes[meshIndex][geometryIndex] = object3d;
         }
       }
     });
@@ -160,48 +195,6 @@ export class VRM {
         length: childPosition.length(),
         axis: childPosition.normalize(),
       };
-    });
-
-    // Create a node list.
-    {
-      const promises: Array<Promise<THREE.Object3D>> = new Array(this.parser.json.nodes.length);
-      for (let i = 0; i < this.parser.json.nodes.length; ++i) {
-        promises[i] = this.parser.loadNode(i);
-      }
-      this.nodes = (await Promise.all(promises)).map(object3d => this.model.getObjectByName(object3d.name));
-    }
-
-    // Create a mesh list for morphing.
-    this.meshes = this.parser.json.meshes.map((): THREE.Mesh[] => []);
-
-    this.model.traverse((object3d: THREE.Object3D) => {
-      if (object3d instanceof THREE.Mesh) {
-        // Flattened mesh node
-        // https://github.com/mrdoob/three.js/issues/11944
-        const node = this.parser.json.nodes.find((n: any) => n.name === object3d.name);
-        if (node && node.mesh !== undefined) {
-          this.meshes[node.mesh] = [object3d];
-          return;
-        }
-
-        // Not flattened mesh node
-        const i = object3d.name.lastIndexOf('_');
-        const geometryIndex = i !== -1 ? Number(object3d.name.substr(i + 1)) : 0;
-        const meshName = i !== -1 && !isNaN(geometryIndex) ? object3d.name.substr(0, i) : object3d.name;
-        const meshIndex = this.parser.json.meshes.findIndex((e: any) => e.name === meshName);
-
-        if (meshIndex !== -1) {
-          this.meshes[meshIndex][geometryIndex] = object3d;
-        }
-      }
-    });
-
-    // Check the type of objects in humanBones.
-    this.humanoid.humanBones.forEach(humanBone => {
-      const object3d = this.getNode(humanBone.node);
-      if (object3d.type !== 'Bone') {
-        console.warn(`HumanBone '${humanBone.bone}' is not a Bone.`, object3d);
-      }
     });
 
     return this;
