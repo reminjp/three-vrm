@@ -20,7 +20,7 @@ const base = {
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: 'awesome-typescript-loader',
+        use: 'ts-loader',
       },
       {
         test: /\.glsl$/,
