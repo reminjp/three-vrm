@@ -2,8 +2,9 @@ import * as React from 'react';
 import DatGui, { DatBoolean, DatButton, DatColor, DatFolder, DatNumber } from 'react-dat-gui';
 import 'react-dat-gui/build/react-dat-gui.css';
 import * as THREE from 'three';
-import OrbitControls from 'three-orbitcontrols';
 import { VMD, VRM, VRMHumanBoneName, VRMIKSolver, VRMPhysics } from '../../src';
+
+const OrbitControls = require('three-orbitcontrols'); // tslint:disable-line:no-var-requires
 
 interface Props {
   vrm?: VRM;
