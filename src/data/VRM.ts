@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { VRMShaderMaterial } from '../materials/VRMShaderMaterial';
-import { PMDStandardBoneName } from './PMDBone';
+import { PMDSemiStandardBoneName, PMDStandardBoneName } from './PMDBone';
 import { VRMBlendShape } from './VRMBlendShapeMaster';
 import { VRMFirstPerson } from './VRMFirstPerson';
 import { VRMHumanBoneName, VRMHumanoid } from './VRMHumanoid';
@@ -168,6 +168,23 @@ export class VRM {
     // Create additional objects for MMD.
     this.model.updateMatrixWorld(true);
     {
+      // Center
+      const hips = this.getNodeByHumanBoneName(VRMHumanBoneName.Hips);
+
+      if (hips) {
+        const parent = new THREE.Bone();
+        parent.name = PMDSemiStandardBoneName.Parent;
+        const center = new THREE.Bone();
+        center.name = PMDStandardBoneName.Center;
+        const groove = new THREE.Bone();
+        groove.name = PMDSemiStandardBoneName.Groove;
+        parent.add(center.add(groove));
+
+        hips.parent.add(parent);
+        groove.add(hips);
+      }
+
+      // IK
       const leftFootTarget = new THREE.Bone();
       leftFootTarget.name = PMDStandardBoneName.LeftLegIK;
       const leftFoot = this.getNodeByHumanBoneName(VRMHumanBoneName.LeftFoot);
