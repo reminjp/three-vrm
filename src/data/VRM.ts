@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { VRMShaderMaterial } from '../materials/VRMShaderMaterial';
+import { PMDStandardBoneName } from './PMDBone';
 import { VRMBlendShape } from './VRMBlendShapeMaster';
 import { VRMFirstPerson } from './VRMFirstPerson';
 import { VRMHumanBoneName, VRMHumanoid } from './VRMHumanoid';
@@ -163,6 +164,42 @@ export class VRM {
         }
       }
     });
+
+    // Create additional objects for MMD.
+    this.model.updateMatrixWorld(true);
+    {
+      const leftFootTarget = new THREE.Bone();
+      leftFootTarget.name = PMDStandardBoneName.LeftLegIK;
+      const leftFoot = this.getNodeByHumanBoneName(VRMHumanBoneName.LeftFoot);
+      if (leftFoot) {
+        leftFootTarget.applyMatrix(leftFoot.matrixWorld);
+      }
+      this.model.add(leftFootTarget);
+
+      const rightFootTarget = new THREE.Bone();
+      rightFootTarget.name = PMDStandardBoneName.RightLegIK;
+      const rightFoot = this.getNodeByHumanBoneName(VRMHumanBoneName.RightFoot);
+      if (rightFoot) {
+        rightFootTarget.applyMatrix(rightFoot.matrixWorld);
+      }
+      this.model.add(rightFootTarget);
+
+      const leftToesTarget = new THREE.Object3D();
+      leftToesTarget.name = PMDStandardBoneName.LeftToesIK;
+      const leftToes = this.getNodeByHumanBoneName(VRMHumanBoneName.LeftToes);
+      if (leftToes) {
+        leftToesTarget.applyMatrix(leftToes.matrix);
+      }
+      leftFootTarget.add(leftToesTarget);
+
+      const rightToesTarget = new THREE.Object3D();
+      rightToesTarget.name = PMDStandardBoneName.RightToesIK;
+      const rightToes = this.getNodeByHumanBoneName(VRMHumanBoneName.RightToes);
+      if (rightToes) {
+        rightToesTarget.applyMatrix(rightToes.matrix);
+      }
+      rightFootTarget.add(rightToesTarget);
+    }
 
     // Store initial state of objects.
     this.model.traverse((object3d: THREE.Object3D) => {

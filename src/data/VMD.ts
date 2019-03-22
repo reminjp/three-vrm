@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { VRMIKName, VRMIKSolver } from '../animation';
 import { PMDSemiStandardBoneName, PMDStandardBoneName, USERDATA_KEY_VRM, VRM, VRMHumanBoneName } from '../data';
 import { createCreateInterpolant } from '../vendor/three/examples/CubicBezierInterpolation';
 
@@ -28,7 +27,7 @@ export class VMD {
     return this;
   }
 
-  public toAnimationClipForVRM(vrm: VRM, vrmIKSolver?: VRMIKSolver): THREE.AnimationClip {
+  public toAnimationClipForVRM(vrm: VRM): THREE.AnimationClip {
     const motionsMap = new Map<string, VMDMotion[]>();
     this.motions.forEach(motion => {
       if (!motionsMap.has(motion.boneName)) {
@@ -75,25 +74,8 @@ export class VMD {
 
       if (humanBoneName) {
         bone = vrm.getNodeByHumanBoneName(humanBoneName);
-      } else if (vrmIKSolver) {
-        switch (boneName) {
-          case PMDStandardBoneName.LeftLegIK: {
-            bone = vrmIKSolver.getTarget(VRMIKName.LeftFoot);
-            break;
-          }
-          case PMDStandardBoneName.RightLegIK: {
-            bone = vrmIKSolver.getTarget(VRMIKName.RightFoot);
-            break;
-          }
-          case PMDStandardBoneName.LeftToesIK: {
-            bone = vrmIKSolver.getTarget(VRMIKName.LeftToes);
-            break;
-          }
-          case PMDStandardBoneName.RightToesIK: {
-            bone = vrmIKSolver.getTarget(VRMIKName.RightToes);
-            break;
-          }
-        }
+      } else {
+        bone = vrm.model.getObjectByName(boneName);
       }
 
       if (!bone) {

@@ -147,7 +147,7 @@ export default class Viewer extends React.Component<Props, State> {
     }
 
     if (shouldUpdateAnimation && this.vrm && this.mixer && this.vmd) {
-      this.clip = this.vmd.toAnimationClipForVRM(this.vrm, this.ikSolver);
+      this.clip = this.vmd.toAnimationClipForVRM(this.vrm);
 
       if (this.action) {
         this.action.stop();
