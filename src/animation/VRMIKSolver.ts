@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { USERDATA_KEY_VRM, VRM, VRMHumanBoneName } from '../data';
+import { PMDStandardBoneName, USERDATA_KEY_VRM, VRM, VRMHumanBoneName } from '../data';
 import { CCDIKSolver } from '../vendor/three/examples/CCDIKSolver';
 
 export const USERDATA_KEY_VRM_IK_SOLVER = 'VRMIK';
@@ -22,11 +22,8 @@ export class VRMIKSolver {
 
     // LeftFoot
     {
-      const target = new THREE.Object3D();
-      target.name = 'LeftBoneIKTarget';
+      const target = this.vrm.model.getObjectByName(PMDStandardBoneName.LeftLegIK);
       const effector = this.vrm.getNodeByHumanBoneName(VRMHumanBoneName.LeftFoot);
-      target.applyMatrix(effector.matrixWorld);
-      this.vrm.model.add(target);
 
       this.iks[VRMIKName.LeftFoot] = {
         enabled: true,
@@ -55,11 +52,8 @@ export class VRMIKSolver {
 
     // RightFoot
     {
-      const target = new THREE.Object3D();
-      target.name = 'RightBoneIKTarget';
+      const target = this.vrm.model.getObjectByName(PMDStandardBoneName.RightLegIK);
       const effector = this.vrm.getNodeByHumanBoneName(VRMHumanBoneName.RightFoot);
-      target.applyMatrix(effector.matrixWorld);
-      this.vrm.model.add(target);
 
       this.iks[VRMIKName.RightFoot] = {
         enabled: true,
@@ -88,11 +82,8 @@ export class VRMIKSolver {
 
     // LeftToes
     {
-      const target = new THREE.Object3D();
-      target.name = 'LeftToesIKTarget';
+      const target = this.vrm.model.getObjectByName(PMDStandardBoneName.LeftToesIK);
       const effector = this.vrm.getNodeByHumanBoneName(VRMHumanBoneName.LeftToes);
-      target.applyMatrix(effector.matrix);
-      this.iks[VRMIKName.LeftFoot].target.add(target);
 
       this.iks[VRMIKName.LeftToes] = {
         enabled: true,
@@ -116,11 +107,8 @@ export class VRMIKSolver {
 
     // RightToes
     {
-      const target = new THREE.Object3D();
-      target.name = 'RightToesIKTarget';
+      const target = this.vrm.model.getObjectByName(PMDStandardBoneName.RightToesIK);
       const effector = this.vrm.getNodeByHumanBoneName(VRMHumanBoneName.RightToes);
-      target.applyMatrix(effector.matrix);
-      this.iks[VRMIKName.RightFoot].target.add(target);
 
       this.iks[VRMIKName.RightToes] = {
         enabled: true,
