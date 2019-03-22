@@ -79,6 +79,7 @@ export class VMD {
       }
 
       if (!bone) {
+        console.warn(`VMD.toAnimationClipForVRM : Bone '${boneName}' not found.`);
         return;
       }
 
@@ -197,7 +198,7 @@ export interface VMDCamera {
 }
 
 const pmdToHuman = new Map<string, VRMHumanBoneName>([
-  [PMDStandardBoneName.Center, VRMHumanBoneName.Hips],
+  [PMDSemiStandardBoneName.Waist, VRMHumanBoneName.Hips],
   [PMDStandardBoneName.LeftLeg, VRMHumanBoneName.LeftUpperLeg],
   [PMDStandardBoneName.LeftKnee, VRMHumanBoneName.LeftLowerLeg],
   [PMDStandardBoneName.LeftAnkle, VRMHumanBoneName.LeftFoot],
