@@ -7,7 +7,9 @@
 **This package is still under development.**
 **The usage may be destructively changed.**
 
-[VRM](https://dwango.github.io/en/vrm/) file loader for three.js, written in TypeScript.
+**本パッケージは開発の途上にあるため、使用方法が大幅に変更される可能性があります。**
+
+[VRM](https://dwango.github.io/en/vrm/) file loader and utilities for three.js, written in TypeScript.
 
 [VRM](https://dwango.github.io/vrm/) 形式の 3D モデルを three.js で描画するためのパッケージです。
 
