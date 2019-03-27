@@ -184,6 +184,52 @@ export class VRM {
         groove.add(hips);
       }
 
+      // ArmTwist
+      const leftLowerArm = this.getNodeByHumanBoneName(VRMHumanBoneName.LeftLowerArm);
+      const rightLowerArm = this.getNodeByHumanBoneName(VRMHumanBoneName.RightLowerArm);
+
+      if (leftLowerArm) {
+        const armTwist1 = new THREE.Bone();
+        const armTwist2 = new THREE.Bone();
+        const armTwist3 = new THREE.Bone();
+        const armTwist = new THREE.Bone();
+        armTwist1.name = PMDSemiStandardBoneName.LeftArmTwist + '1';
+        armTwist2.name = PMDSemiStandardBoneName.LeftArmTwist + '2';
+        armTwist3.name = PMDSemiStandardBoneName.LeftArmTwist + '3';
+        armTwist.name = PMDSemiStandardBoneName.LeftArmTwist;
+        leftLowerArm.parent.add(armTwist1);
+        armTwist1.add(armTwist2.add(armTwist3.add(armTwist.add(leftLowerArm))));
+      }
+      if (rightLowerArm) {
+        const armTwist1 = new THREE.Bone();
+        const armTwist2 = new THREE.Bone();
+        const armTwist3 = new THREE.Bone();
+        const armTwist = new THREE.Bone();
+        armTwist1.name = PMDSemiStandardBoneName.RightArmTwist + '1';
+        armTwist2.name = PMDSemiStandardBoneName.RightArmTwist + '2';
+        armTwist3.name = PMDSemiStandardBoneName.RightArmTwist + '3';
+        armTwist.name = PMDSemiStandardBoneName.RightArmTwist;
+        rightLowerArm.parent.add(armTwist1);
+        armTwist1.add(armTwist2.add(armTwist3.add(armTwist.add(rightLowerArm))));
+      }
+
+      // WristTwist
+      const leftHand = this.getNodeByHumanBoneName(VRMHumanBoneName.LeftHand);
+      const rightHand = this.getNodeByHumanBoneName(VRMHumanBoneName.RightHand);
+
+      if (leftHand) {
+        const armTwist = new THREE.Bone();
+        armTwist.name = PMDSemiStandardBoneName.LeftWristTwist;
+        leftHand.parent.add(armTwist);
+        armTwist.add(leftHand);
+      }
+      if (rightHand) {
+        const armTwist = new THREE.Bone();
+        armTwist.name = PMDSemiStandardBoneName.RightWristTwist;
+        rightHand.parent.add(armTwist);
+        armTwist.add(rightHand);
+      }
+
       // IK
       const leftFootTarget = new THREE.Bone();
       leftFootTarget.name = PMDStandardBoneName.LeftLegIK;
