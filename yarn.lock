@@ -166,10 +166,10 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
-"@types/three@^0.93.19":
-  version "0.93.19"
-  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.93.19.tgz#6ab16dd9b047e3c4ba9421b590863a86445a0dc2"
-  integrity sha512-CnIJ5o+d6VoJbKE8cwFdjYlBqSRnT+Ea+dvXJYNlEtmUxrwmYimxgF8PqMV/Mk0VwAXdJI8+hm//voWd9tmn+Q==
+"@types/three@^0.93.30":
+  version "0.93.30"
+  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.93.30.tgz#a1c51cb53936e45906586bdb3bfcc4e027e40960"
+  integrity sha512-PKynehMvPQ7/Jmqnz4aFTaUHTmT2VAT8qPnHSaXq8TawXjmRIvAeI+84gsU9LwzRyMZ37z81qkJJdofjfhnysA==
 
 "@webassemblyjs/ast@1.7.11":
   version "1.7.11"
@@ -5028,20 +5028,20 @@ terser@^3.16.1:
     source-map "~0.6.1"
     source-map-support "~0.5.9"
 
-three-gltf-loader@^1.101.0:
-  version "1.101.0"
-  resolved "https://registry.yarnpkg.com/three-gltf-loader/-/three-gltf-loader-1.101.0.tgz#f6faf959e883101940052aa6930722152977f4f7"
-  integrity sha512-5wFs+46C91rnJCwZYu6T6dx2ILG6uca8SXMuRBlUeoQPXWku8tc5B7GXvh6bYQhh68gNT31AxHDwDrcAUAqooQ==
+three-gltf-loader@^1.103.0:
+  version "1.103.0"
+  resolved "https://registry.yarnpkg.com/three-gltf-loader/-/three-gltf-loader-1.103.0.tgz#e3fc84f13fa90600200a06f3260a22baeb266d41"
+  integrity sha512-jEiy8cn3L5vdMVIBAXTlHtgEMPwTpJnnAYkkqkVnCr2mn4RbbFApSuO7tC00mhq3hHcnrKKslUwHHjJ4MjDbYA==
 
-three-orbitcontrols@^2.99.1:
-  version "2.101.1"
-  resolved "https://registry.yarnpkg.com/three-orbitcontrols/-/three-orbitcontrols-2.101.1.tgz#5361507eb78b1c509b26a90489456a35a923ec26"
-  integrity sha512-GnTQGh0ULrnCae5doq+AoEnfRvZ5iW46wuYUwwdLpFSufmAa4ar4XGHYdGNIixYSdCGPokmPXLaqf+IaYHlAvg==
+three-orbitcontrols@^2.102.1:
+  version "2.102.1"
+  resolved "https://registry.yarnpkg.com/three-orbitcontrols/-/three-orbitcontrols-2.102.1.tgz#f4071e79f1c12e2b7668992cb06cfa29a816629d"
+  integrity sha512-mp5qc5mooCtjgSloMFzIEI2VQVkvBDWDMYtbxY3TFB/BCCYpR6NV7/dD5+EUyzR90/a9H356s9QR+2PhH48f6w==
 
-three@^0.101.1:
-  version "0.101.1"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.101.1.tgz#e7681ef52f4e572cb84f307f16f540c457030ec6"
-  integrity sha512-8ufimUVmRLtH+BTpEIbDjdGEKQOVWLMLgGynaKin1KbYTE136ZNOepJ8EgByi0tN43dQ7B1YrKLCJgXGy4bLmw==
+three@^0.103.0:
+  version "0.103.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.103.0.tgz#63b3dbccc861caad93269618061a73dadebae71b"
+  integrity sha512-4WKRHTMt96sp+lX+Hx/eHtN9CWFyejDqr1ikgxZUJIkKEHVglSE7FY8n81NC6yWXqVSjUIQQppaxsoUe26Zi9g==
 
 through2@^2.0.0:
   version "2.0.5"

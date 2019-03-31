@@ -26,7 +26,7 @@ export default class Viewer extends React.Component<Props, State> {
   private renderer: THREE.WebGLRenderer;
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
-  private controls: THREE.OrbitControls;
+  private controls: any;
   private helpers: THREE.Group;
   private skeletonHelpers: THREE.Group;
   private vrm: VRM;
@@ -200,7 +200,7 @@ export default class Viewer extends React.Component<Props, State> {
               }
 
               if (this.renderer && c === this.renderer.domElement) {
-                const size = this.renderer.getSize();
+                const size = this.renderer.getSize(new THREE.Vector2());
                 if (this.props.width !== size.width || this.props.height !== size.height) {
                   this.renderer.setSize(this.props.width, this.props.height);
                 }
@@ -336,7 +336,7 @@ export default class Viewer extends React.Component<Props, State> {
 
     this.camera = new THREE.PerspectiveCamera(50, this.props.width / this.props.height, 0.01);
 
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement) as THREE.OrbitControls;
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     (this.controls as any).screenSpacePanning = true;
     this.controls.target.set(0, 1, 0);
 
