@@ -152,11 +152,6 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
-"@types/three@^0.93.30":
-  version "0.93.30"
-  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.93.30.tgz#a1c51cb53936e45906586bdb3bfcc4e027e40960"
-  integrity sha512-PKynehMvPQ7/Jmqnz4aFTaUHTmT2VAT8qPnHSaXq8TawXjmRIvAeI+84gsU9LwzRyMZ37z81qkJJdofjfhnysA==
-
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.8.5.tgz#51b1c5fe6576a34953bf4b253df9f0d490d9e359"
