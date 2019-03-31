@@ -61,8 +61,6 @@
     "react-spinners": "^0.5.3",
     "style-loader": "^0.23.1",
     "three": "^0.103.0",
-    "three-gltf-loader": "^1.103.0",
-    "three-orbitcontrols": "^2.102.1",
     "ts-loader": "^5.3.3",
     "tslint": "^5.14.0",
     "tslint-config-prettier": "^1.17.0",
