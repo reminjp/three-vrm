@@ -1,7 +1,6 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { VRM } from '../data/VRM';
-
-const GLTFLoader = require('three-gltf-loader'); // tslint:disable-line:no-var-requires
 
 export class VRMLoader {
   private manager: THREE.LoadingManager;

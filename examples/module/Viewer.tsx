@@ -2,9 +2,8 @@ import * as React from 'react';
 import DatGui, { DatBoolean, DatButton, DatColor, DatFolder, DatNumber } from 'react-dat-gui';
 import 'react-dat-gui/build/react-dat-gui.css';
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { VMD, VRM, VRMHumanBoneName, VRMIKSolver, VRMPhysics } from '../../src';
-
-const OrbitControls = require('three-orbitcontrols'); // tslint:disable-line:no-var-requires
 
 interface Props {
   vrm?: VRM;
@@ -26,7 +25,7 @@ export default class Viewer extends React.Component<Props, State> {
   private renderer: THREE.WebGLRenderer;
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
-  private controls: any;
+  private controls: OrbitControls;
   private helpers: THREE.Group;
   private skeletonHelpers: THREE.Group;
   private vrm: VRM;

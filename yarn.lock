@@ -4961,16 +4961,6 @@ terser@^3.16.1:
     source-map "~0.6.1"
     source-map-support "~0.5.10"
 
-three-gltf-loader@^1.103.0:
-  version "1.103.0"
-  resolved "https://registry.yarnpkg.com/three-gltf-loader/-/three-gltf-loader-1.103.0.tgz#e3fc84f13fa90600200a06f3260a22baeb266d41"
-  integrity sha512-jEiy8cn3L5vdMVIBAXTlHtgEMPwTpJnnAYkkqkVnCr2mn4RbbFApSuO7tC00mhq3hHcnrKKslUwHHjJ4MjDbYA==
-
-three-orbitcontrols@^2.102.1:
-  version "2.102.1"
-  resolved "https://registry.yarnpkg.com/three-orbitcontrols/-/three-orbitcontrols-2.102.1.tgz#f4071e79f1c12e2b7668992cb06cfa29a816629d"
-  integrity sha512-mp5qc5mooCtjgSloMFzIEI2VQVkvBDWDMYtbxY3TFB/BCCYpR6NV7/dD5+EUyzR90/a9H356s9QR+2PhH48f6w==
-
 three@^0.103.0:
   version "0.103.0"
   resolved "https://registry.yarnpkg.com/three/-/three-0.103.0.tgz#63b3dbccc861caad93269618061a73dadebae71b"
