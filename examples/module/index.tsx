@@ -39,11 +39,11 @@ class App extends React.Component<{}, State> {
   public render() {
     return (
       <div style={{ width: '100vw', height: '100vh' }}>
-        <Dropzone accept=".vrm,.vmd" disableClick={true} multiple={false} onDrop={this.onDrop}>
+        <Dropzone accept=".vrm,.vmd" multiple={false} onDrop={this.onDrop}>
           {({ getRootProps }) => (
             <div {...getRootProps()} style={{ width: '100%', height: '100%', border: 'none' }}>
               <ReactResizeDetector handleWidth={true} handleHeight={true}>
-                {(width?: number, height?: number) => (
+                {({ width, height }: { width?: number; height?: number }) => (
                   <Viewer
                     vrm={this.state.vrm}
                     vmd={this.state.vmd}
