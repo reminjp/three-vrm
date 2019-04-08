@@ -105,18 +105,16 @@ export class VRM {
             object3d.geometry instanceof THREE.BufferGeometry && !!object3d.geometry.morphAttributes.position;
 
           if (Array.isArray(object3d.material)) {
-            for (let i = 0; i < object3d.material.length; ++i) {
-              const property = findMaterialProperty((object3d.material as THREE.Material[])[i]);
-              const material = new VRMShaderMaterial({ morphTargets, skinning: true });
-              material.fromMaterialProperty(property, this.textures);
-              object3d.material[i] = material;
-            }
-          } else {
-            const property = findMaterialProperty(object3d.material);
-            const material = new VRMShaderMaterial({ morphTargets, skinning: true });
-            material.fromMaterialProperty(property, this.textures);
-            object3d.material = material;
+            // GLTFLoader do not create multi-material meshes since three.js r103.
+            // cf. https://github.com/mrdoob/three.js/pull/15889
+            console.warn(`"${object3d.name}" is a multi-material mesh.`, object3d);
+            return;
           }
+
+          const property = findMaterialProperty(object3d.material);
+          const material = new VRMShaderMaterial({ morphTargets, skinning: true });
+          material.fromMaterialProperty(property, this.textures);
+          object3d.material = material;
         }
       });
     }
