@@ -130,16 +130,16 @@ const convertParameters = new Map<string, (material: VRMShaderMaterial) => void>
 
       material.uniforms.shininess = { value: 0.0 };
 
-      switch (material.userData.RenderType) {
+      switch (material.userData.RenderType.value) {
         case 'Opaque': {
-          material.defines.ALPHATEST = 0;
+          delete material.defines.ALPHATEST;
           break;
         }
         case 'Cutout': {
           break;
         }
         case 'Transparent': {
-          material.defines.ALPHATEST = 0;
+          delete material.defines.ALPHATEST;
           material.transparent = true;
           break;
         }
