@@ -112,6 +112,9 @@ export class VRM {
           }
 
           const property = findMaterialProperty(object3d.material);
+          if (property.shader === 'VRM_USE_GLTFSHADER') {
+            return;
+          }
           const material = new VRMShaderMaterial({ morphTargets, skinning: true });
           material.fromMaterialProperty(property, this.textures);
           object3d.material = material;
