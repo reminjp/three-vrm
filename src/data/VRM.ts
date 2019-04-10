@@ -100,24 +100,25 @@ export class VRM {
         );
       };
       this.model.traverse((object3d: THREE.Object3D) => {
-        if (object3d instanceof THREE.Mesh) {
+        if (object3d.type === 'Mesh' || object3d.type === 'SkinnedMesh') {
           const morphTargets =
-            object3d.geometry instanceof THREE.BufferGeometry && !!object3d.geometry.morphAttributes.position;
+            (object3d as THREE.Mesh).geometry.type === 'BufferGeometry' &&
+            !!((object3d as THREE.Mesh).geometry as THREE.BufferGeometry).morphAttributes.position;
 
-          if (Array.isArray(object3d.material)) {
+          if (Array.isArray((object3d as THREE.Mesh).material)) {
             // GLTFLoader do not create multi-material meshes since three.js r103.
             // cf. https://github.com/mrdoob/three.js/pull/15889
             console.warn(`"${object3d.name}" is a multi-material mesh.`, object3d);
             return;
           }
 
-          const property = findMaterialProperty(object3d.material);
+          const property = findMaterialProperty((object3d as THREE.Mesh).material as THREE.Material);
           if (property.shader === 'VRM_USE_GLTFSHADER') {
             return;
           }
           const material = new VRMShaderMaterial({ morphTargets, skinning: true });
           material.fromMaterialProperty(property, this.textures);
-          object3d.material = material;
+          (object3d as THREE.Mesh).material = material;
         }
       });
     }
@@ -134,12 +135,12 @@ export class VRM {
     // Create a mesh list for morphing.
     this.meshes = this.parser.json.meshes.map((): THREE.Mesh[] => []);
     this.model.traverse((object3d: THREE.Object3D) => {
-      if (object3d instanceof THREE.Mesh) {
+      if (object3d.type === 'Mesh' || object3d.type === 'SkinnedMesh') {
         // Flattened mesh node
         // https://github.com/mrdoob/three.js/issues/11944
         const node = this.parser.json.nodes.find((n: any) => n.name === object3d.name);
         if (node && node.mesh !== undefined) {
-          this.meshes[node.mesh] = [object3d];
+          this.meshes[node.mesh] = [object3d as THREE.Mesh];
           return;
         }
 
@@ -150,7 +151,7 @@ export class VRM {
         const meshIndex = this.parser.json.meshes.findIndex((e: any) => e.name === meshName);
 
         if (meshIndex !== -1) {
-          this.meshes[meshIndex][geometryIndex] = object3d;
+          this.meshes[meshIndex][geometryIndex] = object3d as THREE.Mesh;
         }
       }
     });
