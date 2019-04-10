@@ -113,6 +113,7 @@ export class VRM {
           }
 
           const property = findMaterialProperty((object3d as THREE.Mesh).material as THREE.Material);
+          object3d.renderOrder = property.renderQueue;
           if (property.shader === 'VRM_USE_GLTFSHADER') {
             return;
           }
