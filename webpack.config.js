@@ -34,6 +34,7 @@ const base = {
   },
   externals: {
     three: 'three',
+    'three/examples/jsm/loaders/GLTFLoader': 'three/examples/jsm/loaders/GLTFLoader'
   },
 };
 
@@ -47,6 +48,7 @@ module.exports = [
     },
     externals: {
       three: 'THREE',
+      'three/examples/jsm/loaders/GLTFLoader': 'THREE.GLTFLoader'
     },
   }),
 ];
