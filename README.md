@@ -1,6 +1,7 @@
 # three-vrm
 
 [![Latest NPM release][npm-badge]][npm-badge-url]
+[![Install Size][npm-size-badge]][npm-size-badge-url]
 [![License][license-badge]][license-badge-url]
 [![Build Status][travis-ci-badge]][travis-ci-badge-url]
 
@@ -193,6 +194,8 @@ Open `localhost:8080` with a browser.
 
 [npm-badge]: https://img.shields.io/npm/v/three-vrm.svg
 [npm-badge-url]: https://www.npmjs.com/package/three-vrm
+[npm-size-badge]: https://packagephobia.now.sh/badge?p=three-vrm
+[npm-size-badge-url]: https://packagephobia.now.sh/result?p=three-vrm
 [license-badge]: https://img.shields.io/npm/l/three-vrm.svg
 [license-badge-url]: ./LICENSE
 [travis-ci-badge]: https://travis-ci.org/rdrgn/three-vrm.svg?branch=master
