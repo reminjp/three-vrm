@@ -34,12 +34,14 @@ const base = {
   },
   externals: {
     three: 'three',
+    'three/examples/jsm/loaders/GLTFLoader': 'three/examples/jsm/loaders/GLTFLoader'
   },
 };
 
 module.exports = [
   base,
   webpackMerge(base, {
+    entry: path.resolve(__dirname, 'src', 'assign.ts'),
     output: {
       filename: 'index.js',
       library: '__three_vrm__',
@@ -47,6 +49,7 @@ module.exports = [
     },
     externals: {
       three: 'THREE',
+      'three/examples/jsm/loaders/GLTFLoader': 'THREE'
     },
   }),
 ];
