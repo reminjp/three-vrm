@@ -17,6 +17,7 @@ interface State {
   isBusy: boolean;
   progress: number;
   data: any;
+  wasTransformReset?: boolean;
 }
 
 export default class Viewer extends React.Component<Props, State> {
@@ -183,6 +184,11 @@ export default class Viewer extends React.Component<Props, State> {
     }
     if (prevState.data.scaleZ !== this.state.data.scaleZ) {
       this.vrm.model.scale.setZ(this.state.data.scaleZ);
+    }
+
+    if (!prevState.wasTransformReset && this.state.wasTransformReset) {
+      this.physics.reset();
+      this.setState({ wasTransformReset: false });
     }
 
     this.renderScene();
@@ -365,6 +371,7 @@ export default class Viewer extends React.Component<Props, State> {
         scaleY: 1,
         scaleZ: 1,
       },
+      wasTransformReset: true,
     });
   }
 
