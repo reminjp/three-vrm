@@ -98,6 +98,7 @@ class SpringBone {
   public bone: THREE.Bone;
 
   private initialQuaternion: THREE.Quaternion;
+  private isWorldPositionInitialized: boolean;
   private previousTailWorldPosition: THREE.Vector3;
   private currentTailWorldPosition: THREE.Vector3;
   private length: number;
@@ -109,14 +110,12 @@ class SpringBone {
 
     this.initialQuaternion = bone.quaternion.clone();
 
+    this.isWorldPositionInitialized = false;
+    this.currentTailWorldPosition = new THREE.Vector3();
+    this.previousTailWorldPosition = new THREE.Vector3();
+
     this.length = this.bone.userData[USERDATA_KEY_VRM].bone.length;
     this.boneAxis = this.bone.userData[USERDATA_KEY_VRM].bone.axis;
-
-    const childWorldPosition = this.bone.localToWorld(this.boneAxis.clone().multiplyScalar(this.length));
-    this.currentTailWorldPosition = this.group.center
-      ? this.group.center.worldToLocal(childWorldPosition)
-      : childWorldPosition;
-    this.previousTailWorldPosition = this.currentTailWorldPosition.clone();
 
     // Debug
     // const geometry = new THREE.SphereGeometry(this.group.hitRadius, 16, 16);
@@ -128,9 +127,21 @@ class SpringBone {
 
   public reset() {
     this.bone.setRotationFromQuaternion(this.initialQuaternion);
+
+    this.isWorldPositionInitialized = false;
   }
 
   public update(delta: number) {
+    if (!this.isWorldPositionInitialized) {
+      const childWorldPosition = this.bone.localToWorld(this.boneAxis.clone().multiplyScalar(this.length));
+      this.currentTailWorldPosition.copy(
+        this.group.center ? this.group.center.worldToLocal(childWorldPosition) : childWorldPosition
+      );
+      this.previousTailWorldPosition.copy(this.currentTailWorldPosition);
+
+      this.isWorldPositionInitialized = true;
+    }
+
     const previousTail = this.group.center
       ? this.group.center.localToWorld(this.previousTailWorldPosition)
       : this.previousTailWorldPosition;
