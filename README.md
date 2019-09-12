@@ -9,9 +9,11 @@
 
 **This package is deprecated.**
 **Use [@pixiv/three-vrm](https://github.com/pixiv/three-vrm) instead.**
+**(It is not compatible with our package.)**
 
 **本パッケージは開発を停止しています。**
 **[@pixiv/three-vrm](https://github.com/pixiv/three-vrm)を使用してください。**
+**(互換性はありません。)**
 
 [VRM](https://dwango.github.io/en/vrm/) file loader and utilities for three.js, written in TypeScript.
 
