@@ -1,14 +1,17 @@
-# three-vrm
+# [deprecated] three-vrm
 
+<!--
 [![Latest NPM release][npm-badge]][npm-badge-url]
 [![Install Size][npm-size-badge]][npm-size-badge-url]
 [![License][license-badge]][license-badge-url]
 [![Build Status][travis-ci-badge]][travis-ci-badge-url]
+-->
 
-**This package is still under development.**
-**The usage may be destructively changed.**
+**This package is deprecated.**
+**Use [@pixiv/three-vrm](https://github.com/pixiv/three-vrm) instead.**
 
-**本パッケージは開発の途上にあるため、使用方法が大幅に変更される可能性があります。**
+**本パッケージは開発を停止しています。**
+**[@pixiv/three-vrm](https://github.com/pixiv/three-vrm)を使用してください。**
 
 [VRM](https://dwango.github.io/en/vrm/) file loader and utilities for three.js, written in TypeScript.
 
